@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Routey Manual — How to Use Every Feature</title>
+  <meta name="description" content="The Routey manual: how to set up your master route, snap parcels with OCR, plan Today's Run, deliver and log, print reports, and hand off to a relief carrier. The full guide to V1.0 and beyond.">
+  <meta name="robots" content="index, follow">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ── Nav ──────────────────────────────────── -->
+  <div class="nav-wrap" id="navWrap">
+    <nav>
+      <a href="index.html" class="logo" aria-label="Routey home">
+        <span class="logo-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 9.5V20h5v-6h4v6h5V9.5"/></svg>
+        </span>
+        <span class="logo-text">Route<em>y</em></span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html#features">Features</a>
+        <a href="index.html#roadmap">Roadmap</a>
+        <a href="manual.html" class="active">Manual</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="https://github.com/dfakkeldy/Routey" class="nav-cta" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ── Sub-hero ─────────────────────────────── -->
+  <section class="subhero">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">Home</a> &nbsp;/&nbsp; Manual</div>
+      <h1>The Routey Manual</h1>
+      <p class="lede">
+        How to use every feature, written in carrier's terms. Routey is still being built toward
+        V1.0 — this guide describes how each feature is designed to work. Where the on-screen steps
+        or screenshots aren't finalized yet, you'll see a marked placeholder.
+      </p>
+      <div class="legend" style="margin-top:1.5rem;">
+        <span style="font-weight:600;color:var(--text);">Tags:</span>
+        <span class="legend-item"><span class="badge badge-v1">V1.0</span> iPhone</span>
+        <span class="legend-item"><span class="badge badge-v11">V1.1</span> Apple Watch</span>
+        <span class="legend-item"><span class="badge badge-v12">V1.2</span> CarPlay</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Manual body ──────────────────────────── -->
+  <section style="padding-top:2rem;">
+    <div class="container">
+      <div class="manual-layout">
+
+        <!-- TOC -->
+        <aside class="toc">
+          <div class="toc-label">Contents</div>
+          <ol>
+            <li><a href="#getting-started">Getting started</a></li>
+            <li><a href="#master-route">Building your master route</a></li>
+            <li><a href="#sort-case">The Virtual Sort Case</a></li>
+            <li><a href="#search">Morning search</a></li>
+            <li><a href="#snap">Snapping parcels</a></li>
+            <li><a href="#todays-run">Planning Today's Run</a></li>
+            <li><a href="#deliver">Delivering &amp; logging</a></li>
+            <li><a href="#followups">Follow-ups &amp; warnings</a></li>
+            <li><a href="#history">History &amp; intelligence</a></li>
+            <li><a href="#reports">Reports &amp; printing</a></li>
+            <li><a href="#handoff">Relief handoff</a></li>
+            <li><a href="#sync">Sync, backup &amp; privacy</a></li>
+            <li><a href="#watch">On your wrist</a></li>
+            <li><a href="#carplay">In the truck</a></li>
+          </ol>
+        </aside>
+
+        <!-- Sections -->
+        <div class="manual-content">
+
+          <!-- 1 -->
+          <div class="manual-section" id="getting-started">
+            <div class="sec-head"><span class="sec-num">01</span><h2>Getting started</h2><span class="badge badge-v1">V1.0</span></div>
+            <div class="prose">
+              <p>
+                Routey is built around <strong>your real master route</strong> — the sequence of
+                stops you actually drive, with every box, compartment, and quirk. The first thing
+                you'll do is get that route into the app. You have three ways, and you can mix them:
+              </p>
+              <ul>
+                <li><strong>Import a CSV</strong> — export your stops from Reminders (or a
+                  spreadsheet) and Routey builds the stop sequence and addresses from it.</li>
+                <li><strong>Photograph your sort case</strong> — Routey reads the grid of slots to
+                  bootstrap your Virtual Sort Case and help lay out community-mailbox sites.</li>
+                <li><strong>Build it by hand</strong> — add and edit stops directly. The route is
+                  always editable, because a real route never stops changing.</li>
+              </ul>
+              <div class="note">
+                <span class="note-label">Good to know</span>
+                The official tie-out sheet is a helpful reference, but Routey doesn't need it.
+                Your route in Routey becomes the living source of truth — and it can
+                <a href="#reports">regenerate a fresh tie-out sheet</a> whenever you want one.
+              </div>
+              <div class="placeholder">
+                <strong>Step-by-step &amp; screenshots coming soon.</strong> The exact import screens
+                and the first-run setup flow are still being built. This section will get a guided
+                walkthrough with pictures as V1.0 takes shape.
+              </div>
+            </div>
+          </div>
+
+          <!-- 2 -->
+          <div class="manual-section" id="master-route">
+            <div class="sec-head"><span class="sec-num">02</span><h2>Building your master route</h2><span class="badge badge-v1">V1.0</span></div>
+            <div class="prose">
+              <p>
+                Your master route is made of <strong>stops</strong> in drive order. Each stop is a
+                place you physically pull over, and it can be one of four shapes — Routey handles all
+                of them with one clean model:
+              </p>
+              <ul>
+                <li><strong>A single roadside box</strong> — one customer.</li>
+                <li><strong>A shared box</strong> — one receptacle, several customers.</li>
+                <li><strong>A cluster of roadside boxes</strong> — several boxes at one pull-over,
+                  with the customers' doors often located elsewhere.</li>
+                <li><strong>A community mailbox</strong> — a site with modules and
+                  compartments, parcel lockers, and the occasional <span class="data">CLOSED</span>
+                  insert.</li>
+              </ul>
+              <p>
+                Stops carry their <strong>tie-out code</strong> (like <span class="data">33</span> or
+                <span class="data">20</span>), an optional nickname you actually use
+                ("Cornerstore", "The Manor"), and any notes. Addresses are kept separate from the box
+                that serves them, so a seniors' complex where everyone shares one civic number is
+                disambiguated by occupant name — not crammed into one line.
+              </p>
+              <div class="note accent">
+                <span class="note-label">Why it's built this way</span>
+                Separating the <strong>receptacle</strong> (the box) from the <strong>address</strong>
+                (the customer and their door) is what lets Routey capture shared boxes, clustered RMBs,
+                and community mailbox compartments without special cases. See the
+                <a href="index.html#model">data model on the home page</a>.
+              </div>
+              <div class="placeholder">
+                <strong>Editing screens in progress.</strong> Detailed walkthroughs for adding a community mailbox
+                site, splitting a shared box, and reordering stops will appear here with screenshots.
+              </div>
+            </div>
+          </div>
+
+          <!-- 3 -->
+          <div class="manual-section" id="sort-case">
+            <div class="sec-head"><span class="sec-num">03</span><h2>The Virtual Sort Case</h2><span class="badge badge-v1">V1.0</span></div>
+            <div class="prose">
+              <p>
+                The Virtual Sort Case is an on-screen mirror of your physical case — the same slots,
+                in the same order, labelled by <strong>civic number and tie-out</strong>. Each slot
+                maps to a delivery point, so a shared slot shows <em>all</em> the civic numbers it
+                serves at a glance.
+              </p>
+              <ul>
+                <li>Add <strong>colour flags</strong> and <strong>notes</strong> to any slot — the
+                  digital replacement for the sticky notes stuck to your case.</li>
+                <li>Search jumps straight to a slot; shared slots disambiguate by showing every
+                  address.</li>
+                <li>Worn case strips? Routey can print fresh ones — see <a href="#reports">Reports</a>.</li>
+              </ul>
+              <div class="placeholder">
+                <strong>Layout &amp; flag UI being finalized.</strong> How slots are arranged on
+                screen and how you attach flags is still settling. Walkthrough and screenshots to come.
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 -->
+          <div class="manual-section" id="search">
+            <div class="sec-head"><span class="sec-num">04</span><h2>Morning search — "is it on my route?"</h2><span class="badge badge-v1">V1.0</span></div>
+            <div class="prose">
+              <p>
+                As you sort, you'll constantly want two answers: <strong>is this on my route?</strong>
+                and <strong>where does it go?</strong> Type a civic number and Routey answers
+                instantly — no spinners, filtering as you type.
+              </p>
+              <p>A result shows you, at a glance:</p>
+              <ul>
+                <li>The stop nickname or site, and the module / compartment / box it belongs to.</li>
+                <li>The door location, if it differs from the box.</li>
+                <li>Any tags — <span class="data">dog</span>, <span class="data">no-flyers</span>,
+                  <span class="data">signature</span>, and so on.</li>
+              </ul>
+              <div class="note">
+                <span class="note-label">Speed by design</span>
+                Search is powered by an on-device full-text index, so it keeps up with the pace you
+                sort at — even with no signal.
+              </div>
+            </div>
+          </div>
+
+          <!-- 5 -->
+          <div class="manual-section" id="snap">
+            <div class="sec-head"><span class="sec-num">05</span><h2>Snapping parcels (OCR)</h2><span class="badge badge-v1">V1.0</span></div>
+            <div class="prose">
+              <p>
+                This is the one nobody else does. Point your camera at a parcel label and Routey
+                reads it <strong>on-device</strong> — address, recipient name, and keywords like
+                <span class="data">SIGNATURE</span> or customs — then matches it to your route and
+                drops the parcel onto the right address <strong>in delivery order</strong>.
+              </p>
+              <p>What happens after a snap depends on how confident the match is:</p>
+              <ul>
+                <li><strong>Confident match</strong> → the parcel is added automatically, with a quick
+                  undo toast in case it's wrong.</li>
+                <li><strong>A few candidates</strong> → Routey shows a short list (with the raw label
+                  text and the differing field highlighted) so you tap the right one.</li>
+                <li><strong>Low confidence</strong> → it falls back to predictive search so you can
+                  find it by hand in a second.</li>
+              </ul>
+              <p>
+                A barcode on the same label is read as a cross-check. Signature and customs parcels
+                are flagged and tallied into a running <strong>"Today: N signatures"</strong> count,
+                so you know what's coming before you even organize the truck.
+              </p>
+              <div class="note accent">
+                <span class="note-label">Why the number matters</span>
+                A confidently-read civic number is decisive — "12 Main" will never be matched to
+                "21 Main". When a number is shared across many units, the recipient's
+                <strong>name</strong> on the label breaks the tie.
+              </div>
+              <div class="placeholder">
+                <strong>Capture screen &amp; confirm flow in progress.</strong> The live camera UI,
+                the disambiguation list, and the signature counter will be shown here with images as
+                they're finished.
+              </div>
+            </div>
+          </div>
+
+          <!-- 6 -->
+          <div class="manual-section" id="todays-run">
+            <div class="sec-head"><span class="sec-num">06</span><h2>Planning Today's Run</h2><span class="badge badge-v1">V1.0</span></div>
+            <div class="prose">
+              <p>
+                Each day Routey generates <strong>Today's Run</strong> — a working copy of your
+                route for that date, with its own check-off state. It's yours to shape before you
+                pull out:
+              </p>
+              <ul>
+                <li><strong>Reorder</strong> by dragging — for construction, weather, or to fit a
+                  door visit in "when nearest". Optionally promote a change to your master route if
+                  it's permanent.</li>
+                <li><strong>Filter the view</strong> — full route, no-flyers + parcels, just today's
+                  parcels, or just signatures.</li>
+                <li><strong>Roll-ups</strong> at cluster and community mailbox stops show parcels per module and
+                  flyers per module, so you load the truck right.</li>
+              </ul>
+              <div class="note">
+                <span class="note-label">One day, one device</span>
+                Today's Run is a single-device working instance — it avoids the merge hazards of two
+                phones reordering the same day. Your master route still syncs across all your devices
+                normally.
+              </div>
+            </div>
+          </div>
+
+          <!-- 7 -->
+          <div class="manual-section" id="deliver">
+            <div class="sec-head"><span class="sec-num">07</span><h2>Delivering &amp; logging</h2><span class="badge badge-v1">V1.0</span></div>
+            <div class="prose">
+              <p>
+                On route, your <strong>next stop</strong> is front and centre. At a cluster or community mailbox you
+                expand to the delivery points and handle mail and parcels — box versus door. Logging
+                an outcome is one tap, and it records GPS, a timestamp, and an optional photo:
+              </p>
+              <ul>
+                <li>Delivered</li>
+                <li>Safedrop</li>
+                <li>Mailbox</li>
+                <li>In person</li>
+                <li>Not home — carded</li>
+                <li>Left at door</li>
+                <li>Next day</li>
+              </ul>
+              <p>
+                Finished a stretch all at once? <strong>Tap the last stop</strong> to bulk check-off
+                every stop before it — handy when you've cleared a whole road.
+              </p>
+              <div class="note warn">
+                <span class="note-label">Works with no signal</span>
+                Photos and outcomes are stored locally the instant you tap — they don't hang waiting
+                for a tower, and they don't vanish when you drive off.
+              </div>
+            </div>
+          </div>
+
+          <!-- 8 -->
+          <div class="manual-section" id="followups">
+            <div class="sec-head"><span class="sec-num">08</span><h2>Follow-ups &amp; warnings</h2><span class="badge badge-v1">V1.0</span></div>
+            <div class="prose">
+              <p>
+                Some things can't be finished at the door. If a signature parcel needs a notice card
+                dropped in a compartment, logging the failed attempt <strong>spawns a follow-up
+                task</strong> that surfaces at the right community mailbox stop later in your run — so you don't
+                forget to slip the card in <span class="data">M2-C7</span>.
+              </p>
+              <p>
+                <strong>Warning tags</strong> like <span class="data">dog</span> and
+                <span class="data">scary-dog</span> surface automatically — when that stop comes up,
+                and when you scan a parcel for that address. No more learning about the dog the hard way.
+              </p>
+            </div>
+          </div>
+
+          <!-- 9 -->
+          <div class="manual-section" id="history">
+            <div class="sec-head"><span class="sec-num">09</span><h2>History &amp; Delivery Intelligence</h2><span class="badge badge-v1">V1.0</span></div>
+            <div class="prose">
+              <p>
+                At the end of the day, Today's Run is archived into <strong>History</strong>, and a
+                fresh run generates for tomorrow. History is fully searchable:
+              </p>
+              <ul>
+                <li>Find any past delivery by <strong>address, date, tag, or photo</strong>.</li>
+                <li>One-tap filters for flags and dog warnings.</li>
+                <li>Answer "did I deliver it, and when?" in seconds.</li>
+              </ul>
+              <div class="note">
+                <span class="note-label">Turns the past into a heads-up</span>
+                Because history is indexed, scanning a label can warn you about an address before you
+                get there — the route teaches you as you go.
+              </div>
+            </div>
+          </div>
+
+          <!-- 10 -->
+          <div class="manual-section" id="reports">
+            <div class="sec-head"><span class="sec-num">10</span><h2>Reports &amp; printing</h2><span class="badge badge-v1">V1.0</span></div>
+            <div class="prose">
+              <p>
+                Routey can regenerate the paper artifacts the office never keeps current. Each is a
+                formatted PDF you can save, share, or send straight to <strong>AirPrint</strong>:
+              </p>
+              <ul>
+                <li><strong>Tie-out sheet</strong> — your whole route in delivery order.</li>
+                <li><strong>Case strips</strong> — printable slot labels to replace worn ones.</li>
+                <li><strong>Filtered lists</strong> — e.g. every <span class="data">no-flyers</span>
+                  stop, or all parcels delivered on a given date.</li>
+              </ul>
+              <div class="placeholder">
+                <strong>Report layouts being designed.</strong> Sample PDFs and the print/share steps
+                will be added here once the report templates are locked.
+              </div>
+            </div>
+          </div>
+
+          <!-- 11 -->
+          <div class="manual-section" id="handoff">
+            <div class="sec-head"><span class="sec-num">11</span><h2>Relief handoff (encrypted <span class="data">.routey</span>)</h2><span class="badge badge-v1">V1.0</span></div>
+            <div class="prose">
+              <p>
+                When someone covers your route, they shouldn't have to relearn every quirk. Routey
+                exports your whole route — stops, slots, tags, dog warnings, notes — as a single
+                <strong>encrypted <span class="data">.routey</span> file</strong>.
+              </p>
+              <ol>
+                <li>Choose <strong>Export route</strong> and set a passphrase.</li>
+                <li>Send the file however you like — AirDrop, Files, or email.</li>
+                <li>The relief carrier opens it in Routey and enters the passphrase.</li>
+                <li>It imports <strong>read-only ("borrowed")</strong> so your master stays separate.</li>
+              </ol>
+              <div class="note accent">
+                <span class="note-label">Encrypted, not shared</span>
+                The file is locked with strong encryption tied to your passphrase. A wrong passphrase
+                simply fails to open — there's no copy on any server, and nothing is shared through
+                the cloud. This file is the <em>only</em> way a route leaves your device.
+              </div>
+              <div class="placeholder">
+                <strong>Export/import screens in progress.</strong> The passphrase prompt and the
+                borrowed-route view will be shown here with screenshots.
+              </div>
+            </div>
+          </div>
+
+          <!-- 12 -->
+          <div class="manual-section" id="sync">
+            <div class="sec-head"><span class="sec-num">12</span><h2>Sync, backup &amp; privacy</h2><span class="badge badge-v1">V1.0</span></div>
+            <div class="prose">
+              <p>
+                Your phone holds the real copy of your route — Routey is <strong>offline-first</strong>,
+                so every feature works in a dead zone and nothing waits on a tower. When you're back
+                in range, your <strong>own private iCloud</strong> quietly backs it up and keeps your
+                devices in step.
+              </p>
+              <ul>
+                <li>No Routey server — your data syncs through <em>your</em> private iCloud database.</li>
+                <li>No account to create. No tracking, no analytics SDKs.</li>
+                <li>A quiet sync status keeps you informed without ever blocking the screen.</li>
+              </ul>
+              <p>Full details are in the <a href="privacy.html">Privacy Policy</a>.</p>
+            </div>
+          </div>
+
+          <!-- 13 -->
+          <div class="manual-section" id="watch">
+            <div class="sec-head"><span class="sec-num">13</span><h2>On your wrist (Apple Watch)</h2><span class="badge badge-v11">V1.1</span></div>
+            <div class="prose">
+              <p>
+                The watch companion mirrors the part of Today's Run you need with your hands full:
+              </p>
+              <ul>
+                <li>Your <strong>next stop</strong>, front and centre.</li>
+                <li><strong>Dog and warning alerts</strong> as the stop comes up.</li>
+                <li><strong>One tap</strong> to log a delivery, with GPS and timestamp.</li>
+                <li><strong>Auto-advance</strong> to the next parcel.</li>
+              </ul>
+              <div class="placeholder">
+                <strong>Planned for V1.1.</strong> The watch app is designed in now and built next.
+                Setup and pairing steps will appear here when it ships.
+              </div>
+            </div>
+          </div>
+
+          <!-- 14 -->
+          <div class="manual-section" id="carplay">
+            <div class="sec-head"><span class="sec-num">14</span><h2>In the truck (CarPlay)</h2><span class="badge badge-v12">V1.2</span></div>
+            <div class="prose">
+              <p>
+                CarPlay brings turn-by-turn guidance to your vehicle's built-in display — stop to
+                stop, in delivery order. View the full route or just today's parcels, and drive an
+                unfamiliar route like you've run it for years.
+              </p>
+              <div class="placeholder">
+                <strong>Planned for V1.2.</strong> Per-stop GPS is captured now so navigation is ready
+                later. The in-dash screens and setup will be documented here when CarPlay lands.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA strip ────────────────────────────── -->
+  <section class="cta">
+    <div class="container">
+      <span class="section-label" style="justify-content:center; display:inline-flex;">Follow Along</span>
+      <h2>This manual grows with the app.</h2>
+      <p>
+        Routey is built and tested on a live rural route. Star the project to watch features — and
+        these pages — fill in toward V1.0.
+      </p>
+      <div class="btn-row">
+        <a href="https://github.com/dfakkeldy/Routey" class="btn btn-primary" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Star on GitHub
+        </a>
+        <a href="index.html#roadmap" class="btn btn-ghost">See the roadmap →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ───────────────────────────────── -->
+  <footer>
+    <div class="footer-cols">
+      <div class="footer-brand">
+        <a href="index.html" class="logo" aria-label="Routey home">
+          <span class="logo-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 9.5V20h5v-6h4v6h5V9.5"/></svg>
+          </span>
+          <span class="logo-text">Route<em>y</em></span>
+        </a>
+        <p>The offline-first delivery companion for rural mail carriers. Built in rural Canada.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#roadmap">Roadmap</a>
+        <a href="index.html#model">Data model</a>
+        <a href="index.html#story">Story</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="manual.html">Manual</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="license.html">License</a>
+        <a href="https://github.com/dfakkeldy/Routey" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
+      <div class="footer-col">
+        <h4>Project</h4>
+        <a href="https://github.com/dfakkeldy/Routey" target="_blank" rel="noopener">Source code</a>
+        <a href="https://github.com/dfakkeldy/Routey/issues" target="_blank" rel="noopener">Report an issue</a>
+        <a href="license.html">GPL-3.0 + exception</a>
+      </div>
+    </div>
+    <div class="footer-inner">
+      <p><strong style="color: var(--text);">Routey</strong> · Free &amp; open source · Building toward V1.0</p>
+      <p>© 2026 Dan Fakkeldy</p>
+    </div>
+    <p class="footer-disclaimer">
+      Routey is an independent project and is not affiliated with, endorsed by, or sponsored by
+      any postal or delivery service. Apple, CarPlay, and Apple Watch are
+      trademarks of Apple Inc. All product names, logos, and brands are property of their respective owners.
+    </p>
+  </footer>
+
+  <script>
+    const navWrap = document.getElementById("navWrap");
+    addEventListener("scroll", () => {
+      navWrap.classList.toggle("scrolled", scrollY > 8);
+    }, { passive: true });
+  </script>
+
+</body>
+</html>

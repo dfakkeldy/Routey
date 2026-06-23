@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>License — Routey</title>
+  <meta name="description" content="Routey is free and open-source software under the GNU GPL v3, with an App Store Distribution Exception that resolves the GPL-vs-App-Store incompatibility. Here's what that means, in plain English.">
+  <meta name="robots" content="index, follow">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ── Nav ──────────────────────────────────── -->
+  <div class="nav-wrap" id="navWrap">
+    <nav>
+      <a href="index.html" class="logo" aria-label="Routey home">
+        <span class="logo-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 9.5V20h5v-6h4v6h5V9.5"/></svg>
+        </span>
+        <span class="logo-text">Route<em>y</em></span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html#features">Features</a>
+        <a href="index.html#roadmap">Roadmap</a>
+        <a href="manual.html">Manual</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="https://github.com/dfakkeldy/Routey" class="nav-cta" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ── Sub-hero ─────────────────────────────── -->
+  <section class="subhero">
+    <div class="container-narrow">
+      <div class="breadcrumb"><a href="index.html">Home</a> &nbsp;/&nbsp; License</div>
+      <h1>License</h1>
+      <p class="lede">
+        Routey is <strong>free and open-source software</strong>. You can read every line, build it
+        yourself, and share it — and any version you pass on stays open too.
+      </p>
+      <p class="meta">
+        GPL-3.0-or-later · with an App Store Distribution Exception · © 2026 Dan Fakkeldy
+      </p>
+    </div>
+  </section>
+
+  <!-- ── Body ─────────────────────────────────── -->
+  <section style="padding-top:1rem;">
+    <div class="container-narrow">
+
+      <div class="note accent" style="margin-bottom:2.5rem;">
+        <span class="note-label">In a nutshell</span>
+        Routey is licensed under the <strong>GNU General Public License, version 3 or later</strong>.
+        A special <strong>App Store Distribution Exception</strong> lets it be shipped through Apple's
+        App Store without giving up its open-source guarantees — as long as the full source stays
+        public under the GPL.
+      </div>
+
+      <div class="prose">
+        <h2>What the GPL-3.0 gives you</h2>
+        <p>As a user and a developer, the GPL guarantees four freedoms:</p>
+        <ul>
+          <li><strong>Use</strong> Routey for any purpose.</li>
+          <li><strong>Study</strong> how it works — the complete source code is public.</li>
+          <li><strong>Share</strong> copies with anyone.</li>
+          <li><strong>Modify</strong> it and share your changes.</li>
+        </ul>
+        <p>
+          The GPL is a <strong>copyleft</strong> license, which adds one important condition: if you
+          distribute Routey or a modified version of it, you must do so <strong>under the GPL too</strong>,
+          and make the corresponding source available. In other words, the software stays free for
+          everyone downstream — nobody can take it closed-source.
+        </p>
+
+        <h2>Why there's an App Store Exception</h2>
+        <p>
+          There's a well-known tension between the GPL and app stores. Apple's App Store imposes terms
+          the GPL doesn't allow on their own — you must accept Apple's Terms of Service, there are
+          limits on the number of devices, and apps are wrapped in Apple's mandatory cryptographic
+          signing / DRM. Strictly applied, those terms conflict with the GPL.
+        </p>
+        <p>
+          To resolve that, the copyright holder grants an <strong>additional permission under section 7
+          of the GPL</strong> — the App Store Distribution Exception. It explicitly allows Routey to be
+          distributed through Apple's App Store (or a comparable platform), despite those platform terms.
+        </p>
+        <p>This does <strong>not</strong> make Routey any less free. The exception applies only if:</p>
+        <ol>
+          <li>The <strong>complete corresponding source</strong> of the distributed version is also
+            available to everyone under the GPL, through a channel without those restrictions — namely
+            the public repository at
+            <a href="https://github.com/dfakkeldy/Routey" target="_blank" rel="noopener">github.com/dfakkeldy/Routey</a>; and</li>
+          <li>You are the <strong>copyright holder</strong> of the code you distribute, or have the
+            copyright holder's permission to grant the exception for it.</li>
+        </ol>
+
+        <h2>What this means in practice</h2>
+        <ul>
+          <li><strong>Carriers:</strong> use the app freely. If it's offered on the App Store, that's
+            fully above-board — and the source is always here for you to inspect.</li>
+          <li><strong>Tinkerers:</strong> clone the repo, build it, change it, run it on your own
+            devices. No restrictions for personal use.</li>
+          <li><strong>Redistributors:</strong> you may share or fork Routey, including to an app store,
+            provided your version stays under the GPL and its source stays public.</li>
+        </ul>
+
+        <div class="note">
+          <span class="note-label">A note on the name</span>
+          The "Routey" name and logo identify this project. The code is yours to fork under the GPL,
+          but please ship a substantially modified fork under your <em>own</em> name so users aren't
+          confused about which version they're running.
+        </div>
+
+        <h2>Read the full texts</h2>
+        <p>The plain-English summary above is just a guide — the licenses themselves are authoritative:</p>
+        <ul>
+          <li><a href="https://github.com/dfakkeldy/Routey/blob/main/LICENSE" target="_blank" rel="noopener">LICENSE</a>
+            — the complete GNU General Public License, version 3.</li>
+          <li><a href="https://github.com/dfakkeldy/Routey/blob/main/LICENSE-APP-STORE-EXCEPTION.md" target="_blank" rel="noopener">LICENSE-APP-STORE-EXCEPTION.md</a>
+            — the App Store Distribution Exception in full.</li>
+        </ul>
+        <p>
+          For more on the GPL and how it protects software freedom, see the Free Software Foundation's
+          <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GPL-3.0 page</a>.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Footer ───────────────────────────────── -->
+  <footer>
+    <div class="footer-cols">
+      <div class="footer-brand">
+        <a href="index.html" class="logo" aria-label="Routey home">
+          <span class="logo-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 9.5V20h5v-6h4v6h5V9.5"/></svg>
+          </span>
+          <span class="logo-text">Route<em>y</em></span>
+        </a>
+        <p>The offline-first delivery companion for rural mail carriers. Built in rural Canada.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#roadmap">Roadmap</a>
+        <a href="index.html#model">Data model</a>
+        <a href="index.html#story">Story</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="manual.html">Manual</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="license.html">License</a>
+        <a href="https://github.com/dfakkeldy/Routey" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
+      <div class="footer-col">
+        <h4>Project</h4>
+        <a href="https://github.com/dfakkeldy/Routey" target="_blank" rel="noopener">Source code</a>
+        <a href="https://github.com/dfakkeldy/Routey/issues" target="_blank" rel="noopener">Report an issue</a>
+        <a href="license.html">GPL-3.0 + exception</a>
+      </div>
+    </div>
+    <div class="footer-inner">
+      <p><strong style="color: var(--text);">Routey</strong> · Free &amp; open source · Building toward V1.0</p>
+      <p>© 2026 Dan Fakkeldy</p>
+    </div>
+    <p class="footer-disclaimer">
+      Routey is an independent project and is not affiliated with, endorsed by, or sponsored by
+      any postal or delivery service. Apple, CarPlay, and Apple Watch are
+      trademarks of Apple Inc. All product names, logos, and brands are property of their respective owners.
+    </p>
+  </footer>
+
+  <script>
+    const navWrap = document.getElementById("navWrap");
+    addEventListener("scroll", () => {
+      navWrap.classList.toggle("scrolled", scrollY > 8);
+    }, { passive: true });
+  </script>
+
+</body>
+</html>

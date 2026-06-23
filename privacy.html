@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Routey</title>
+  <meta name="description" content="Routey's privacy policy. Your route data stays on your device and in your own private iCloud. No servers, no accounts, no tracking. The only way data leaves is a file you encrypt yourself.">
+  <meta name="robots" content="index, follow">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ── Nav ──────────────────────────────────── -->
+  <div class="nav-wrap" id="navWrap">
+    <nav>
+      <a href="index.html" class="logo" aria-label="Routey home">
+        <span class="logo-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 9.5V20h5v-6h4v6h5V9.5"/></svg>
+        </span>
+        <span class="logo-text">Route<em>y</em></span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html#features">Features</a>
+        <a href="index.html#roadmap">Roadmap</a>
+        <a href="manual.html">Manual</a>
+        <a href="privacy.html" class="active">Privacy</a>
+        <a href="https://github.com/dfakkeldy/Routey" class="nav-cta" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ── Sub-hero ─────────────────────────────── -->
+  <section class="subhero">
+    <div class="container-narrow">
+      <div class="breadcrumb"><a href="index.html">Home</a> &nbsp;/&nbsp; Privacy</div>
+      <h1>Privacy Policy</h1>
+      <p class="lede">
+        Routey is built around a simple idea: <strong>your route is yours</strong>. Addresses, dog
+        warnings, and customer flags are sensitive, so the app is designed to keep them with you.
+      </p>
+      <p class="meta">
+        Last updated 22 June 2026 · Describes the design of Routey V1.0 · This policy will be
+        finalized and version-stamped when the app is released.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── Body ─────────────────────────────────── -->
+  <section style="padding-top:1rem;">
+    <div class="container-narrow">
+
+      <div class="note accent" style="margin-bottom:2.5rem;">
+        <span class="note-label">The short version</span>
+        Routey has <strong>no servers and no accounts</strong>. Your route lives on your device and
+        backs up to <strong>your own private iCloud</strong>. There are no ads, no analytics, and no
+        third-party trackers. The only way your data ever leaves is a file <strong>you</strong>
+        choose to encrypt and hand to a relief carrier.
+      </div>
+
+      <div class="prose">
+        <h2>1. Who this applies to</h2>
+        <p>
+          This policy covers the <strong>Routey</strong> iOS app and its planned watchOS and CarPlay
+          companions, and this website at <code>dfakkeldy.github.io/Routey</code>. Routey is an
+          independent project created by Dan Fakkeldy. It is not affiliated with any postal
+          or delivery service, or with Apple.
+        </p>
+
+        <h2>2. What Routey stores</h2>
+        <p>To do its job, Routey keeps the information you put into it:</p>
+        <ul>
+          <li><strong>Your master route</strong> — stops, delivery points, community-mailbox
+            sites, addresses, occupant names, tie-out codes, nicknames, and tags such as
+            <code>dog</code> or <code>no-flyers</code>.</li>
+          <li><strong>Today's Run and delivery records</strong> — what you delivered, the outcome,
+            a timestamp, GPS coordinates, and an optional photo you take as proof of delivery.</li>
+          <li><strong>Notes</strong> you add to stops, slots, points, or addresses.</li>
+          <li><strong>Parcel information</strong> read from labels you scan, including any
+            signature or customs keywords.</li>
+        </ul>
+        <p>
+          Routey does <strong>not</strong> ask for your name, email, phone number, or any account
+          credentials. There is nothing to sign up for.
+        </p>
+
+        <h2>3. Where your data is stored</h2>
+        <p>
+          Your phone is the <strong>source of truth</strong>. Routey is offline-first: everything is
+          stored in a local database on your device, and every feature works with no signal at all.
+        </p>
+        <p>
+          For backup and to keep your own devices in step, Routey syncs through your
+          <strong>private iCloud database</strong> — the same personal iCloud your other apps use,
+          tied to your Apple Account. This data is stored in your private iCloud space, governed by
+          <a href="https://www.apple.com/legal/privacy/" target="_blank" rel="noopener">Apple's privacy
+          policy</a>. <strong>The Routey project operates no server and never receives a copy of your
+          data.</strong>
+        </p>
+        <div class="note">
+          <span class="note-label">No cloud sharing</span>
+          Routey does not use iCloud sharing or any public/shared database. Sync is to your private
+          space only.
+        </div>
+
+        <h2>4. What leaves your device — and what doesn't</h2>
+        <p>Only two things move your route data off the phone, and you control both:</p>
+        <ul>
+          <li><strong>Private iCloud sync</strong> (above) — automatic backup to your own iCloud,
+            which you can turn off in iOS Settings.</li>
+          <li><strong>An encrypted <code>.routey</code> file</strong> that you deliberately export to
+            hand a route to a relief carrier (see §7).</li>
+        </ul>
+        <p>
+          Nothing else is transmitted. Routey contains no advertising networks, no analytics or
+          crash-reporting SDKs, and no third-party trackers of any kind.
+        </p>
+
+        <h2>5. Camera &amp; photos</h2>
+        <p>
+          The camera is used to read parcel labels and sort-case grids. <strong>Optical character
+          recognition runs entirely on your device</strong> using Apple's on-device Vision framework
+          — label images are processed locally and are not uploaded anywhere.
+        </p>
+        <p>
+          Proof-of-delivery photos you choose to take are stored as files on your device (and backed
+          up via your private iCloud, like the rest of your data). Routey only accesses the camera and
+          photos when you use a feature that needs them, after iOS asks your permission.
+        </p>
+
+        <h2>6. Location</h2>
+        <p>Routey uses location for two purposes, both tied to delivering the route:</p>
+        <ul>
+          <li><strong>Proof of delivery</strong> — when you log a delivery, Routey records the GPS
+            coordinates and a timestamp so you have a record of where and when.</li>
+          <li><strong>Navigation</strong> <span class="badge badge-v12">V1.2 · CarPlay</span> — for
+            turn-by-turn directions, each stop's coordinates are geocoded once when you build the
+            route, then reused. Routey does not continuously broadcast your live location to anyone.</li>
+        </ul>
+        <p>Location data is stored with your route data on your device and your private iCloud — nowhere else.</p>
+
+        <h2>7. The encrypted relief-handoff file</h2>
+        <p>
+          When you hand your route to someone covering for you, Routey exports it as a single
+          <code>.routey</code> file. That file is <strong>encrypted with a passphrase you choose</strong>,
+          using strong, industry-standard encryption (a PBKDF2 password-derived key and authenticated
+          AES-256-GCM encryption). Practically, that means:
+        </p>
+        <ul>
+          <li>The file is unreadable without the passphrase — an incorrect passphrase simply fails to open it.</li>
+          <li>You send it however you like (AirDrop, Files, email); the Routey project is never involved and never sees it.</li>
+          <li>The recipient imports it <strong>read-only</strong> ("borrowed"), so your master route stays separate.</li>
+        </ul>
+        <div class="note warn">
+          <span class="note-label">Your responsibility</span>
+          Choose a strong passphrase and share it through a separate channel from the file itself.
+          Anyone with both the file and the passphrase can read the route inside it.
+        </div>
+
+        <h2>8. Children</h2>
+        <p>
+          Routey is a professional tool for mail carriers and is not directed at children. It does not
+          knowingly collect information from anyone, of any age — there are no accounts and no data
+          collection by the project at all.
+        </p>
+
+        <h2>9. This website</h2>
+        <p>
+          This site is served as static pages from GitHub Pages. It sets no tracking cookies and runs
+          no analytics. It loads a web font from Google Fonts; your browser contacts Google's font
+          servers to fetch it, subject to
+          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's privacy
+          policy</a>. Hosting is provided by GitHub, subject to
+          <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub's
+          privacy statement</a>.
+        </p>
+
+        <h2>10. Open source — verify it yourself</h2>
+        <p>
+          You don't have to take our word for any of this. Routey is free and open-source software
+          under the GNU General Public License v3. The complete source code is public, so anyone can
+          read exactly what the app does with your data. See the
+          <a href="https://github.com/dfakkeldy/Routey" target="_blank" rel="noopener">source repository</a>
+          and the <a href="license.html">license page</a>.
+        </p>
+
+        <h2>11. Changes to this policy</h2>
+        <p>
+          Routey is in active development toward V1.0, so this policy may change as features are
+          finished. Any material change will be reflected here with an updated date, and the final
+          policy will be in place when the app is released.
+        </p>
+
+        <h2>12. Contact</h2>
+        <p>
+          Questions about privacy? Open an issue on the
+          <a href="https://github.com/dfakkeldy/Routey/issues" target="_blank" rel="noopener">project's
+          GitHub</a> and we'll respond there.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Footer ───────────────────────────────── -->
+  <footer>
+    <div class="footer-cols">
+      <div class="footer-brand">
+        <a href="index.html" class="logo" aria-label="Routey home">
+          <span class="logo-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 9.5V20h5v-6h4v6h5V9.5"/></svg>
+          </span>
+          <span class="logo-text">Route<em>y</em></span>
+        </a>
+        <p>The offline-first delivery companion for rural mail carriers. Built in rural Canada.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#roadmap">Roadmap</a>
+        <a href="index.html#model">Data model</a>
+        <a href="index.html#story">Story</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="manual.html">Manual</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="license.html">License</a>
+        <a href="https://github.com/dfakkeldy/Routey" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
+      <div class="footer-col">
+        <h4>Project</h4>
+        <a href="https://github.com/dfakkeldy/Routey" target="_blank" rel="noopener">Source code</a>
+        <a href="https://github.com/dfakkeldy/Routey/issues" target="_blank" rel="noopener">Report an issue</a>
+        <a href="license.html">GPL-3.0 + exception</a>
+      </div>
+    </div>
+    <div class="footer-inner">
+      <p><strong style="color: var(--text);">Routey</strong> · Free &amp; open source · Building toward V1.0</p>
+      <p>© 2026 Dan Fakkeldy</p>
+    </div>
+    <p class="footer-disclaimer">
+      Routey is an independent project and is not affiliated with, endorsed by, or sponsored by
+      any postal or delivery service. Apple, CarPlay, and Apple Watch are
+      trademarks of Apple Inc. All product names, logos, and brands are property of their respective owners.
+    </p>
+  </footer>
+
+  <script>
+    const navWrap = document.getElementById("navWrap");
+    addEventListener("scroll", () => {
+      navWrap.classList.toggle("scrolled", scrollY > 8);
+    }, { passive: true });
+  </script>
+
+</body>
+</html>
