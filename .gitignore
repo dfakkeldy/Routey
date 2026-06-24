@@ -2,3 +2,7 @@
 *.swp
 *.swo
 .build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+.swiftpm/
