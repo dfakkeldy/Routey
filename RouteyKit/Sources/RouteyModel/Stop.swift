@@ -2,7 +2,7 @@ import Foundation
 import SQLiteData
 
 @Table
-public struct Stop: Identifiable, Sendable {
+public struct Stop: Hashable, Identifiable, Sendable {
   public let id: UUID
   public var routeID: Route.ID
   public var tieOut = ""
