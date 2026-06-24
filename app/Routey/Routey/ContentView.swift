@@ -4,45 +4,41 @@ import RouteyModel
 
 struct ContentView: View {
   @FetchAll(Route.order { $0.name }) private var routes: [Route]
-  @Dependency(\.defaultDatabase) private var database
-  @State private var saveError: SaveError?
+  @State private var isImportingRoute = false
 
   var body: some View {
     NavigationStack {
       List(routes) { route in
-        Text(route.name.isEmpty ? "Untitled route" : route.name)
+        NavigationLink(value: route) {
+          VStack(alignment: .leading) {
+            Text(route.name.isEmpty ? "Untitled route" : route.name)
+            if !route.rtaFSA.isEmpty {
+              Text(route.rtaFSA)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
+          }
+        }
       }
       .navigationTitle("Routes (\(routes.count))")
+      .navigationDestination(for: Route.self) { route in
+        RouteStopsView(route: route)
+      }
       .toolbar {
-        Button("Add", systemImage: "plus", action: addRoute)
-      }
-      .alert(item: $saveError) { error in
-        Alert(
-          title: Text("Couldn't Save Route"),
-          message: Text(error.message),
-          dismissButton: .default(Text("OK"))
-        )
-      }
-    }
-  }
-
-  private func addRoute() {
-    do {
-      try database.write { db in
-        try Route.insert {
-          Route(name: "Route \(routes.count + 1)")
+        Button("Import", systemImage: "square.and.arrow.down") {
+          isImportingRoute = true
         }
-        .execute(db)
       }
-    } catch {
-      saveError = SaveError(message: error.localizedDescription)
+      .sheet(isPresented: $isImportingRoute) {
+        ImportRouteView()
+      }
+      .overlay {
+        if routes.isEmpty {
+          ContentUnavailableView("No Routes", systemImage: "map")
+        }
+      }
     }
   }
-}
-
-private struct SaveError: Identifiable {
-  let id = UUID()
-  var message: String
 }
 
 #Preview {

@@ -7,6 +7,8 @@ let package = Package(
   products: [
     .library(name: "RouteyModel", targets: ["RouteyModel"]),
     .library(name: "RouteyPersistence", targets: ["RouteyPersistence"]),
+    .library(name: "RouteyImport", targets: ["RouteyImport"]),
+    .library(name: "RouteyDomain", targets: ["RouteyDomain"]),
   ],
   dependencies: [
     .package(url: "https://github.com/pointfreeco/sqlite-data", exact: "1.6.6"),
@@ -23,9 +25,32 @@ let package = Package(
         .product(name: "SQLiteData", package: "sqlite-data"),
       ]
     ),
+    .target(name: "RouteyImport"),
+    .target(
+      name: "RouteyDomain",
+      dependencies: [
+        "RouteyModel",
+        "RouteyImport",
+        .product(name: "SQLiteData", package: "sqlite-data"),
+      ]
+    ),
     .testTarget(
       name: "RouteyPersistenceTests",
       dependencies: [
+        "RouteyModel",
+        "RouteyPersistence",
+        .product(name: "SQLiteData", package: "sqlite-data"),
+      ]
+    ),
+    .testTarget(
+      name: "RouteyImportTests",
+      dependencies: ["RouteyImport"]
+    ),
+    .testTarget(
+      name: "RouteyDomainTests",
+      dependencies: [
+        "RouteyDomain",
+        "RouteyImport",
         "RouteyModel",
         "RouteyPersistence",
         .product(name: "SQLiteData", package: "sqlite-data"),

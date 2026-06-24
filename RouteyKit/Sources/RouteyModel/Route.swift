@@ -2,7 +2,7 @@ import Foundation
 import SQLiteData
 
 @Table
-public struct Route: Identifiable, Sendable {
+public struct Route: Hashable, Identifiable, Sendable {
   public let id: UUID
   public var name = ""
   public var rtaFSA = ""
