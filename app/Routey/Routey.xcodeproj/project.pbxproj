@@ -11,6 +11,7 @@
 		CC0ED0072FEC8F8F0021BE3D /* RouteyPersistence in Frameworks */ = {isa = PBXBuildFile; productRef = CC0ED0062FEC8F8F0021BE3D /* RouteyPersistence */; };
 		CC0ED0092FEC9A010021BE3D /* RouteyImport in Frameworks */ = {isa = PBXBuildFile; productRef = CC0ED0082FEC9A010021BE3D /* RouteyImport */; };
 		CC0ED00B2FEC9A010021BE3D /* RouteyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = CC0ED00A2FEC9A010021BE3D /* RouteyDomain */; };
+		CC0ED00D2FEC9A010021BE3D /* RouteySearch in Frameworks */ = {isa = PBXBuildFile; productRef = CC0ED00C2FEC9A010021BE3D /* RouteySearch */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +48,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CC0ED00B2FEC9A010021BE3D /* RouteyDomain in Frameworks */,
+				CC0ED00D2FEC9A010021BE3D /* RouteySearch in Frameworks */,
 				CC0ED0092FEC9A010021BE3D /* RouteyImport in Frameworks */,
 				CC0ED0072FEC8F8F0021BE3D /* RouteyPersistence in Frameworks */,
 				CC0ED0052FEC8F8F0021BE3D /* RouteyModel in Frameworks */,
@@ -105,6 +107,7 @@
 				CC0ED0062FEC8F8F0021BE3D /* RouteyPersistence */,
 				CC0ED0082FEC9A010021BE3D /* RouteyImport */,
 				CC0ED00A2FEC9A010021BE3D /* RouteyDomain */,
+				CC0ED00C2FEC9A010021BE3D /* RouteySearch */,
 			);
 			productName = Routey;
 			productReference = CC0ECFD92FEC8ED30021BE3D /* Routey.app */;
@@ -504,6 +507,10 @@
 		CC0ED00A2FEC9A010021BE3D /* RouteyDomain */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = RouteyDomain;
+		};
+		CC0ED00C2FEC9A010021BE3D /* RouteySearch */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = RouteySearch;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

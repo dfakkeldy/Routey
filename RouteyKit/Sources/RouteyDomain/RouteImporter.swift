@@ -2,6 +2,7 @@ import Foundation
 import SQLiteData
 import RouteyImport
 import RouteyModel
+import RouteySearch
 
 public enum RouteImporter {
   public static func importRoute(
@@ -62,6 +63,9 @@ public enum RouteImporter {
         }
         .execute(db)
       }
+
+      try SearchIndex.install(db)
+      try SearchIndex.rebuild(from: db)
     }
 
     return ImportSummary(routeID: routeID, stopsCreated: result.stops.count, skipped: result.skipped)

@@ -3,6 +3,7 @@ import SQLiteData
 import Testing
 import RouteyImport
 import RouteyModel
+import RouteySearch
 @testable import RouteyDomain
 @testable import RouteyPersistence
 
@@ -54,5 +55,22 @@ import RouteyModel
     #expect(summary.stopsCreated == 1)
     #expect(summary.skipped.count == 1)
     #expect(summary.skipped[0].reason == "no civic number or street")
+  }
+
+  @Test func importedRouteIsImmediatelySearchable() throws {
+    let database = try freshDB()
+    try database.write { db in
+      try SearchIndex.install(db)
+    }
+
+    let parsed = RouteParser.parse("10100 County Rd 12\n")
+
+    _ = try RouteImporter.importRoute(named: "Riverbend", from: parsed, into: database)
+
+    let hits = try database.read { db in
+      try SearchIndex.match("10100", in: db)
+    }
+
+    #expect(hits.count == 1)
   }
 }

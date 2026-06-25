@@ -1,13 +1,13 @@
 import SQLiteData
 import SwiftUI
-import RouteyPersistence
 
 @main
 struct RouteyApp: App {
   init() {
     do {
+      let database = try routeyDatabase()
       try prepareDependencies {
-        $0.defaultDatabase = try appDatabase()
+        $0.defaultDatabase = database
       }
     } catch {
       fatalError("Failed to open Routey database: \(error)")

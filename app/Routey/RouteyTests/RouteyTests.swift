@@ -2,7 +2,8 @@ import Testing
 @testable import Routey
 
 struct RouteyTests {
-  @Test func routeyTestTargetLoads() {
+  @Test func routeyDatabaseBootstrapLoads() throws {
+    _ = try routeyDatabase()
     #expect(true)
   }
 }
