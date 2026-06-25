@@ -92,5 +92,9 @@ import RouteyModel
     #expect(hit.compartmentLabel == "M1-3")
     #expect(hit.sharedCivics == [1286])
     #expect(hit.tagNames.contains("dog"))
+
+    let tag = try #require(hit.tags.first)
+    #expect(tag.name == "dog")
+    #expect(tag.isWarning)
   }
 }

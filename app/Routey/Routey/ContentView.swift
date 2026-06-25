@@ -24,7 +24,17 @@ struct ContentView: View {
       .navigationDestination(for: Route.self) { route in
         RouteStopsView(route: route)
       }
+      .navigationDestination(for: ContentDestination.self) { destination in
+        switch destination {
+        case .search:
+          SearchView()
+        }
+      }
       .toolbar {
+        NavigationLink(value: ContentDestination.search) {
+          Label("Search", systemImage: "magnifyingglass")
+        }
+
         Button("Import", systemImage: "square.and.arrow.down") {
           isImportingRoute = true
         }
@@ -39,6 +49,10 @@ struct ContentView: View {
       }
     }
   }
+}
+
+private enum ContentDestination: Hashable {
+  case search
 }
 
 #Preview {

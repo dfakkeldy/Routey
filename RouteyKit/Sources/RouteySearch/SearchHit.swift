@@ -8,7 +8,11 @@ public struct SearchHit: Equatable, Sendable {
   public var moduleName: String?
   public var compartmentLabel: String?
   public var sharedCivics: [Int]
-  public var tagNames: [String]
+  public var tags: [SearchTag]
+
+  public var tagNames: [String] {
+    tags.map(\.name)
+  }
 
   public init(
     address: Address,
@@ -17,7 +21,7 @@ public struct SearchHit: Equatable, Sendable {
     moduleName: String?,
     compartmentLabel: String?,
     sharedCivics: [Int],
-    tagNames: [String]
+    tags: [SearchTag]
   ) {
     self.address = address
     self.stopNickname = stopNickname
@@ -25,6 +29,6 @@ public struct SearchHit: Equatable, Sendable {
     self.moduleName = moduleName
     self.compartmentLabel = compartmentLabel
     self.sharedCivics = sharedCivics
-    self.tagNames = tagNames
+    self.tags = tags
   }
 }

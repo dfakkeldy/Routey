@@ -47,7 +47,7 @@ public struct SearchService {
       moduleName: module?.name,
       compartmentLabel: deliveryPoint.label.isEmpty ? nil : deliveryPoint.label,
       sharedCivics: try sharedCivics(for: addressID, deliveryPointID: deliveryPoint.id, in: db),
-      tagNames: try tagNames(for: addressID, in: db)
+      tags: try tags(for: addressID, in: db)
     )
   }
 
@@ -66,18 +66,18 @@ public struct SearchService {
     return civics.sorted()
   }
 
-  private func tagNames(for addressID: UUID, in db: Database) throws -> [String] {
+  private func tags(for addressID: UUID, in db: Database) throws -> [SearchTag] {
     let links = try AddressTag
       .where { $0.addressID.eq(#bind(addressID)) }
       .fetchAll(db)
 
-    var names = [String]()
+    var tags = [SearchTag]()
     for link in links {
       if let tag = try Tag.find(link.tagID).fetchOne(db) {
-        names.append(tag.name)
+        tags.append(SearchTag(id: tag.id, name: tag.name, isWarning: tag.isWarning))
       }
     }
 
-    return names.sorted()
+    return tags.sorted { $0.name < $1.name }
   }
 }
