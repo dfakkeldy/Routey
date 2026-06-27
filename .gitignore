@@ -7,6 +7,10 @@ DerivedData/
 xcuserdata/
 .swiftpm/
 
+# Python
+__pycache__/
+*.pyc
+
 # Fastlane credentials and generated output
 .env
 .env.*
