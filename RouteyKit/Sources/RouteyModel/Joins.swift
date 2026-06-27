@@ -3,7 +3,7 @@ import SQLiteData
 
 // Shared boxes/compartments: one DeliveryPoint serves many Addresses (many-to-many).
 @Table
-public struct DeliveryPointAddress: Identifiable, Sendable {
+public nonisolated struct DeliveryPointAddress: Identifiable, Sendable {
   public let id: UUID
   public var deliveryPointID: DeliveryPoint.ID
   public var addressID: Address.ID
@@ -14,7 +14,7 @@ public struct DeliveryPointAddress: Identifiable, Sendable {
 
 // Address <-> Tag (many-to-many).
 @Table
-public struct AddressTag: Identifiable, Sendable {
+public nonisolated struct AddressTag: Identifiable, Sendable {
   public let id: UUID
   public var addressID: Address.ID
   public var tagID: Tag.ID

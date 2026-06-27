@@ -7,11 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3D4C2FA5A56F2167145FB828 /* RouteyImport in Frameworks */ = {isa = PBXBuildFile; productRef = CC0ED0082FEC9A010021BE3D /* RouteyImport */; };
+		4F0B3AFBD35476D7CC2AC1CE /* RouteyModel in Frameworks */ = {isa = PBXBuildFile; productRef = CC0ED0042FEC8F8F0021BE3D /* RouteyModel */; };
+		7DC58E572D30F358564B1762 /* RouteyPersistence in Frameworks */ = {isa = PBXBuildFile; productRef = CC0ED0062FEC8F8F0021BE3D /* RouteyPersistence */; };
+		8FF63C143CCE99FE54C04BF7 /* RouteySearch in Frameworks */ = {isa = PBXBuildFile; productRef = CC0ED00C2FEC9A010021BE3D /* RouteySearch */; };
 		CC0ED0052FEC8F8F0021BE3D /* RouteyModel in Frameworks */ = {isa = PBXBuildFile; productRef = CC0ED0042FEC8F8F0021BE3D /* RouteyModel */; };
 		CC0ED0072FEC8F8F0021BE3D /* RouteyPersistence in Frameworks */ = {isa = PBXBuildFile; productRef = CC0ED0062FEC8F8F0021BE3D /* RouteyPersistence */; };
 		CC0ED0092FEC9A010021BE3D /* RouteyImport in Frameworks */ = {isa = PBXBuildFile; productRef = CC0ED0082FEC9A010021BE3D /* RouteyImport */; };
 		CC0ED00B2FEC9A010021BE3D /* RouteyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = CC0ED00A2FEC9A010021BE3D /* RouteyDomain */; };
 		CC0ED00D2FEC9A010021BE3D /* RouteySearch in Frameworks */ = {isa = PBXBuildFile; productRef = CC0ED00C2FEC9A010021BE3D /* RouteySearch */; };
+		D7ED4FD3BB2A39153A913ACE /* RouteyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = CC0ED00A2FEC9A010021BE3D /* RouteyDomain */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -25,13 +30,44 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D58CAB8E74FA006A0BFB33C4 /* RouteyMacProof.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RouteyMacProof.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC0ECFD92FEC8ED30021BE3D /* Routey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Routey.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC0ECFE62FEC8ED60021BE3D /* RouteyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RouteyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		344CCA591C180FAA2F19E089 /* Exceptions for "RouteyMacProof" folder in "RouteyMacProof" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+				RouteyMacProof.entitlements,
+			);
+			target = 1D46C39CBE4EA5F2D4504C7B /* RouteyMacProof */;
+		};
+		CC0ED00F2FEDA000021BE3D /* Exceptions for "Routey" folder in "Routey" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+				Routey.entitlements,
+			);
+			target = CC0ECFD82FEC8ED30021BE3D /* Routey */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		DA2BEF681679DD3E3935D280 /* RouteyMacProof */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				344CCA591C180FAA2F19E089 /* Exceptions for "RouteyMacProof" folder in "RouteyMacProof" target */,
+			);
+			path = RouteyMacProof;
+			sourceTree = "<group>";
+		};
 		CC0ECFDB2FEC8ED30021BE3D /* Routey */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CC0ED00F2FEDA000021BE3D /* Exceptions for "Routey" folder in "Routey" target */,
+			);
 			path = Routey;
 			sourceTree = "<group>";
 		};
@@ -43,6 +79,18 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		AA65E056579D80903815940F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D7ED4FD3BB2A39153A913ACE /* RouteyDomain in Frameworks */,
+				8FF63C143CCE99FE54C04BF7 /* RouteySearch in Frameworks */,
+				3D4C2FA5A56F2167145FB828 /* RouteyImport in Frameworks */,
+				7DC58E572D30F358564B1762 /* RouteyPersistence in Frameworks */,
+				4F0B3AFBD35476D7CC2AC1CE /* RouteyModel in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CC0ECFD62FEC8ED30021BE3D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -69,6 +117,7 @@
 			isa = PBXGroup;
 			children = (
 				CC0ECFDB2FEC8ED30021BE3D /* Routey */,
+				DA2BEF681679DD3E3935D280 /* RouteyMacProof */,
 				CC0ECFE92FEC8ED60021BE3D /* RouteyTests */,
 				CC0ECFDA2FEC8ED30021BE3D /* Products */,
 			);
@@ -78,6 +127,7 @@
 			isa = PBXGroup;
 			children = (
 				CC0ECFD92FEC8ED30021BE3D /* Routey.app */,
+				D58CAB8E74FA006A0BFB33C4 /* RouteyMacProof.app */,
 				CC0ECFE62FEC8ED60021BE3D /* RouteyTests.xctest */,
 			);
 			name = Products;
@@ -86,6 +136,33 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		1D46C39CBE4EA5F2D4504C7B /* RouteyMacProof */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 11FCBCA10835AF7C3FDA6741 /* Build configuration list for PBXNativeTarget "RouteyMacProof" */;
+			buildPhases = (
+				2148F3F006519A2B38509F42 /* Sources */,
+				AA65E056579D80903815940F /* Frameworks */,
+				70A2726C271FE92A3E9846C4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				DA2BEF681679DD3E3935D280 /* RouteyMacProof */,
+			);
+			name = RouteyMacProof;
+			packageProductDependencies = (
+				CC0ED0042FEC8F8F0021BE3D /* RouteyModel */,
+				CC0ED0062FEC8F8F0021BE3D /* RouteyPersistence */,
+				CC0ED0082FEC9A010021BE3D /* RouteyImport */,
+				CC0ED00A2FEC9A010021BE3D /* RouteyDomain */,
+				CC0ED00C2FEC9A010021BE3D /* RouteySearch */,
+			);
+			productName = RouteyMacProof;
+			productReference = D58CAB8E74FA006A0BFB33C4 /* RouteyMacProof.app */;
+			productType = "com.apple.product-type.application";
+		};
 		CC0ECFD82FEC8ED30021BE3D /* Routey */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CC0ECFFA2FEC8ED60021BE3D /* Build configuration list for PBXNativeTarget "Routey" */;
@@ -146,8 +223,27 @@
 				LastSwiftUpdateCheck = 2650;
 				LastUpgradeCheck = 2650;
 				TargetAttributes = {
+					1D46C39CBE4EA5F2D4504C7B = {
+						CreatedOnToolsVersion = 26.5;
+						SystemCapabilities = {
+							com.apple.Sandbox = {
+								enabled = 1;
+							};
+							com.apple.iCloud = {
+								enabled = 1;
+							};
+						};
+					};
 					CC0ECFD82FEC8ED30021BE3D = {
 						CreatedOnToolsVersion = 26.5;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+							com.apple.iCloud = {
+								enabled = 1;
+							};
+						};
 					};
 					CC0ECFE52FEC8ED60021BE3D = {
 						CreatedOnToolsVersion = 26.5;
@@ -173,12 +269,20 @@
 			projectRoot = "";
 			targets = (
 				CC0ECFD82FEC8ED30021BE3D /* Routey */,
+				1D46C39CBE4EA5F2D4504C7B /* RouteyMacProof */,
 				CC0ECFE52FEC8ED60021BE3D /* RouteyTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		70A2726C271FE92A3E9846C4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CC0ECFD72FEC8ED30021BE3D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -196,6 +300,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		2148F3F006519A2B38509F42 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CC0ECFD52FEC8ED30021BE3D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -221,6 +332,68 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		481665DB4CD4E35B72DF7339 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = RouteyMacProof/RouteyMacProof.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8AXNA5B37R;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = RouteyMacProof/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.routey.RouteyMacProof;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		88FF32FCDE56EE6AF921767F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = RouteyMacProof/RouteyMacProof.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8AXNA5B37R;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = RouteyMacProof/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.routey.RouteyMacProof;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
 		CC0ECFF82FEC8ED60021BE3D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -347,23 +520,20 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Routey/Routey.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8AXNA5B37R;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Routey/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.routey.Routey;
+				PRODUCT_BUNDLE_IDENTIFIER = com.danfakkeldy.routey;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -380,23 +550,20 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Routey/Routey.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8AXNA5B37R;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Routey/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.routey.Routey;
+				PRODUCT_BUNDLE_IDENTIFIER = com.danfakkeldy.routey;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -418,7 +585,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.routey.RouteyTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.danfakkeldy.routeyTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -440,7 +607,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.routey.RouteyTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.danfakkeldy.routeyTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -455,6 +622,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		11FCBCA10835AF7C3FDA6741 /* Build configuration list for PBXNativeTarget "RouteyMacProof" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				88FF32FCDE56EE6AF921767F /* Debug */,
+				481665DB4CD4E35B72DF7339 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		CC0ECFD42FEC8ED30021BE3D /* Build configuration list for PBXProject "Routey" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -1,7 +1,10 @@
 # Claude Code Guidelines for Routey: Rural Mail Carrier Logistics
 
+<!-- Loads the repo's AGENTS.md (modern Swift/SwiftUI rules + Routey specifics) alongside this file. -->
+@AGENTS.md
+
 ## Role & Tone
-You are an expert, patient Senior Apple Ecosystem Developer mentoring a solo developer. I'm Dan — a working rural mail carrier building Routey for my own live route, and I'm learning iOS as I go. Whenever you propose an architectural decision or provide code, briefly explain *why* you chose that approach.
+I'm Dan — a working rural mail carrier building Routey for my own live route, and I'm learning iOS as I go. Whenever you propose an architectural decision or provide code, briefly explain *why* you chose that approach.
 
 **I am the domain authority.** Defer to me on how the route actually works — stop sequencing, sort-case layout, community-mailbox modules and compartments, shared and clustered boxes, and door-vs-box delivery. Extract that knowledge with focused questions rather than assuming it. The guiding product rule: **if it doesn't save time in the truck, it doesn't ship.**
 
@@ -42,9 +45,4 @@ SQLiteData's private-CloudKit sync imposes hard constraints. Confidence in the l
 * The model / persistence / domain layers are a pure Swift package — run them on the Mac, no simulator: `cd RouteyKit && swift build` and `cd RouteyKit && swift test`. For edit→test loops, narrow with `swift test --filter <Suite>` (e.g. `SchemaTests`, `CRUDTests`, `CascadeTests`).
 * **Swift Testing** throughout (not XCTest).
 * Some things need real hardware, not the simulator: the two-device CloudKit sync PoC, and any locked-phone / file-protection behaviour (CarPlay must read the DB while the phone is locked).
-* This is a 16 GB machine — once an Xcode app target exists, never run `xcodebuild` with uncapped parallel testing or `-jobs`, and never run two `xcodebuild` invocations concurrently.
 * Pre-release checklist for **every** release once sync is live: "Deploy Schema Changes" + test against the **Production** CloudKit scheme (the #1 first-submission failure mode).
-
-## Response Rules
-* When outputting code in chat, don't paste entire files unless I explicitly ask — show the modified functions/structs, with comments marking exactly where they belong.
-* If drafting git commits, strictly follow the Conventional Commits specification.
