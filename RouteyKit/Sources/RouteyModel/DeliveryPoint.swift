@@ -2,7 +2,7 @@ import Foundation
 import SQLiteData
 
 @Table
-public struct DeliveryPoint: Identifiable, Sendable {
+public nonisolated struct DeliveryPoint: Identifiable, Sendable {
   public let id: UUID
   public var stopID: Stop.ID
   public var moduleID: Module.ID? = nil

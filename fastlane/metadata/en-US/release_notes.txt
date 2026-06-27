@@ -1,0 +1,1 @@
+Initial release of Routey, with offline route planning, OCR-assisted parcel entry, and delivery-order checkoff.

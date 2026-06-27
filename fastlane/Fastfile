@@ -1,0 +1,162 @@
+# frozen_string_literal: true
+
+require "json"
+require "deliver/upload_metadata"
+
+default_platform(:ios)
+
+APP_IDENTIFIER = "com.danfakkeldy.routey"
+FASTLANE_DIR = __dir__
+ROOT_PATH = File.expand_path("..", FASTLANE_DIR)
+PROJECT_PATH = File.join(ROOT_PATH, "app/Routey/Routey.xcodeproj")
+SCHEME = "Routey"
+METADATA_PATH = File.join(FASTLANE_DIR, "metadata")
+SCREENSHOTS_PATH = File.join(FASTLANE_DIR, "screenshots")
+DEFAULT_API_KEY_JSON_PATH = File.join(FASTLANE_DIR, "api_key.json")
+DEFAULT_EXPORT_METHOD = "app-store"
+
+module RouteyDeliverFirstVersionPatch
+  def review_attachment_file(version)
+    super
+  rescue RuntimeError => error
+    raise unless error.message == "No data" && options[:app_review_attachment_file].nil?
+
+    UI.important("No App Review detail exists yet; skipping review attachment cleanup.")
+  end
+end
+
+Deliver::UploadMetadata.prepend(RouteyDeliverFirstVersionPatch)
+
+def env_value(name)
+  value = ENV[name]
+  return nil if value.nil? || value.strip.empty?
+
+  value
+end
+
+def app_store_connect_key
+  json_key_path = env_value("APP_STORE_CONNECT_API_KEY_JSON_PATH") || env_value("APP_STORE_CONNECT_API_KEY_JSON_FILEPATH")
+  json_key_path = File.expand_path(json_key_path, ROOT_PATH) if json_key_path
+  json_key_path ||= DEFAULT_API_KEY_JSON_PATH if File.exist?(DEFAULT_API_KEY_JSON_PATH)
+
+  if json_key_path
+    key_data = JSON.parse(File.read(json_key_path))
+    missing_keys = %w[key_id issuer_id key].reject { |key| key_data[key].to_s.length.positive? }
+    UI.user_error!("App Store Connect API key JSON is missing: #{missing_keys.join(', ')}") unless missing_keys.empty?
+
+    return app_store_connect_api_key(
+      key_id: key_data["key_id"],
+      issuer_id: key_data["issuer_id"],
+      key_content: key_data["key"],
+      is_key_content_base64: false,
+      duration: (key_data["duration"] || env_value("APP_STORE_CONNECT_API_KEY_DURATION") || "1200").to_i,
+      in_house: key_data.fetch("in_house", false)
+    )
+  end
+
+  key_id = env_value("APP_STORE_CONNECT_API_KEY_ID")
+  issuer_id = env_value("APP_STORE_CONNECT_API_ISSUER_ID")
+  key_filepath = env_value("APP_STORE_CONNECT_API_KEY_FILEPATH") || env_value("APP_STORE_CONNECT_API_KEY_PATH")
+  key_content = env_value("APP_STORE_CONNECT_API_KEY_CONTENT")
+  key_filepath = File.expand_path(key_filepath, ROOT_PATH) if key_filepath
+
+  unless key_id && (key_filepath || key_content)
+    UI.user_error!(
+      "Add fastlane/api_key.json, set APP_STORE_CONNECT_API_KEY_JSON_PATH, or set " \
+      "APP_STORE_CONNECT_API_KEY_ID plus APP_STORE_CONNECT_API_KEY_FILEPATH/CONTENT. " \
+      "See fastlane/.env.example."
+    )
+  end
+
+  options = {
+    key_id: key_id,
+    issuer_id: issuer_id,
+    duration: (env_value("APP_STORE_CONNECT_API_KEY_DURATION") || "1200").to_i,
+    in_house: false
+  }
+
+  if key_content
+    options[:key_content] = key_content
+    options[:is_key_content_base64] = env_value("APP_STORE_CONNECT_API_KEY_IS_KEY_CONTENT_BASE64") == "true"
+  else
+    options[:key_filepath] = key_filepath
+  end
+
+  app_store_connect_api_key(options)
+end
+
+def metadata_file(locale, filename)
+  File.join(METADATA_PATH, locale, filename)
+end
+
+platform :ios do
+  desc "Validate App Store metadata text files locally"
+  lane :validate_metadata do
+    locale = env_value("FASTLANE_METADATA_LOCALE") || "en-US"
+    locale_path = File.join(METADATA_PATH, locale)
+    UI.user_error!("Missing metadata locale directory: #{locale_path}") unless Dir.exist?(locale_path)
+
+    limits = {
+      "name.txt" => 30,
+      "subtitle.txt" => 30,
+      "promotional_text.txt" => 170,
+      "keywords.txt" => 100,
+      "description.txt" => 4000,
+      "release_notes.txt" => 4000
+    }
+
+    limits.each do |filename, limit|
+      path = metadata_file(locale, filename)
+      UI.user_error!("Missing metadata file: #{path}") unless File.exist?(path)
+
+      length = File.read(path).strip.length
+      UI.user_error!("#{path} is #{length}/#{limit} characters") if length > limit
+      UI.message("#{filename}: #{length}/#{limit}")
+    end
+
+    keywords = File.read(metadata_file(locale, "keywords.txt")).strip
+    UI.user_error!("keywords.txt must be comma-separated") unless keywords.include?(",")
+    UI.user_error!("keywords.txt must not contain spaces after commas") if keywords.include?(", ")
+
+    UI.success("Metadata files are ready for deliver.")
+  end
+
+  desc "Upload App Store metadata from fastlane/metadata"
+  lane :metadata do
+    validate_metadata
+    api_key = app_store_connect_key
+
+    deliver(
+      api_key: api_key,
+      app_identifier: APP_IDENTIFIER,
+      metadata_path: METADATA_PATH,
+      screenshots_path: SCREENSHOTS_PATH,
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      submit_for_review: false,
+      force: true
+    )
+  end
+
+  desc "Build an App Store archive for Routey"
+  lane :build do
+    build_app(
+      project: PROJECT_PATH,
+      scheme: SCHEME,
+      export_method: DEFAULT_EXPORT_METHOD,
+      clean: true
+    )
+  end
+
+  desc "Build and upload Routey to TestFlight"
+  lane :beta do
+    api_key = app_store_connect_key
+
+    build
+    upload_to_testflight(
+      api_key: api_key,
+      app_identifier: APP_IDENTIFIER,
+      skip_waiting_for_build_processing: true
+    )
+  end
+end

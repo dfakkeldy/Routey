@@ -2,7 +2,7 @@ import Foundation
 import SQLiteData
 
 @Table
-public struct Module: Identifiable, Sendable {
+public nonisolated struct Module: Identifiable, Sendable {
   public let id: UUID
   public var stopID: Stop.ID
   public var name = ""

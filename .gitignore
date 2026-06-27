@@ -6,3 +6,17 @@ DerivedData/
 *.xcuserstate
 xcuserdata/
 .swiftpm/
+
+# Fastlane credentials and generated output
+.env
+.env.*
+!.env.example
+fastlane/.env
+fastlane/.env.*
+!fastlane/.env.example
+*.p8
+fastlane/api_key.json
+fastlane/metadata/review_information/
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/test_output/

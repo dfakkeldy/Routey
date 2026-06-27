@@ -2,7 +2,7 @@ import Foundation
 import SQLiteData
 
 @Table
-public struct Address: Hashable, Identifiable, Sendable {
+public nonisolated struct Address: Hashable, Identifiable, Sendable {
   public let id: UUID
   public var civicNumber: Int? = nil
   public var civicRangeFrom: Int? = nil

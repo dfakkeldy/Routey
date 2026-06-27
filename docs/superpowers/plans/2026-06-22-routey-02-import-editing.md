@@ -879,7 +879,7 @@ struct ImportView: View {
 
 - [ ] **Step 2:** Add a toolbar button in `ContentView` presenting `ImportView` as a sheet.
 
-- [ ] **Step 3:** Run in the simulator: paste a few lines of your real route, confirm the preview count, import, and see the new route + its stops. Try a CSV with a header row.
+- [ ] **Step 3:** Run in the simulator: paste a few lines of invented route-like sample data, confirm the preview count, import, and see the new route + its stops. Try a CSV with a header row.
 
 - [ ] **Step 4: Commit**
 

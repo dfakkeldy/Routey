@@ -1,0 +1,1 @@
+Sort, snap, and deliver from an offline route plan built for dead zones, parcel-heavy days, and quick checkoffs in the truck.

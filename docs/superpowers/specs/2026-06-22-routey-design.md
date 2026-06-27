@@ -125,8 +125,9 @@ optional GPS (geocoded once), tags, notes. Linked to its Delivery Point(s).
 At multi-unit buildings/complexes (e.g. the Elm St seniors complex) many addresses share
 one civic number and are **disambiguated by occupant name**.
 
-**Tag** — extensible flag. Canonical name is the primary key (no separate unique
-constraint — see §7). Examples: `no-flyers`, `dog`, `scary-dog`, `don't-card`,
+**Tag** — extensible flag. Fields: id (UUID primary key), canonical name, warning flag.
+Canonical-name reuse is enforced in app/domain logic, not with a synced database `UNIQUE`
+constraint (see §7). Examples: `no-flyers`, `dog`, `scary-dog`, `don't-card`,
 `signature`, `customs`, `catalogue`. Some are **warning-class** → surfaced when the stop
 is next or when a parcel for that address is scanned. Many-to-many with Address (join table).
 
@@ -257,6 +258,17 @@ optionally colored. The digital replacement for the sticky-note layer.
 - Reserve SQLiteData's real migration freedom for **local, non-synced tables** (FTS index,
   OCR caches, Virtual-Sort-Case derived data), which are excluded from the sync list and
   freely rebuildable.
+
+### M0 schema audit checkpoint
+- Current v1 synced tables are `routes`, `stops`, `modules`, `deliveryPoints`, `addresses`,
+  `deliveryPointAddresses`, `tags`, and `addressTags`.
+- `RouteyModel` table structs are explicitly `nonisolated` for strict Swift concurrency.
+- `SchemaTests` verify table names and column lists, fresh-install migration idempotency,
+  generated lowercase UUID defaults, absence of non-primary-key unique indexes, and
+  CloudKit-compatible foreign-key delete actions.
+- M0 decision: `Tag` keeps UUID `id` as its synced primary key. Canonical tag-name reuse is
+  enforced in app/domain logic so user-visible tag labels can evolve without primary-key
+  rewrites after sync is live.
 
 ### OCR pipeline (on-device, iPhone)
 - `RecognizeTextRequest`: `.accurate`, languages `["en-CA","fr-CA"]`,
