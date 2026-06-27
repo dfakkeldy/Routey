@@ -90,10 +90,22 @@ Because the schema syncs to CloudKit, it is **append-only once sync is live**:
 
 ## PR instructions
 
-- Open PRs against **`main`** (Routey's default branch).
+- Normal feature work branches from **`nightly`** and opens PRs against **`nightly`**. Promotion PRs flow one way: `nightly` → `weekly` → `main`. `main` remains Routey's stable default branch.
 - Run `cd RouteyKit && swift test` and confirm green before committing.
 - Keep every committed file **carrier-agnostic** — no employer name or real route data.
 - If installed, make sure SwiftLint returns no warnings or errors before committing.
+
+## Release Engineering — Promotion Ladder
+
+Routey uses the standard release ladder: `feature/*` → `nightly` → `weekly` → `main`. `nightly` is the integration branch and daily TestFlight train, `weekly` is the Monday beta train, and `main` is stable.
+
+| Branch | Source | Protection |
+| --- | --- | --- |
+| `nightly` | feature PRs | Required `Build gate + tests`; PR review optional |
+| `weekly` | `nightly` | Strict `Build gate + tests`; review approval optional |
+| `main` | `weekly` | Strict `Build gate + tests`; review approval optional |
+
+Hotfix exception: branch from `main`, PR to `main`, then merge `main` back down into `weekly` and `nightly`.
 
 
 ## Xcode MCP

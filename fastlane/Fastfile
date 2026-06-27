@@ -35,12 +35,13 @@ def env_value(name)
 end
 
 def app_store_connect_key
+  json_key_content = env_value("APP_STORE_CONNECT_API_KEY_JSON")
   json_key_path = env_value("APP_STORE_CONNECT_API_KEY_JSON_PATH") || env_value("APP_STORE_CONNECT_API_KEY_JSON_FILEPATH")
   json_key_path = File.expand_path(json_key_path, ROOT_PATH) if json_key_path
   json_key_path ||= DEFAULT_API_KEY_JSON_PATH if File.exist?(DEFAULT_API_KEY_JSON_PATH)
 
-  if json_key_path
-    key_data = JSON.parse(File.read(json_key_path))
+  if json_key_content || json_key_path
+    key_data = JSON.parse(json_key_content || File.read(json_key_path))
     missing_keys = %w[key_id issuer_id key].reject { |key| key_data[key].to_s.length.positive? }
     UI.user_error!("App Store Connect API key JSON is missing: #{missing_keys.join(', ')}") unless missing_keys.empty?
 
@@ -144,12 +145,16 @@ platform :ios do
       project: PROJECT_PATH,
       scheme: SCHEME,
       export_method: DEFAULT_EXPORT_METHOD,
+      xcargs: "-skipMacroValidation -skipPackagePluginValidation",
       clean: true
     )
   end
 
   desc "Build and upload Routey to TestFlight"
-  lane :beta do
+  lane :beta do |options|
+    channel = options[:channel]
+    UI.message("Release train channel: #{channel}") if channel
+
     api_key = app_store_connect_key
 
     build
