@@ -175,15 +175,22 @@ jobs:
         env:
           APP_STORE_CONNECT_API_KEY_JSON_VALUE: ${{ secrets.APP_STORE_CONNECT_API_KEY_JSON }}
           MATCH_PASSWORD_VALUE: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_SSH_KEY_VALUE: ${{ secrets.MATCH_GIT_SSH_KEY }}
         run: |
           set -euo pipefail
 
-          if [[ -n "${APP_STORE_CONNECT_API_KEY_JSON_VALUE}" && -n "${MATCH_PASSWORD_VALUE}" ]]; then
+          if [[ -n "${APP_STORE_CONNECT_API_KEY_JSON_VALUE}" && -n "${MATCH_PASSWORD_VALUE}" && -n "${MATCH_GIT_SSH_KEY_VALUE}" ]]; then
             echo "can-upload=true" >> "$GITHUB_OUTPUT"
           else
             echo "can-upload=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Skipping TestFlight upload because APP_STORE_CONNECT_API_KEY_JSON and MATCH_PASSWORD are not both set; release train remains compile-only."
+            echo "::notice::Skipping TestFlight upload because APP_STORE_CONNECT_API_KEY_JSON, MATCH_PASSWORD, and MATCH_GIT_SSH_KEY are not all set; release train remains compile-only."
           fi
+
+      - name: Load match deploy key
+        if: steps.release-secrets.outputs.can-upload == 'true'
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.MATCH_GIT_SSH_KEY }}
 
       - name: Set up Ruby
         if: steps.release-secrets.outputs.can-upload == 'true'
@@ -196,7 +203,6 @@ jobs:
         env:
           APP_STORE_CONNECT_API_KEY_JSON: ${{ secrets.APP_STORE_CONNECT_API_KEY_JSON }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_GIT_SSH_KEY: ${{ secrets.MATCH_GIT_SSH_KEY }}
           FASTLANE_SKIP_UPDATE_CHECK: "1"
           FASTLANE_HIDE_CHANGELOG: "1"
           CHANNEL: ${{ needs.resolve.outputs.channel }}
@@ -206,12 +212,5 @@ jobs:
           api_key_path="${RUNNER_TEMP}/app-store-connect-api-key.json"
           printf '%s' "${APP_STORE_CONNECT_API_KEY_JSON}" > "${api_key_path}"
           export APP_STORE_CONNECT_API_KEY_JSON_PATH="${api_key_path}"
-
-          if [[ -n "${MATCH_GIT_SSH_KEY}" ]]; then
-            install -m 700 -d "${HOME}/.ssh"
-            printf '%s' "${MATCH_GIT_SSH_KEY}" > "${HOME}/.ssh/match_git_ssh_key"
-            chmod 600 "${HOME}/.ssh/match_git_ssh_key"
-            export MATCH_GIT_PRIVATE_KEY="${HOME}/.ssh/match_git_ssh_key"
-          fi
 
           bundle exec fastlane beta channel:"${CHANNEL}"
