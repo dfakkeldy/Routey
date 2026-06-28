@@ -1,0 +1,217 @@
+name: Release Trains
+
+on:
+  schedule:
+    # America/Halifax 02:00 nightly, with UTC candidates for AST/ADT.
+    - cron: "0 5 * * *"
+    - cron: "0 6 * * *"
+    # America/Halifax 06:00 Monday weekly, with UTC candidates for AST/ADT.
+    - cron: "0 9 * * 1"
+    - cron: "0 10 * * 1"
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: Release train to build
+        required: true
+        type: choice
+        options:
+          - nightly
+          - weekly
+
+jobs:
+  resolve:
+    name: Resolve release train
+    runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.resolve.outputs.branch }}
+      channel: ${{ steps.resolve.outputs.channel }}
+      run-build: ${{ steps.resolve.outputs.run-build }}
+    steps:
+      - name: Resolve channel and branch
+        id: resolve
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_CHANNEL: ${{ inputs.channel || '' }}
+        run: |
+          set -euo pipefail
+
+          channel=""
+          run_build="false"
+          reason=""
+
+          if [[ "${EVENT_NAME}" == "workflow_dispatch" ]]; then
+            channel="${DISPATCH_CHANNEL}"
+            run_build="true"
+            reason="manual dispatch"
+          else
+            local_hour="$(TZ=America/Halifax date +%H)"
+            local_weekday="$(TZ=America/Halifax date +%w)"
+
+            if [[ "${local_hour}" == "02" ]]; then
+              channel="nightly"
+              run_build="true"
+              reason="02:00 America/Halifax nightly window"
+            elif [[ "${local_weekday}" == "1" && "${local_hour}" == "06" ]]; then
+              channel="weekly"
+              run_build="true"
+              reason="06:00 America/Halifax Monday weekly window"
+            else
+              reason="inactive duplicate UTC schedule for DST handling"
+            fi
+          fi
+
+          if [[ "${run_build}" == "true" && "${channel}" != "nightly" && "${channel}" != "weekly" ]]; then
+            echo "::error::Unsupported release channel: ${channel}"
+            exit 1
+          fi
+
+          {
+            echo "channel=${channel}"
+            echo "branch=${channel}"
+            echo "run-build=${run_build}"
+          } >> "$GITHUB_OUTPUT"
+          echo "::notice::Release train resolver: ${reason}"
+
+  ship:
+    name: Build and upload
+    runs-on: macos-26
+    needs: resolve
+    if: needs.resolve.outputs.run-build == 'true'
+    timeout-minutes: 75
+    concurrency:
+      group: release-trains-${{ needs.resolve.outputs.channel }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout train branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve.outputs.branch }}
+
+      - name: Select Xcode 26.5
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "26.5"
+
+      - name: Cache SwiftPM and DerivedData
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.swiftpm
+            ~/Library/Caches/org.swift.swiftpm
+            ~/Library/Developer/Xcode/DerivedData
+            RouteyKit/.build
+          key: ${{ runner.os }}-xcode26.5-release-${{ needs.resolve.outputs.channel }}-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-xcode26.5-release-${{ needs.resolve.outputs.channel }}-
+            ${{ runner.os }}-xcode26.5-release-
+
+      - name: Resolve packages
+        run: |
+          set -euo pipefail
+          xcodebuild -resolvePackageDependencies \
+            -project app/Routey/Routey.xcodeproj \
+            -scheme Routey
+          swift package --package-path RouteyKit resolve
+
+      - name: Resolve simulator destination
+        run: |
+          set -euo pipefail
+
+          ruby <<'RUBY' > "$RUNNER_TEMP/simulator.env"
+          require "json"
+          require "rubygems"
+
+          devices = JSON.parse(`xcrun simctl list devices available -j`).fetch("devices")
+          candidates = devices.flat_map do |runtime, runtime_devices|
+            next [] unless runtime.include?("iOS")
+
+            version_text = runtime[/iOS-(.+)$/, 1].to_s.tr("-", ".")
+            version = Gem::Version.new(version_text.empty? ? "0" : version_text)
+            runtime_devices
+              .select { |device| device["isAvailable"] && device["name"].start_with?("iPhone") }
+              .map { |device| [version, device] }
+          end
+
+          selected = candidates.sort_by(&:first).last
+          if selected
+            _version, device = selected
+            puts "IOS_SIM_DESTINATION=platform=iOS Simulator,id=#{device.fetch("udid")}"
+          else
+            puts "IOS_SIM_DESTINATION=generic/platform=iOS Simulator"
+          end
+          RUBY
+
+          cat "$RUNNER_TEMP/simulator.env" >> "$GITHUB_ENV"
+
+      - name: Compile iOS app for testing
+        run: |
+          set -euo pipefail
+          xcodebuild build-for-testing \
+            -project app/Routey/Routey.xcodeproj \
+            -scheme Routey \
+            -configuration Debug \
+            -destination "${IOS_SIM_DESTINATION}" \
+            -derivedDataPath DerivedData \
+            -skipMacroValidation \
+            -skipPackagePluginValidation \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Compile macOS proof app
+        run: |
+          set -euo pipefail
+          xcodebuild build \
+            -project app/Routey/Routey.xcodeproj \
+            -scheme RouteyMacProof \
+            -configuration Release \
+            -destination "platform=macOS,arch=arm64" \
+            -derivedDataPath DerivedData \
+            -skipMacroValidation \
+            -skipPackagePluginValidation \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Check release secrets
+        id: release-secrets
+        env:
+          APP_STORE_CONNECT_API_KEY_JSON_VALUE: ${{ secrets.APP_STORE_CONNECT_API_KEY_JSON }}
+          MATCH_PASSWORD_VALUE: ${{ secrets.MATCH_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          if [[ -n "${APP_STORE_CONNECT_API_KEY_JSON_VALUE}" && -n "${MATCH_PASSWORD_VALUE}" ]]; then
+            echo "can-upload=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "can-upload=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping TestFlight upload because APP_STORE_CONNECT_API_KEY_JSON and MATCH_PASSWORD are not both set; release train remains compile-only."
+          fi
+
+      - name: Set up Ruby
+        if: steps.release-secrets.outputs.can-upload == 'true'
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Upload to TestFlight
+        if: steps.release-secrets.outputs.can-upload == 'true'
+        env:
+          APP_STORE_CONNECT_API_KEY_JSON: ${{ secrets.APP_STORE_CONNECT_API_KEY_JSON }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_SSH_KEY: ${{ secrets.MATCH_GIT_SSH_KEY }}
+          FASTLANE_SKIP_UPDATE_CHECK: "1"
+          FASTLANE_HIDE_CHANGELOG: "1"
+          CHANNEL: ${{ needs.resolve.outputs.channel }}
+        run: |
+          set -euo pipefail
+
+          api_key_path="${RUNNER_TEMP}/app-store-connect-api-key.json"
+          printf '%s' "${APP_STORE_CONNECT_API_KEY_JSON}" > "${api_key_path}"
+          export APP_STORE_CONNECT_API_KEY_JSON_PATH="${api_key_path}"
+
+          if [[ -n "${MATCH_GIT_SSH_KEY}" ]]; then
+            install -m 700 -d "${HOME}/.ssh"
+            printf '%s' "${MATCH_GIT_SSH_KEY}" > "${HOME}/.ssh/match_git_ssh_key"
+            chmod 600 "${HOME}/.ssh/match_git_ssh_key"
+            export MATCH_GIT_PRIVATE_KEY="${HOME}/.ssh/match_git_ssh_key"
+          fi
+
+          bundle exec fastlane beta channel:"${CHANNEL}"

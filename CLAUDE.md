@@ -46,3 +46,14 @@ SQLiteData's private-CloudKit sync imposes hard constraints. Confidence in the l
 * **Swift Testing** throughout (not XCTest).
 * Some things need real hardware, not the simulator: the two-device CloudKit sync PoC, and any locked-phone / file-protection behaviour (CarPlay must read the DB while the phone is locked).
 * Pre-release checklist for **every** release once sync is live: "Deploy Schema Changes" + test against the **Production** CloudKit scheme (the #1 first-submission failure mode).
+
+## Release Engineering — Promotion Ladder
+Routey uses the one-way ladder `feature/*` → `nightly` → `weekly` → `main`. Feature work branches from `nightly` and PRs target `nightly`; `weekly` promotes from `nightly`; `main` is stable and promotes from `weekly`.
+
+| Branch | Purpose | Protection |
+| --- | --- | --- |
+| `nightly` | Integration and daily TestFlight train | Required `Build gate + tests`; PR review optional |
+| `weekly` | Monday beta train | Strict `Build gate + tests`; review approval optional |
+| `main` | Stable App Store release base | Strict `Build gate + tests`; review approval optional |
+
+Hotfix exception: branch from `main`, PR to `main`, then merge `main` back down into `weekly` and `nightly`.
