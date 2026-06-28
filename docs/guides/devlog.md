@@ -27,3 +27,21 @@ This repo is public and carrier-agnostic. Keep hand-written notes free of real r
 ## Notes
 
 The generated weekly digest above is safe to refresh automatically. Hand-written launch notes can live below this section when there is a story worth telling in more detail.
+
+### Jun 28, 2026 - M1 sync proof decision
+
+PR #13 merged to `nightly` at `54f9ceb` after GitHub's Build gate + tests
+passed in 14m13s. The documented manual proof now covers a physical iPhone
+clean reinstall matching the Mac proof database's invented placeholder proof
+rows, with no unsynced rows observed.
+
+Decision: proceed with SQLiteData + private CloudKit unless the remaining
+manual graph matrix reveals a hard failure. The synced schema is now
+append-only: preserve existing synced tables and columns, keep UUID primary
+keys, avoid non-primary-key uniqueness on synced tables, and add only new
+optional/defaulted synced columns or new synced tables.
+
+Remaining manual follow-up: signed Mac app install evidence, nested iPhone edit
+pullback, `sortIndex` move propagation, delete/cascade propagation, and same-row
+or concurrent reorder behavior. Today's Run remains single-device-per-day until
+the reorder behavior is written down.
