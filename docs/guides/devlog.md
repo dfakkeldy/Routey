@@ -45,3 +45,12 @@ Remaining manual follow-up: signed Mac app install evidence, nested iPhone edit
 pullback, `sortIndex` move propagation, delete/cascade propagation, and same-row
 or concurrent reorder behavior. Today's Run remains single-device-per-day until
 the reorder behavior is written down.
+
+### Jun 28, 2026 - Headless V1.0 train
+
+PRs #14 through #19 merged the remaining package-first V1.0 slices into
+`nightly`: search freshness, OCR matching, Today's Run domain, history archive
+and search, report content, and encrypted route handoff. The app still needs
+explicitly approved visible Today's Run screens plus later PDF/share and
+encrypted file UI, but the tested offline domain layer now covers the major
+non-camera workflows without depending on the network.
