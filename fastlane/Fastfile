@@ -6,6 +6,7 @@ require "deliver/upload_metadata"
 default_platform(:ios)
 
 APP_IDENTIFIER = "com.danfakkeldy.routey"
+TEAM_ID = "8AXNA5B37R"
 FASTLANE_DIR = __dir__
 ROOT_PATH = File.expand_path("..", FASTLANE_DIR)
 PROJECT_PATH = File.join(ROOT_PATH, "app/Routey/Routey.xcodeproj")
@@ -140,18 +141,23 @@ platform :ios do
   end
 
   desc "Build an App Store archive for Routey"
-  lane :build do
+  lane :build do |options|
+    xcargs = ["-skipMacroValidation -skipPackagePluginValidation"]
+    xcargs << "CURRENT_PROJECT_VERSION=#{options[:build_number]}" if options[:build_number]
+
     build_app(
       project: PROJECT_PATH,
       scheme: SCHEME,
       export_method: DEFAULT_EXPORT_METHOD,
-      xcargs: "-skipMacroValidation -skipPackagePluginValidation",
+      xcargs: xcargs.join(" "),
       clean: true
     )
   end
 
   desc "Build and upload Routey to TestFlight"
   lane :beta do |options|
+    setup_ci if is_ci
+
     channel = (options[:channel] || env_value("RELEASE_CHANNEL") || "").to_s.downcase
     testflight_group, external_distribution = case channel
                                               when "nightly" then ["Nightly", false]
@@ -165,7 +171,36 @@ platform :ios do
 
     api_key = app_store_connect_key
 
-    build
+    next_build = latest_testflight_build_number(
+      api_key: api_key,
+      app_identifier: APP_IDENTIFIER,
+      initial_build_number: 0
+    ) + 1
+    UI.message("Build number for this run: #{next_build}")
+
+    sync_code_signing(
+      api_key: api_key,
+      type: "appstore",
+      app_identifier: [APP_IDENTIFIER],
+      readonly: is_ci
+    )
+
+    if is_ci
+      mapping = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING] || {}
+      profile = mapping[APP_IDENTIFIER]
+      UI.user_error!("match did not return an app-store profile for #{APP_IDENTIFIER}") if profile.nil?
+
+      update_code_signing_settings(
+        path: PROJECT_PATH,
+        use_automatic_signing: false,
+        targets: [SCHEME],
+        team_id: TEAM_ID,
+        code_sign_identity: "Apple Distribution",
+        profile_name: profile
+      )
+    end
+
+    build(build_number: next_build)
 
     testflight_options = {
       api_key: api_key,
