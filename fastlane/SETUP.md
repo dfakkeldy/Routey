@@ -10,9 +10,14 @@ Routey's fastlane setup keeps App Store Connect credentials out of git and uses
    `fastlane/.env` and set `APP_STORE_CONNECT_API_KEY_JSON_PATH`.
 3. For `.p8`-style setup, put the key at `fastlane/AuthKey_<KEY_ID>.p8` and
    fill in the `APP_STORE_CONNECT_API_KEY_*` values in `fastlane/.env`.
+4. Set `MATCH_PASSWORD` in `fastlane/.env` so fastlane can decrypt the shared
+   signing repository configured in `fastlane/Matchfile`.
 
 Never commit `.env`, `api_key.json`, `.p8` files, or App Review contact files.
 `.gitignore` excludes all of them.
+
+GitHub Actions uploads also require repository secrets named
+`APP_STORE_CONNECT_API_KEY_JSON`, `MATCH_PASSWORD`, and `MATCH_GIT_SSH_KEY`.
 
 ## Commands
 
