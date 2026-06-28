@@ -161,6 +161,15 @@ public enum Schema {
         ) STRICT
         """).execute(db)
     }
+    migrator.registerMigration("Add v3 borrowed routes") { db in
+      let hasColumn = try db.columns(in: "routes").contains { $0.name == "isBorrowed" }
+      if !hasColumn {
+        try db.execute(sql: """
+          ALTER TABLE "routes"
+          ADD COLUMN "isBorrowed" INTEGER NOT NULL DEFAULT 0
+          """)
+      }
+    }
     return migrator
   }
 }

@@ -11,6 +11,14 @@ import RouteySearch
     var addressID: Address.ID
   }
 
+  private struct BorrowedRouteFixture {
+    var routeID: Route.ID
+    var stopID: Stop.ID
+    var pointID: DeliveryPoint.ID
+    var addressID: Address.ID
+    var tagID: RouteyModel.Tag.ID
+  }
+
   private func freshDB() throws -> DatabaseQueue {
     let database = try DatabaseQueue()
     try Schema.migrator.migrate(database)
@@ -21,6 +29,44 @@ import RouteySearch
     try database.read { db in
       try Int.fetchOne(db, sql: "SELECT count(*) FROM \"\(tableName)\"") ?? -1
     }
+  }
+
+  private func seedBorrowedRoute(in database: DatabaseQueue) throws -> BorrowedRouteFixture {
+    let routeID = UUID()
+    let stopID = UUID()
+    let pointID = UUID()
+    let addressID = UUID()
+    let tagID = UUID()
+
+    try database.write { db in
+      try Route.insert { Route(id: routeID, name: "Borrowed Route", isBorrowed: true) }.execute(db)
+      try Stop.insert {
+        Stop(id: stopID, routeID: routeID, tieOut: "A", displayName: "Borrowed stop")
+      }
+      .execute(db)
+      try DeliveryPoint.insert {
+        DeliveryPoint(id: pointID, stopID: stopID, label: "Borrowed point")
+      }
+      .execute(db)
+      try Address.insert {
+        Address(id: addressID, civicNumber: 2001, street: "Borrowed Example Lane")
+      }
+      .execute(db)
+      try DeliveryPointAddress.insert {
+        DeliveryPointAddress(deliveryPointID: pointID, addressID: addressID)
+      }
+      .execute(db)
+      try Tag.insert { Tag(id: tagID, name: "borrowed marker") }.execute(db)
+      try AddressTag.insert { AddressTag(addressID: addressID, tagID: tagID) }.execute(db)
+    }
+
+    return BorrowedRouteFixture(
+      routeID: routeID,
+      stopID: stopID,
+      pointID: pointID,
+      addressID: addressID,
+      tagID: tagID
+    )
   }
 
   private func seedSearchableAddress(
@@ -326,5 +372,67 @@ import RouteySearch
 
     hit = try #require(try service.search("Taggable Placeholder").first)
     #expect(hit.tagNames.isEmpty)
+  }
+
+  @Test func borrowedRouteRejectsAddStopWithoutMutating() throws {
+    let database = try freshDB()
+    let fixture = try seedBorrowedRoute(in: database)
+    let initialStopCount = try count("stops", in: database)
+
+    #expect(throws: RouteEditingError.routeIsBorrowed) {
+      _ = try RouteEditing.addStop(
+        routeID: fixture.routeID,
+        tieOut: "B",
+        displayName: "New stop",
+        after: fixture.stopID,
+        into: database
+      )
+    }
+
+    #expect(try count("stops", in: database) == initialStopCount)
+  }
+
+  @Test func borrowedRouteRejectsAddressAndTagMutationsWithoutMutating() throws {
+    let database = try freshDB()
+    let fixture = try seedBorrowedRoute(in: database)
+    let initialAddressCount = try count("addresses", in: database)
+    let initialTagLinkCount = try count("addressTags", in: database)
+
+    #expect(throws: RouteEditingError.routeIsBorrowed) {
+      try RouteEditing.addAddress(
+        Address(civicNumber: 2003, street: "Borrowed Example Lane"),
+        toDeliveryPoint: fixture.pointID,
+        in: database
+      )
+    }
+    #expect(throws: RouteEditingError.routeIsBorrowed) {
+      try RouteEditing.updateAddress(
+        fixture.addressID,
+        civicNumber: 2005,
+        street: "Changed Example Lane",
+        occupantName: nil,
+        notes: "Should not save",
+        in: database
+      )
+    }
+    #expect(throws: RouteEditingError.routeIsBorrowed) {
+      _ = try RouteEditing.attachTag(
+        named: "new borrowed marker",
+        toAddress: fixture.addressID,
+        isWarning: false,
+        in: database
+      )
+    }
+    #expect(throws: RouteEditingError.routeIsBorrowed) {
+      try RouteEditing.detachTag(fixture.tagID, fromAddress: fixture.addressID, in: database)
+    }
+
+    let address = try #require(try database.read { db in
+      try Address.all.fetchAll(db).first { $0.id == fixture.addressID }
+    })
+    #expect(address.civicNumber == 2001)
+    #expect(address.street == "Borrowed Example Lane")
+    #expect(try count("addresses", in: database) == initialAddressCount)
+    #expect(try count("addressTags", in: database) == initialTagLinkCount)
   }
 }

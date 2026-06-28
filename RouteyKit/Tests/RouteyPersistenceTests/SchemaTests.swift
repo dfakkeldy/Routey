@@ -84,14 +84,14 @@ import SQLiteData
       try Schema.migrator.appliedMigrations(db)
     }
 
-    #expect(appliedMigrations == ["Create v1 tables", "Create v2 daily tables"])
+    #expect(appliedMigrations == ["Create v1 tables", "Create v2 daily tables", "Add v3 borrowed routes"])
   }
 
   @Test func v1TablesHaveExpectedColumns() throws {
     let db = try freshDB()
 
     let expectedColumns = [
-      "routes": ["id", "name", "rtaFSA"],
+      "routes": ["id", "name", "rtaFSA", "isBorrowed"],
       "stops": [
         "id", "routeID", "tieOut", "sortIndex", "kind", "displayName",
         "officialSiteID", "locationText", "sharesLocationWith", "latitude",
