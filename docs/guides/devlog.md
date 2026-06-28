@@ -9,7 +9,7 @@ This repo is public and carrier-agnostic. Keep hand-written notes free of real r
 <!-- AUTO-DEVLOG:START -->
 ## Automated update - Jun 22-28, 2026
 
-*Generated from 7 commits merged during the week.*
+*Generated from 11 commits merged during the week.*
 
 ### Shipped
 - Add CloudKit proof setup ([9f1ea54](https://github.com/dfakkeldy/Routey/commit/9f1ea54))
@@ -20,6 +20,10 @@ This repo is public and carrier-agnostic. Keep hand-written notes free of real r
 - Add iOS app shell wired to SQLiteData ([15b516a](https://github.com/dfakkeldy/Routey/commit/15b516a))
 
 ### Build, docs, and housekeeping
+- Weekly automated update ([d1527df](https://github.com/dfakkeldy/Routey/commit/d1527df))
+- Route nightly builds to internal testers ([10b538a](https://github.com/dfakkeldy/Routey/commit/10b538a))
+- Add reviewed AI draft PR bodies ([a2f7ef0](https://github.com/dfakkeldy/Routey/commit/a2f7ef0))
+- Add release ladder CI ([6cd7cac](https://github.com/dfakkeldy/Routey/commit/6cd7cac))
 - Add weekly automation ([4aa156e](https://github.com/dfakkeldy/Routey/commit/4aa156e))
 
 <!-- AUTO-DEVLOG:END -->
@@ -54,3 +58,8 @@ and search, report content, and encrypted route handoff. The app still needs
 explicitly approved visible Today's Run screens plus later PDF/share and
 encrypted file UI, but the tested offline domain layer now covers the major
 non-camera workflows without depending on the network.
+
+PR #20 reconciled the roadmap's release-readiness checklist with that merged
+headless train. The docs now call out the remaining visible Today, camera,
+PDF/share, `.routey` file UI, and Production CloudKit gates instead of treating
+them as complete.

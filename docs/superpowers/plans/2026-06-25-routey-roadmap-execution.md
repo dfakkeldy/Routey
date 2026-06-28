@@ -397,8 +397,10 @@ Security checks:
 - Export fixture contains invented data only.
 
 **Exit criteria:**
-- Relief handoff works offline through an encrypted file.
-- Borrowed routes cannot be accidentally edited as owned routes.
+- Encrypted handoff works offline at the domain/data layer; `.routey` file UI
+  remains app work.
+- Borrowed routes cannot be edited through tested domain operations; visible
+  borrowed-route affordances remain app/UI work.
 
 ## M8: Release Readiness
 
@@ -411,7 +413,7 @@ Security checks:
 - [x] Verify all user-facing copy remains carrier-agnostic.
 - [ ] Deploy CloudKit schema changes to Production and test against Production before release.
 - [x] Confirm watchOS and CarPlay deferred fields remain present or intentionally optional.
-- [ ] Update README/spec/plans to match shipped behavior.
+- [x] Update README/spec/plans/devlog/metadata to match shipped behavior.
 
 **Status 2026-06-28:** Local release-readiness checks on the `nightly` train
 passed for `RouteyKit` build/test, the current Routey app test target, and a
@@ -422,6 +424,11 @@ active camera, photo library, or location APIs; photo paths and coordinates are
 domain fields for deferred UI. Production CloudKit schema deployment,
 Production-environment device testing, and the visible V1.0 app workflows
 remain manual release gates.
+
+**Status 2026-06-28, release docs:** README, the design spec, detailed Plans
+04-07, the devlog, and fastlane metadata were reconciled so they name the merged
+headless package train without claiming visible Today's Run, camera, PDF/share,
+encrypted file UI, Production CloudKit, watchOS, or CarPlay work is complete.
 
 **Verification:**
 ```bash

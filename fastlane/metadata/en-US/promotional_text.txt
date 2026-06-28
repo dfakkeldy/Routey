@@ -1,1 +1,1 @@
-Sort, snap, and deliver from an offline route plan built for dead zones, parcel-heavy days, and quick checkoffs in the truck.
+Offline-first route lookup and editing for rural delivery work, built for dead zones and fast decisions from the truck.

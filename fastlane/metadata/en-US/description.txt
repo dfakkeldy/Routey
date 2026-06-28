@@ -1,18 +1,18 @@
-Routey helps rural carriers turn a route plan into a calmer delivery day. Built for dead zones and parcel-heavy mornings, it keeps the working route local on your iPhone so sorting, lookup, and checkoff stay fast when service is spotty.
+Routey helps rural carriers turn a route plan into a calmer delivery day. Built for dead zones and parcel-heavy mornings, it keeps route lookup local on your iPhone so the core route record stays available when service is spotty.
 
-Routey is built around a simple flow: sort -> snap -> deliver.
+Routey is being built around a simple flow: sort -> snap -> deliver.
 
 KEY FEATURES
 
-- Offline-first route planning: keep delivery work available from a local source of truth.
-- Snap-to-add parcels: use on-device OCR to capture parcel-label details and match them to stops.
-- Delivery-order checkoff: sort today's parcels into route order and work through the run without paper notes.
+- Offline-first route record: keep route data available from a local source of truth.
 - Master route lookup: search addresses, delivery points, notes, and flags from one carrier-focused workspace.
-- Flexible views: switch between parcel-only focus and the full route when the day gets messy.
+- Route editing: import a route, then keep it current as the day-to-day route changes.
+- Current pre-release foundations: local search, OCR matcher core, Today's Run domain operations, history/report content, and encrypted handoff domain are tested package-first before broader app UI.
+- Sync readiness: private iCloud sync hooks are in place for pre-release validation; local data remains the source of truth.
 
 HOW IT WORKS
 
-Build or import a generic route, add today's parcel workload, then use Routey to organize the run in delivery order. The app is designed for rural delivery realities: shared boxes, clustered delivery points, patchy reception, and fast decisions from the truck.
+Build or import a generic route, search it locally, and keep the route record current. The app is designed for rural delivery realities: shared boxes, clustered delivery points, patchy reception, and fast decisions from the truck.
 
 Routey is not a carrier system and does not replace official delivery requirements. It is a personal logistics tool for organizing your own workflow.
 
