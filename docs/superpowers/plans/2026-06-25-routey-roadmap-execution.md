@@ -100,7 +100,7 @@ check if a second iPhone becomes available.
 - [x] Add a temporary macOS proof client that seeds invented, carrier-agnostic test data only.
 - [ ] Install on one physical iPhone and one signed Mac app using the same iCloud account.
 - [ ] Verify parent-before-child arrival, cascade deletes, many-to-many joins, and a concurrent reorder using `sortIndex`.
-- [ ] Record an explicit decision: proceed with SQLiteData or pivot to Core Data + `NSPersistentCloudKitContainer`.
+- [x] Record an explicit decision: proceed with SQLiteData or pivot to Core Data + `NSPersistentCloudKitContainer`.
 
 **Status 2026-06-25:** Local M1 setup is complete in the app shell. `RouteyApp`
 now opens the local database and starts a private-only SQLiteData `SyncEngine`
@@ -116,6 +116,27 @@ build is currently blocked because the available "Mac Team Provisioning Profile:
 *" does not include the iCloud capability or `iCloud.com.routey.app` container.
 The actual CloudKit round-trip needs a Mac app ID/provisioning profile with that
 container, plus the iPhone signed into the same iCloud account.
+
+**Status 2026-06-28:** PR #13 merged to `nightly` as `54f9ceb` (`Add
+foreground Routey sync hooks (#13)`), and GitHub's Build gate + tests passed in
+14m13s. The currently documented manual proof covers a physical iPhone clean
+reinstall whose database matched the Mac proof database's invented placeholder
+proof rows, with no unsynced rows observed. This proves the documented
+clean-install pull path and supports proceeding with SQLiteData + private
+CloudKit unless the remaining manual matrix reveals a hard failure. The evidence
+does not explicitly document that the signed Mac app install was unblocked, so
+that checklist item remains open.
+
+The synced schema is now under append-only discipline: preserve UUID primary
+keys, avoid non-primary-key uniqueness on synced tables, and add only new
+optional/defaulted synced columns or new synced tables instead of renaming,
+dropping, or retyping existing synced schema.
+
+Remaining manual matrix follow-up: the repo does not yet document every graph
+edge independently. Signed Mac app install evidence, nested iPhone edit -> Mac
+pull, Mac `sortIndex` move -> iPhone pull, delete/cascade propagation, and
+same-row or concurrent reorder behavior remain manual checks. Until the reorder
+behavior is documented, Today's Run stays single-device-per-day.
 
 **Verification:**
 ```bash
@@ -137,11 +158,11 @@ For simulator/device logs when diagnosing sync:
 ```
 
 Manual Mac+iPhone gate:
-- Mac proof app seeds a proof route graph and pushes it; iPhone receives it without orphan rows.
-- iPhone edits nested rows; Mac proof app pulls and reflects the changes.
-- Mac proof app moves a proof stop and pushes it; iPhone reflects the `sortIndex` reorder.
-- One side deletes the proof route; owned rows cascade consistently on the other side.
-- If both sides reorder different stops, the result is understandable under last-write-wins and gap indexing.
+- [x] Mac proof database has invented placeholder proof rows; a clean reinstall iPhone receives matching rows with no unsynced rows observed.
+- [ ] iPhone edits nested rows; Mac proof app pulls and reflects the changes.
+- [ ] Mac proof app moves a proof stop and pushes it; iPhone reflects the `sortIndex` reorder.
+- [ ] One side deletes the proof route; owned rows cascade consistently on the other side.
+- [ ] If both sides reorder different stops, the result is understandable under last-write-wins and gap indexing.
 
 **Exit criteria:**
 - Written proceed/fallback decision.
@@ -155,11 +176,12 @@ Manual Mac+iPhone gate:
 **Primary source plans:** `2026-06-22-routey-02-import-editing.md`.
 
 **Work:**
-- [ ] Add `RouteyImport` for tolerant pasted/CSV route parsing.
-- [ ] Add `RouteyDomain` edit operations for routes, stops, delivery points, addresses, tags, and gap-based ordering.
-- [ ] Build in-memory database tests for parser -> importer -> persisted graph.
-- [ ] Add iOS Route List, Stop Detail, Address Editor, Tag Picker, and Import screens.
-- [ ] Keep all UI state in `@MainActor @Observable` view models or view-owned `@State`; database/domain logic remains outside views.
+- [x] Add `RouteyImport` for tolerant pasted/CSV route parsing.
+- [x] Add `RouteyDomain` edit operations for stops, addresses, tags, and gap-based stop ordering.
+- [ ] Add remaining route and delivery-point edit operations.
+- [x] Build in-memory database tests for parser -> importer -> persisted graph.
+- [x] Add iOS Route List, Stop Detail, Address Editor, Tag Picker, and Import screens.
+- [x] Keep all UI state in `@MainActor @Observable` view models or view-owned `@State`; database/domain logic remains outside views.
 
 **Verification:**
 ```bash
@@ -186,11 +208,22 @@ App smoke checks:
 **Primary source plans:** `2026-06-22-routey-03-search-sortcase.md`.
 
 **Work:**
-- [ ] Add `RouteySearch` and local, non-synced FTS5 tables.
-- [ ] Build deterministic FTS rebuild from the master graph.
-- [ ] Add `SearchService` returning ranked hits with locator details.
-- [ ] Wire rebuild after import/edit operations and at app launch if needed.
-- [ ] Build predictive Search and Virtual Sort Case UI.
+- [x] Add `RouteySearch` and local, non-synced FTS5 tables.
+- [x] Build deterministic FTS rebuild from the master graph.
+- [x] Add `SearchService` returning ranked hits with locator details.
+- [x] Wire rebuild after import/edit operations and at app launch if needed.
+- [x] Build predictive Search UI.
+- [ ] Build Virtual Sort Case UI.
+
+**Status 2026-06-28:** `cd RouteyKit && swift test` passes with 31 Swift
+Testing tests in 9 suites. M2 is implemented for tolerant import, importer
+persistence, stop/address/tag editing, gap stop ordering, and the route/import
+editing screens; remaining M2 gaps are full route and delivery-point edit
+operations plus refreshed offline app smoke evidence. M3 is implemented for the
+local FTS5 index, deterministic rebuild, located `SearchService` hits,
+import/edit/app-launch rebuild wiring, and predictive Search UI; remaining M3
+gaps are Virtual Sort Case UI and any tag-term query matching required by the
+smoke checklist.
 
 **Verification:**
 ```bash
