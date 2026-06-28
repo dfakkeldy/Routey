@@ -6,6 +6,7 @@ import RouteyImport
 
 struct ImportRouteView: View {
   @Dependency(\.defaultDatabase) private var database
+  @Dependency(\.defaultSyncEngine) private var syncEngine
   @Environment(\.dismiss) private var dismiss
   @State private var routeName = ""
   @State private var routeText = ""
@@ -79,9 +80,16 @@ struct ImportRouteView: View {
         from: parseResult,
         into: database
       )
+      sendChanges(reason: "route imported")
       dismiss()
     } catch {
       show(error)
+    }
+  }
+
+  private func sendChanges(reason: String) {
+    Task {
+      await RouteySyncing.sendChanges(reason: reason, using: syncEngine)
     }
   }
 

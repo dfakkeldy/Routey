@@ -6,6 +6,7 @@ import RouteyModel
 struct RouteStopsView: View {
   let route: Route
   @Dependency(\.defaultDatabase) private var database
+  @Dependency(\.defaultSyncEngine) private var syncEngine
   @FetchAll private var stops: [Stop]
   @State private var filter = ""
   @State private var errorMessage = ""
@@ -66,6 +67,7 @@ struct RouteStopsView: View {
         after: stops.last?.id,
         into: database
       )
+      sendChanges(reason: "stop added")
     } catch {
       show(error)
     }
@@ -76,8 +78,15 @@ struct RouteStopsView: View {
       for offset in offsets {
         try RouteEditing.deleteStop(visibleStops[offset].id, in: database)
       }
+      sendChanges(reason: "stop deleted")
     } catch {
       show(error)
+    }
+  }
+
+  private func sendChanges(reason: String) {
+    Task {
+      await RouteySyncing.sendChanges(reason: reason, using: syncEngine)
     }
   }
 
