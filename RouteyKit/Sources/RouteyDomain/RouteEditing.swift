@@ -3,6 +3,10 @@ import SQLiteData
 import RouteyModel
 import RouteySearch
 
+public enum RouteEditingError: Error, Equatable {
+  case routeIsBorrowed
+}
+
 public enum RouteEditing {
   @discardableResult
   public static func addStop(
@@ -15,6 +19,8 @@ public enum RouteEditing {
     let stopID = UUID()
 
     try database.write { db in
+      try ensureRouteIsEditable(routeID, in: db)
+
       let siblings = try Stop
         .where { $0.routeID.eq(#bind(routeID)) }
         .order { $0.sortIndex }
@@ -45,6 +51,8 @@ public enum RouteEditing {
     in database: any DatabaseWriter
   ) throws {
     try database.write { db in
+      try ensureStopRouteIsEditable(stopID, in: db)
+
       try Stop.find(stopID)
         .update { $0.displayName = #bind(displayName) }
         .execute(db)
@@ -57,6 +65,8 @@ public enum RouteEditing {
     in database: any DatabaseWriter
   ) throws {
     try database.write { db in
+      try ensureStopRouteIsEditable(stopID, in: db)
+
       try Stop.find(stopID)
         .update { $0.tieOut = #bind(tieOut) }
         .execute(db)
@@ -65,6 +75,8 @@ public enum RouteEditing {
 
   public static func deleteStop(_ stopID: Stop.ID, in database: any DatabaseWriter) throws {
     try database.write { db in
+      try ensureStopRouteIsEditable(stopID, in: db)
+
       try Stop.find(stopID)
         .delete()
         .execute(db)
@@ -79,6 +91,8 @@ public enum RouteEditing {
     in database: any DatabaseWriter
   ) throws {
     try database.write { db in
+      try ensureDeliveryPointRouteIsEditable(deliveryPointID, in: db)
+
       try Address.insert { address }
         .execute(db)
       try DeliveryPointAddress.insert {
@@ -99,6 +113,8 @@ public enum RouteEditing {
     in database: any DatabaseWriter
   ) throws {
     try database.write { db in
+      try ensureAddressRoutesAreEditable(addressID, in: db)
+
       try Address.find(addressID)
         .update {
           $0.civicNumber = #bind(civicNumber)
@@ -120,6 +136,8 @@ public enum RouteEditing {
     in database: any DatabaseWriter
   ) throws -> Tag.ID {
     try database.write { db in
+      try ensureAddressRoutesAreEditable(addressID, in: db)
+
       let existingTag = try Tag.all.fetchAll(db).first { $0.name == name }
       let tagID: Tag.ID
 
@@ -156,6 +174,8 @@ public enum RouteEditing {
     in database: any DatabaseWriter
   ) throws {
     try database.write { db in
+      try ensureAddressRoutesAreEditable(addressID, in: db)
+
       let links = try AddressTag.all.fetchAll(db)
       for link in links where link.addressID == addressID && link.tagID == tagID {
         try AddressTag.find(link.id)
@@ -187,5 +207,41 @@ public enum RouteEditing {
   private static func rebuildSearchIndex(in db: Database) throws {
     try SearchIndex.install(db)
     try SearchIndex.rebuild(from: db)
+  }
+
+  private static func ensureRouteIsEditable(_ routeID: Route.ID, in db: Database) throws {
+    let route = try Route.all.fetchAll(db).first { $0.id == routeID }
+    if route?.isBorrowed == true {
+      throw RouteEditingError.routeIsBorrowed
+    }
+  }
+
+  private static func ensureStopRouteIsEditable(_ stopID: Stop.ID, in db: Database) throws {
+    guard let stop = try Stop.all.fetchAll(db).first(where: { $0.id == stopID }) else {
+      return
+    }
+    try ensureRouteIsEditable(stop.routeID, in: db)
+  }
+
+  private static func ensureDeliveryPointRouteIsEditable(
+    _ deliveryPointID: DeliveryPoint.ID,
+    in db: Database
+  ) throws {
+    guard let point = try DeliveryPoint.all.fetchAll(db).first(where: { $0.id == deliveryPointID }) else {
+      return
+    }
+    try ensureStopRouteIsEditable(point.stopID, in: db)
+  }
+
+  private static func ensureAddressRoutesAreEditable(_ addressID: Address.ID, in db: Database) throws {
+    let deliveryPointIDs = try DeliveryPointAddress.all.fetchAll(db)
+      .filter { $0.addressID == addressID }
+      .map(\.deliveryPointID)
+    let deliveryPoints = try DeliveryPoint.all.fetchAll(db)
+      .filter { deliveryPointIDs.contains($0.id) }
+
+    for deliveryPoint in deliveryPoints {
+      try ensureStopRouteIsEditable(deliveryPoint.stopID, in: db)
+    }
   }
 }
