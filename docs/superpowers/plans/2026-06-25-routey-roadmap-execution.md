@@ -248,13 +248,20 @@ App smoke checks:
 **Primary source plans:** `2026-06-22-routey-04-ocr-matcher.md`.
 
 **Work:**
-- [ ] Add `RouteyOCR` with a pure `AddressNormalizer`.
-- [ ] Add `AddressMatcher` using normalize -> block -> weighted score -> rank -> threshold.
-- [ ] Add gated numeric agreement: confident mismatched numbers disqualify candidates.
-- [ ] Add occupant-name disambiguation for shared civics.
-- [ ] Add keyword detection for signature/customs-style handling.
-- [ ] Wrap Vision label reading behind a testable boundary.
-- [ ] Assemble `SnapPipeline` for Plan 05 consumption.
+- [x] Add `RouteyOCR` with a pure `AddressNormalizer`.
+- [x] Add `AddressMatcher` using normalize -> block -> weighted score -> rank -> threshold.
+- [x] Add gated numeric agreement: confident mismatched numbers disqualify candidates.
+- [x] Add occupant-name disambiguation for shared civics.
+- [x] Add keyword detection for signature/customs-style handling.
+- [x] Wrap label reading behind a testable boundary; the first shipped slice uses fixture text input, not camera UI.
+- [x] Assemble `SnapPipeline` for Plan 05 consumption.
+
+**Status 2026-06-28:** PR #15 merged to `nightly` as `a0db96f` (`Add
+Routey OCR matcher core (#15)`). The merged headless slice adds the
+`RouteyOCR` target, deterministic normalization/matching, conservative numeric
+mismatch handling, occupant disambiguation, invented keyword fixtures, a
+`LabelReading` protocol boundary, and `SnapPipeline`. Camera/Vision UI remains
+deferred.
 
 **Verification:**
 ```bash
@@ -281,13 +288,20 @@ Device/simulator checks once camera/OCR UI exists:
 **Primary source plans:** `2026-06-22-routey-05-todays-run.md`.
 
 **Work:**
-- [ ] Add daily synced tables for runs, run stops, parcels, delivery records, and follow-up tasks.
-- [ ] Snapshot run stops from the master route so in-progress days survive master edits.
-- [ ] Implement run generation, gap-index reorder, parcel add, signature counts, delivery outcomes, follow-up spawning, and bulk check-off in `RouteyDomain`.
+- [x] Add daily synced tables for runs, run stops, parcels, delivery records, and follow-up tasks.
+- [x] Snapshot run stops from the master route so in-progress days survive master edits.
+- [x] Implement run generation, gap-index reorder, parcel add, signature counts, delivery outcomes, follow-up spawning, and bulk check-off in `RouteyDomain`.
 - [ ] Add Today's Run screen filters: full route, no-flyers + parcels, parcels, signatures.
 - [ ] Add Deliver flow with GPS/timestamp and optional photo file reference.
 - [ ] Add Snap-to-Add UI using `SnapPipeline`.
 - [ ] Add scannable barcode re-display if still a Day-1 requirement.
+
+**Status 2026-06-28:** PR #16 merged to `nightly` as `fa2f937` (`Add
+Today's Run domain core (#16)`). The merged package slice adds the v2 daily
+schema and synced tables, route snapshot generation, reorder/parcel/signature
+operations, delivery logging with optional location/photo references, follow-up
+tasks, and bulk check-off. The visible Today's Run app screens are still gated
+behind explicit UI confirmation.
 
 **Verification:**
 ```bash
@@ -316,11 +330,17 @@ App smoke checks:
 **Primary source plans:** `2026-06-22-routey-06-history-reports.md`.
 
 **Work:**
-- [ ] Archive completed runs into searchable history.
-- [ ] Add filtered history queries by address, date, tag, outcome, and photo presence.
-- [ ] Add a pure `ReportBuilder` for tie-out sheets, case strips, and filtered lists.
+- [x] Archive completed runs into searchable history.
+- [x] Add filtered history queries by address, date, tag, outcome, and photo presence.
+- [x] Add a pure `ReportBuilder` for tie-out sheets, case strips, and filtered lists.
 - [ ] Render reports to PDF and expose print/share in the iOS app.
 - [ ] Prefer SwiftUI `ImageRenderer` where rendering SwiftUI content; keep UIKit-only rendering behind `#if os(iOS)` if lower-level PDF APIs are required.
+
+**Status 2026-06-28:** PR #17 merged to `nightly` as `b295ee3` (`Add Routey
+history domain (#17)`), and PR #18 merged as `d79758d` (`Add Routey report
+builder (#18)`). The merged headless slices cover archival, filtered delivery
+history, address-query history via the search index, tie-out sheets, case
+strips, and filtered report content. PDF, print, and share UI remain deferred.
 
 **Verification:**
 ```bash
@@ -347,12 +367,19 @@ App smoke checks:
 **Primary source plans:** `2026-06-22-routey-07-encrypted-handoff.md`.
 
 **Work:**
-- [ ] Add `RouteyExport` with Codable DTOs separate from persistence models.
-- [ ] Implement versioned envelope: magic `RTYE`, format version, KDF ID, PBKDF2 iteration count, salt, nonce, payload schema version, and GCM AAD binding.
-- [ ] Use AES-256-GCM and wrong-passphrase authentication failure as the only verifier.
-- [ ] Add borrowed/read-only route flag before sync live if possible; otherwise additive migration only.
+- [x] Add `RouteyExport` with Codable DTOs separate from persistence models.
+- [x] Implement versioned envelope: magic `RTYE`, format version, KDF ID, PBKDF2 iteration count, salt, nonce, payload schema version, and GCM AAD binding.
+- [x] Use AES-256-GCM and wrong-passphrase authentication failure as the only verifier.
+- [x] Add borrowed/read-only route flag before sync live if possible; otherwise additive migration only.
 - [ ] Add export/import UI via custom `.routey` UTType and file/transfer affordances.
-- [ ] Ensure no plaintext route export path exists in V1.0.
+- [x] Ensure no plaintext route export path exists in V1.0.
+
+**Status 2026-06-28:** PR #19 merged to `nightly` as `e5cc634` (`Add Routey
+encrypted handoff domain (#19)`). The merged package slice adds `RouteyExport`,
+authenticated encrypted envelopes, DTO mapping, encrypted export/import round
+trips with fresh IDs, and an additive v3 `routes.isBorrowed` migration with
+domain read-only guards for borrowed routes. File import/export UI remains
+deferred.
 
 **Verification:**
 ```bash
@@ -378,13 +405,23 @@ Security checks:
 **Purpose:** Convert the implemented roadmap into a shippable V1.0 iPhone cut.
 
 **Work:**
-- [ ] Run full package and app tests.
-- [ ] Run SwiftLint if installed.
-- [ ] Audit privacy, file protection, photo storage, location usage strings, and CloudKit entitlements.
-- [ ] Verify all user-facing copy remains carrier-agnostic.
+- [x] Run full package and app tests.
+- [x] Run SwiftLint if installed.
+- [x] Audit privacy, file protection, photo storage, location usage strings, and CloudKit entitlements.
+- [x] Verify all user-facing copy remains carrier-agnostic.
 - [ ] Deploy CloudKit schema changes to Production and test against Production before release.
-- [ ] Confirm watchOS and CarPlay deferred fields remain present or intentionally optional.
+- [x] Confirm watchOS and CarPlay deferred fields remain present or intentionally optional.
 - [ ] Update README/spec/plans to match shipped behavior.
+
+**Status 2026-06-28:** Local release-readiness checks on the `nightly` train
+passed for `RouteyKit` build/test, the current Routey app test target, and a
+generic iOS app build. SwiftLint was not installed in the local environment.
+The built app bundle uses `com.danfakkeldy.routey`, minimum iOS 18.0, and a
+CloudKit entitlement for `iCloud.com.routey.app`. Current app code has no
+active camera, photo library, or location APIs; photo paths and coordinates are
+domain fields for deferred UI. Production CloudKit schema deployment,
+Production-environment device testing, and the visible V1.0 app workflows
+remain manual release gates.
 
 **Verification:**
 ```bash
