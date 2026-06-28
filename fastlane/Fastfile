@@ -152,16 +152,37 @@ platform :ios do
 
   desc "Build and upload Routey to TestFlight"
   lane :beta do |options|
-    channel = options[:channel]
-    UI.message("Release train channel: #{channel}") if channel
+    channel = (options[:channel] || env_value("RELEASE_CHANNEL") || "").to_s.downcase
+    testflight_group, external_distribution = case channel
+                                              when "nightly" then ["Nightly", false]
+                                              else [nil, false]
+                                              end
+    UI.message(
+      "Release train channel: #{channel.empty? ? '(none)' : channel} -> " \
+      "TestFlight group: #{testflight_group || '(none)'}, " \
+      "external: #{external_distribution}"
+    )
 
     api_key = app_store_connect_key
 
     build
-    upload_to_testflight(
+
+    testflight_options = {
       api_key: api_key,
       app_identifier: APP_IDENTIFIER,
-      skip_waiting_for_build_processing: true
-    )
+      skip_waiting_for_build_processing: false,
+      distribute_external: external_distribution,
+      notify_external_testers: external_distribution
+    }
+
+    # Internal testers automatically see processed internal builds. Echo avoids
+    # passing the Nightly group because Pilot treats explicit group distribution
+    # as an external submission that requires Beta App Review metadata.
+    if testflight_group && external_distribution
+      testflight_options[:groups] = [testflight_group]
+      testflight_options[:distribute_external] = true
+    end
+
+    upload_to_testflight(testflight_options)
   end
 end
