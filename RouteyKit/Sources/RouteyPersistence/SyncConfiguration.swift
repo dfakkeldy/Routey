@@ -5,6 +5,7 @@ public func routeySyncEngine(for database: any DatabaseWriter) throws -> SyncEng
   try SyncEngine(
     for: database,
     privateTables: Route.self, Stop.self, Module.self, DeliveryPoint.self,
-    Address.self, Tag.self, DeliveryPointAddress.self, AddressTag.self
+    Address.self, Tag.self, DeliveryPointAddress.self, AddressTag.self,
+    TodaysRun.self, RunStop.self, Parcel.self, DeliveryRecord.self, FollowUpTask.self
   )
 }
