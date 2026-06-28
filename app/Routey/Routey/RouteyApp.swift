@@ -7,9 +7,10 @@ struct RouteyApp: App {
   init() {
     do {
       let database = try routeyDatabase()
-      try prepareDependencies {
+      let syncEngine = try routeySyncEngine(for: database)
+      prepareDependencies {
         $0.defaultDatabase = database
-        $0.defaultSyncEngine = try routeySyncEngine(for: database)
+        $0.defaultSyncEngine = syncEngine
       }
     } catch {
       fatalError("Failed to open Routey database: \(error)")

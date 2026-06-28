@@ -3,6 +3,8 @@ import SwiftUI
 import RouteyModel
 
 struct ContentView: View {
+  @Environment(\.scenePhase) private var scenePhase
+  @Dependency(\.defaultSyncEngine) private var syncEngine
   @FetchAll(Route.order { $0.name }) private var routes: [Route]
   @State private var isImportingRoute = false
 
@@ -45,6 +47,25 @@ struct ContentView: View {
       .overlay {
         if routes.isEmpty {
           ContentUnavailableView("No Routes", systemImage: "map")
+        }
+      }
+      .task {
+        await RouteySyncing.synchronize(reason: "route list appeared", using: syncEngine)
+      }
+      .onChange(of: scenePhase) { _, phase in
+        switch phase {
+        case .active:
+          Task {
+            await RouteySyncing.synchronize(reason: "app became active", using: syncEngine)
+          }
+        case .background:
+          Task {
+            await RouteySyncing.sendChanges(reason: "app entered background", using: syncEngine)
+          }
+        case .inactive:
+          break
+        @unknown default:
+          break
         }
       }
     }
