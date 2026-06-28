@@ -1,6 +1,7 @@
 import Foundation
 import SQLiteData
 import RouteyModel
+import RouteySearch
 
 public enum RouteEditing {
   @discardableResult
@@ -31,6 +32,8 @@ public enum RouteEditing {
         )
       }
       .execute(db)
+
+      try rebuildSearchIndex(in: db)
     }
 
     return stopID
@@ -65,6 +68,8 @@ public enum RouteEditing {
       try Stop.find(stopID)
         .delete()
         .execute(db)
+
+      try rebuildSearchIndex(in: db)
     }
   }
 
@@ -80,6 +85,8 @@ public enum RouteEditing {
         DeliveryPointAddress(deliveryPointID: deliveryPointID, addressID: address.id)
       }
       .execute(db)
+
+      try rebuildSearchIndex(in: db)
     }
   }
 
@@ -100,6 +107,8 @@ public enum RouteEditing {
           $0.notes = #bind(notes)
         }
         .execute(db)
+
+      try rebuildSearchIndex(in: db)
     }
   }
 
@@ -135,6 +144,8 @@ public enum RouteEditing {
         .execute(db)
       }
 
+      try rebuildSearchIndex(in: db)
+
       return tagID
     }
   }
@@ -151,6 +162,8 @@ public enum RouteEditing {
           .delete()
           .execute(db)
       }
+
+      try rebuildSearchIndex(in: db)
     }
   }
 
@@ -169,5 +182,10 @@ public enum RouteEditing {
 
     let upperBound = siblings[precedingIndex + 1].sortIndex
     return (lowerBound + upperBound) / 2.0
+  }
+
+  private static func rebuildSearchIndex(in db: Database) throws {
+    try SearchIndex.install(db)
+    try SearchIndex.rebuild(from: db)
   }
 }

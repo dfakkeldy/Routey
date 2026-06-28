@@ -176,11 +176,12 @@ Manual Mac+iPhone gate:
 **Primary source plans:** `2026-06-22-routey-02-import-editing.md`.
 
 **Work:**
-- [ ] Add `RouteyImport` for tolerant pasted/CSV route parsing.
-- [ ] Add `RouteyDomain` edit operations for routes, stops, delivery points, addresses, tags, and gap-based ordering.
-- [ ] Build in-memory database tests for parser -> importer -> persisted graph.
-- [ ] Add iOS Route List, Stop Detail, Address Editor, Tag Picker, and Import screens.
-- [ ] Keep all UI state in `@MainActor @Observable` view models or view-owned `@State`; database/domain logic remains outside views.
+- [x] Add `RouteyImport` for tolerant pasted/CSV route parsing.
+- [x] Add `RouteyDomain` edit operations for stops, addresses, tags, and gap-based stop ordering.
+- [ ] Add remaining route and delivery-point edit operations.
+- [x] Build in-memory database tests for parser -> importer -> persisted graph.
+- [x] Add iOS Route List, Stop Detail, Address Editor, Tag Picker, and Import screens.
+- [x] Keep all UI state in `@MainActor @Observable` view models or view-owned `@State`; database/domain logic remains outside views.
 
 **Verification:**
 ```bash
@@ -207,11 +208,22 @@ App smoke checks:
 **Primary source plans:** `2026-06-22-routey-03-search-sortcase.md`.
 
 **Work:**
-- [ ] Add `RouteySearch` and local, non-synced FTS5 tables.
-- [ ] Build deterministic FTS rebuild from the master graph.
-- [ ] Add `SearchService` returning ranked hits with locator details.
-- [ ] Wire rebuild after import/edit operations and at app launch if needed.
-- [ ] Build predictive Search and Virtual Sort Case UI.
+- [x] Add `RouteySearch` and local, non-synced FTS5 tables.
+- [x] Build deterministic FTS rebuild from the master graph.
+- [x] Add `SearchService` returning ranked hits with locator details.
+- [x] Wire rebuild after import/edit operations and at app launch if needed.
+- [x] Build predictive Search UI.
+- [ ] Build Virtual Sort Case UI.
+
+**Status 2026-06-28:** `cd RouteyKit && swift test` passes with 31 Swift
+Testing tests in 9 suites. M2 is implemented for tolerant import, importer
+persistence, stop/address/tag editing, gap stop ordering, and the route/import
+editing screens; remaining M2 gaps are full route and delivery-point edit
+operations plus refreshed offline app smoke evidence. M3 is implemented for the
+local FTS5 index, deterministic rebuild, located `SearchService` hits,
+import/edit/app-launch rebuild wiring, and predictive Search UI; remaining M3
+gaps are Virtual Sort Case UI and any tag-term query matching required by the
+smoke checklist.
 
 **Verification:**
 ```bash

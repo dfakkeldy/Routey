@@ -2,10 +2,15 @@ import Foundation
 import SQLiteData
 import Testing
 import RouteyModel
+import RouteySearch
 @testable import RouteyDomain
 @testable import RouteyPersistence
 
 @Suite struct RouteEditingTests {
+  private struct SearchableAddressFixture {
+    var addressID: Address.ID
+  }
+
   private func freshDB() throws -> DatabaseQueue {
     let database = try DatabaseQueue()
     try Schema.migrator.migrate(database)
@@ -16,6 +21,58 @@ import RouteyModel
     try database.read { db in
       try Int.fetchOne(db, sql: "SELECT count(*) FROM \"\(tableName)\"") ?? -1
     }
+  }
+
+  private func seedSearchableAddress(
+    in database: DatabaseQueue,
+    civicNumber: Int,
+    street: String,
+    occupantName: String? = nil,
+    installSearchIndex: Bool = true
+  ) throws -> SearchableAddressFixture {
+    let routeID = UUID()
+    let stopID = UUID()
+    let pointID = UUID()
+    let addressID = UUID()
+
+    try database.write { db in
+      try Route.insert { Route(id: routeID, name: "Sample Route") }.execute(db)
+      try Stop.insert {
+        Stop(
+          id: stopID,
+          routeID: routeID,
+          tieOut: "A",
+          sortIndex: 0,
+          kind: "pointOfCall",
+          displayName: "Sample Stop"
+        )
+      }
+      .execute(db)
+      try DeliveryPoint.insert {
+        DeliveryPoint(id: pointID, stopID: stopID, label: "Sample Point")
+      }
+      .execute(db)
+      try Address.insert {
+        Address(
+          id: addressID,
+          civicNumber: civicNumber,
+          street: street,
+          occupantName: occupantName
+        )
+      }
+      .execute(db)
+      try DeliveryPointAddress.insert {
+        DeliveryPointAddress(deliveryPointID: pointID, addressID: addressID)
+      }
+      .execute(db)
+
+      if installSearchIndex {
+        try SearchIndex.install(db)
+        try SearchIndex.rebuild(from: db)
+      }
+    }
+
+    return SearchableAddressFixture(addressID: addressID)
   }
 
   @Test func addStopInsertsBetweenSiblingsUsingFractionalSortIndex() throws {
@@ -182,6 +239,34 @@ import RouteyModel
     #expect(address.notes == "Updated note")
   }
 
+  @Test func updateAddressKeepsSearchServiceFresh() throws {
+    let database = try freshDB()
+    let fixture = try seedSearchableAddress(
+      in: database,
+      civicNumber: 4200,
+      street: "Old Placeholder Road",
+      occupantName: "Original Placeholder"
+    )
+    let service = SearchService(database: database)
+
+    try RouteEditing.updateAddress(
+      fixture.addressID,
+      civicNumber: 4200,
+      street: "New Placeholder Road",
+      occupantName: "Updated Placeholder",
+      notes: "Updated note",
+      in: database
+    )
+
+    let oldHits = try service.search("Old Placeholder")
+    let newHits = try service.search("New Placeholder")
+    let occupantHits = try service.search("Updated Placeholder")
+
+    #expect(oldHits.isEmpty)
+    #expect(newHits.map(\.address.id) == [fixture.addressID])
+    #expect(occupantHits.map(\.address.id) == [fixture.addressID])
+  }
+
   @Test func attachAndDetachTagAreIdempotent() throws {
     let database = try freshDB()
     let addressID = UUID()
@@ -214,5 +299,32 @@ import RouteyModel
 
     #expect(try count("addressTags", in: database) == 0)
     #expect(try count("tags", in: database) == 1)
+  }
+
+  @Test func attachAndDetachTagKeepSearchServiceFresh() throws {
+    let database = try freshDB()
+    let fixture = try seedSearchableAddress(
+      in: database,
+      civicNumber: 4210,
+      street: "Taggable Placeholder Road",
+      installSearchIndex: false
+    )
+    let service = SearchService(database: database)
+
+    let tagID = try RouteEditing.attachTag(
+      named: "porch marker",
+      toAddress: fixture.addressID,
+      isWarning: true,
+      in: database
+    )
+
+    var hit = try #require(try service.search("Taggable Placeholder").first)
+    #expect(hit.tagNames == ["porch marker"])
+    #expect(hit.tags.first?.isWarning == true)
+
+    try RouteEditing.detachTag(tagID, fromAddress: fixture.addressID, in: database)
+
+    hit = try #require(try service.search("Taggable Placeholder").first)
+    #expect(hit.tagNames.isEmpty)
   }
 }
