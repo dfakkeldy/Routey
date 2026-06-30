@@ -263,6 +263,8 @@ mismatch handling, occupant disambiguation, invented keyword fixtures, a
 `LabelReading` protocol boundary, and `SnapPipeline`. Camera/Vision UI remains
 deferred.
 
+**Status 2026-06-29 (M4 IMPLEMENTED):** The camera-OCR UI is fully implemented. Snap-to-Add uses `VNRecognizeTextRequest` + `VNDetectBarcodesRequest` with customWords seeded from route street names + rural keywords. All-addresses in-memory scoring (FTS blocking deferred). Camera capture device-tested on physical iPhone. See `docs/superpowers/plans/2026-06-29-snap-to-add-camera.md` for implementation details.
+
 **Verification:**
 ```bash
 cd RouteyKit && swift test --filter AddressNormalizerTests
@@ -302,6 +304,8 @@ schema and synced tables, route snapshot generation, reorder/parcel/signature
 operations, delivery logging with optional location/photo references, follow-up
 tasks, and bulk check-off. The visible Today's Run app screens are still gated
 behind explicit UI confirmation.
+
+**Status 2026-06-29 (M5 Snap-to-Add UI IMPLEMENTED):** The Snap-to-Add UI is complete, integrating camera capture, `VNRecognizeTextRequest` + `VNDetectBarcodesRequest`, address matching via the `SnapPipeline`, and three-band confidence UX (auto-accept, disambiguation list, `.noMatch` fallback). Device-tested on physical iPhone. See `docs/superpowers/plans/2026-06-29-snap-to-add-camera.md` for camera/OCR integration specifics.
 
 **Verification:**
 ```bash

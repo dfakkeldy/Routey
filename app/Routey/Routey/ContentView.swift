@@ -7,6 +7,7 @@ struct ContentView: View {
   @Dependency(\.defaultSyncEngine) private var syncEngine
   @FetchAll(Route.order { $0.name }) private var routes: [Route]
   @State private var isImportingRoute = false
+  @State private var isSnapping = false
 
   var body: some View {
     NavigationStack {
@@ -37,12 +38,22 @@ struct ContentView: View {
           Label("Search", systemImage: "magnifyingglass")
         }
 
+        Button("Snap Parcel", systemImage: "camera") {
+          isSnapping = true
+        }
+        .disabled(routes.isEmpty)
+
         Button("Import", systemImage: "square.and.arrow.down") {
           isImportingRoute = true
         }
       }
       .sheet(isPresented: $isImportingRoute) {
         ImportRouteView()
+      }
+      .fullScreenCover(isPresented: $isSnapping) {
+        if let route = routes.first {
+          SnapView(route: route) { isSnapping = false }
+        }
       }
       .overlay {
         if routes.isEmpty {
