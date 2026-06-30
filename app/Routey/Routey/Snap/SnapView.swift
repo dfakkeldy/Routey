@@ -39,7 +39,7 @@ struct SnapView: View {
       #if os(iOS)
       CameraCaptureView(
         onCapture: { data in Task { await model.handleCapturedImage(data) } },
-        onError: { _ in model.reset() }
+        onError: { message in model.failCapture(message) }
       )
       .ignoresSafeArea(edges: .bottom)
       #else

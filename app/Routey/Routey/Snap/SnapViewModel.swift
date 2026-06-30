@@ -83,6 +83,10 @@ final class SnapViewModel {
     }
   }
 
+  func failCapture(_ message: String) {
+    phase = .failed(message)
+  }
+
   func reset() {
     phase = .capturing
   }
