@@ -293,6 +293,8 @@ optionally colored. The digital replacement for the sticky-note layer.
 - `RecognizeDocumentsRequest` for the sort-case grid (structured boxes → rows/columns).
 - All Vision work off the main thread.
 
+**As-built (2026-06-29):** Snap-to-Add UI shipped using `VNRecognizeTextRequest` + `VNDetectBarcodesRequest`. Candidate sourcing loads all route addresses and scores them in memory (FTS-based blocking deferred until profiling warrants it). `customWords` seeded from the route's distinct street names + rural keywords (RR/CONC/HWY/LOT/SS/PO/BOX). Camera capture device-tested; the `.noMatch` manual fallback currently lets the carrier pick from ranked candidates (full predictive-search-to-add integration is a follow-up).
+
 ### Address matcher (pure Swift, no network/geocoding)
 - `normalize → block → weighted-component-score → rank → threshold`.
 - Normalize: diacritic folding + a bilingual Canadian postal abbreviation table (ST/RUE, AVE,
