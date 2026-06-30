@@ -1,6 +1,9 @@
 #if os(iOS)
-// AVFoundation predates Swift Sendable; @preconcurrency suppresses false-positive
-// data-race diagnostics from the Obj-C framework under Swift 6 strict concurrency.
+// @preconcurrency is required only for the `Task.detached { captureSession.startRunning() }`
+// site below — AVCaptureSession predates Sendable and the detached-capture check fires
+// without it.  The delegate callback is handled correctly via an explicit `nonisolated`
+// method that bounces Sendable values (Data, String) to @MainActor, so @preconcurrency
+// is NOT masking any isolation error in the delegate path.
 @preconcurrency import AVFoundation
 import SwiftUI
 import UIKit
@@ -99,20 +102,21 @@ final class CameraCaptureController: UIViewController, AVCapturePhotoCaptureDele
     output.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
   }
 
-  func photoOutput(
+  nonisolated func photoOutput(
     _ output: AVCapturePhotoOutput,
     didFinishProcessingPhoto photo: AVCapturePhoto,
     error: (any Error)?
   ) {
     if let error {
-      onError?(error.localizedDescription)
+      let message = error.localizedDescription
+      Task { @MainActor in self.onError?(message) }
       return
     }
     guard let data = photo.fileDataRepresentation() else {
-      onError?("Couldn't read the captured photo.")
+      Task { @MainActor in self.onError?("Couldn't read the captured photo.") }
       return
     }
-    onCapture?(data)
+    Task { @MainActor in self.onCapture?(data) }
   }
 }
 #endif
