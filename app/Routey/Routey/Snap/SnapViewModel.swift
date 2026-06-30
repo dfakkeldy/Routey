@@ -48,6 +48,8 @@ final class SnapViewModel {
     guard case .result(let result) = phase else { return }
     do {
       let input = SnapToAdd.parcelInputs(from: result, addressID: addressID)
+      // Service date is intentionally stamped at accept time, not capture time:
+      // a parcel belongs to the run it's confirmed into. (Domain decision, 2026-06-29.)
       let serviceDate = Self.serviceDate(for: .now)
       let runID = try RunGeneration.generate(
         routeID: route.id, serviceDate: serviceDate, now: .now, into: database
