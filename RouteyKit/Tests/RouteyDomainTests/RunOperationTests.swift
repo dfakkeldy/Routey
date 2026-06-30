@@ -144,4 +144,23 @@ import RouteyModel
     #expect(checkedStops.prefix(3).allSatisfy { $0.isDone })
     #expect(checkedStops.suffix(2).allSatisfy { !$0.isDone })
   }
+
+  @Test func removeParcelDeletesTheRow() throws {
+    let database = try freshDB()
+    let (_, runID) = try seedRun(in: database)
+
+    let parcelID = try RunOperations.addParcel(
+      runID: runID, addressID: nil, source: "ocr",
+      requiresSignature: true, isCustoms: false, toDoor: false,
+      labelSnapshot: "31 Elm St", trackingCode: "ZX-001", trackingSymbology: "",
+      in: database
+    )
+    #expect(try RunOperations.signatureCount(runID: runID, in: database) == 1)
+
+    try RunOperations.removeParcel(parcelID, in: database)
+
+    let remaining = try database.read { db in try Parcel.where { $0.id.eq(#bind(parcelID)) }.fetchAll(db) }
+    #expect(remaining.isEmpty)
+    #expect(try RunOperations.signatureCount(runID: runID, in: database) == 0)
+  }
 }

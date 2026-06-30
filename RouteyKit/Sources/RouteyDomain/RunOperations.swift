@@ -80,6 +80,12 @@ public enum RunOperations {
     return parcelID
   }
 
+  public static func removeParcel(_ id: Parcel.ID, in database: any DatabaseWriter) throws {
+    try database.write { db in
+      try Parcel.find(id).delete().execute(db)
+    }
+  }
+
   public static func signatureCount(
     runID: TodaysRun.ID,
     in database: any DatabaseReader
