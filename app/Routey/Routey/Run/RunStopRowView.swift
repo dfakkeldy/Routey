@@ -5,10 +5,7 @@ struct RunStopRowView: View {
   let stop: RunStopSummary
 
   var body: some View {
-    HStack(spacing: 12) {
-      Image(systemName: stop.isDone ? "checkmark.circle.fill" : "circle")
-        .foregroundStyle(stop.isDone ? .green : .secondary)
-
+    HStack {
       VStack(alignment: .leading) {
         Text(stop.tieOut.isEmpty ? stop.displayName : stop.tieOut)
         if !stop.displayName.isEmpty && !stop.tieOut.isEmpty {
