@@ -145,6 +145,29 @@ import RouteyModel
     #expect(checkedStops.suffix(2).allSatisfy { !$0.isDone })
   }
 
+  @Test func setRunStopDoneTogglesASingleStop() throws {
+    let database = try freshDB()
+    let (_, runID) = try seedRun(in: database, stopCount: 3)
+    let stops = try database.read { db in
+      try RunStop.where { $0.runID.eq(#bind(runID)) }.order { $0.sortIndex }.fetchAll(db)
+    }
+    let target = stops[1]
+
+    try RunOperations.setRunStopDone(target.id, done: true, in: database)
+    let afterOn = try database.read { db in try RunStop.find(target.id).fetchOne(db) }
+    #expect(afterOn?.isDone == true)
+
+    let others = try database.read { db in
+      try RunStop.where { $0.runID.eq(#bind(runID)) }.fetchAll(db)
+    }
+    .filter { $0.id != target.id }
+    #expect(others.allSatisfy { $0.isDone == false })
+
+    try RunOperations.setRunStopDone(target.id, done: false, in: database)
+    let afterOff = try database.read { db in try RunStop.find(target.id).fetchOne(db) }
+    #expect(afterOff?.isDone == false)
+  }
+
   @Test func removeParcelDeletesTheRow() throws {
     let database = try freshDB()
     let (_, runID) = try seedRun(in: database)
