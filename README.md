@@ -14,13 +14,16 @@ Official handheld tools are slow, broken, and designed by people who've never ru
 
 - SQLiteData/GRDB local database with private CloudKit sync hooks.
 - Route import, route editing, and local predictive search in the iOS shell.
+- Camera Snap-to-Add with Vision OCR/barcode reading and route address matching.
+- Today's Run drive-loop UI with check-off, stop detail, parcel/warning badges,
+  and drag reorder.
 - Tested package cores for OCR matching, Today's Run generation/operations,
   history search, report content, and encrypted route handoff.
 
 ## Still In Progress
 
-- Today's Run app screens and the delivery-loop UI.
-- Camera Snap-to-Add, PDF/print/share, and encrypted `.routey` file UI.
+- Proof-of-delivery/outcome logging UI, run filters, PDF/print/share, and
+  encrypted `.routey` file UI.
 - Production CloudKit schema deployment and production-device release testing.
 - watchOS and CarPlay surfaces.
 

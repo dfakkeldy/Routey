@@ -293,9 +293,10 @@ Device/simulator checks once camera/OCR UI exists:
 - [x] Add daily synced tables for runs, run stops, parcels, delivery records, and follow-up tasks.
 - [x] Snapshot run stops from the master route so in-progress days survive master edits.
 - [x] Implement run generation, gap-index reorder, parcel add, signature counts, delivery outcomes, follow-up spawning, and bulk check-off in `RouteyDomain`.
+- [x] Add Today's Run drive-loop UI: Run/Routes/Search tabs, live run board, check-off, stop detail, and drag reorder.
 - [ ] Add Today's Run screen filters: full route, no-flyers + parcels, parcels, signatures.
 - [ ] Add Deliver flow with GPS/timestamp and optional photo file reference.
-- [ ] Add Snap-to-Add UI using `SnapPipeline`.
+- [x] Add Snap-to-Add UI using `SnapPipeline`.
 - [ ] Add scannable barcode re-display if still a Day-1 requirement.
 
 **Status 2026-06-28:** PR #16 merged to `nightly` as `fa2f937` (`Add
@@ -306,6 +307,16 @@ tasks, and bulk check-off. The visible Today's Run app screens are still gated
 behind explicit UI confirmation.
 
 **Status 2026-06-29 (M5 Snap-to-Add UI IMPLEMENTED):** The Snap-to-Add UI is complete, integrating camera capture, `VNRecognizeTextRequest` + `VNDetectBarcodesRequest`, address matching via the `SnapPipeline`, and three-band confidence UX (auto-accept, disambiguation list, `.noMatch` fallback). Device-tested on physical iPhone. See `docs/superpowers/plans/2026-06-29-snap-to-add-camera.md` for camera/OCR integration specifics.
+
+**Status 2026-06-30 (M5 Today's Run UI IMPLEMENTED):** The initial drive-loop
+UI is complete on `codex/todays-run-ui`. The app now opens to Run, Routes, and
+Search tabs; the Run tab generates today's run, observes `RunBoard`, shows
+progress/signatures plus parcel and warning badges, and supports single
+check-off, "Done through here", read-only stop detail, and drag reorder. See
+`docs/superpowers/plans/2026-06-29-todays-run-ui.md` and
+`docs/superpowers/specs/2026-06-29-todays-run-ui-design.md`. Remaining M5
+follow-ups are filters, proof-of-delivery/outcome logging UI, follow-up task UI,
+and broader device truck-loop gesture testing.
 
 **Verification:**
 ```bash
