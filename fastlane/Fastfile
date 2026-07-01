@@ -12,6 +12,7 @@ ROOT_PATH = File.expand_path("..", FASTLANE_DIR)
 PROJECT_PATH = File.join(ROOT_PATH, "app/Routey/Routey.xcodeproj")
 SCHEME = "Routey"
 METADATA_PATH = File.join(FASTLANE_DIR, "metadata")
+TESTFLIGHT_METADATA_PATH = File.join(FASTLANE_DIR, "testflight")
 SCREENSHOTS_PATH = File.join(FASTLANE_DIR, "screenshots")
 DEFAULT_API_KEY_JSON_PATH = File.join(FASTLANE_DIR, "api_key.json")
 DEFAULT_EXPORT_METHOD = "app-store"
@@ -91,10 +92,94 @@ def metadata_file(locale, filename)
   File.join(METADATA_PATH, locale, filename)
 end
 
+def testflight_metadata_file(locale, filename)
+  File.join(TESTFLIGHT_METADATA_PATH, locale, filename)
+end
+
+def metadata_locale
+  env_value("FASTLANE_METADATA_LOCALE") || "en-US"
+end
+
+def text_file(path)
+  return nil unless File.exist?(path)
+
+  text = File.read(path).strip
+  text.empty? ? nil : text
+end
+
+def metadata_text(locale, filename)
+  text_file(metadata_file(locale, filename))
+end
+
+def testflight_metadata_text(locale, filename)
+  text_file(testflight_metadata_file(locale, filename))
+end
+
+def testflight_whats_new(locale)
+  testflight_metadata_text(locale, "whats_new.txt") || metadata_text(locale, "release_notes.txt")
+end
+
+def testflight_description(locale)
+  testflight_metadata_text(locale, "description.txt") || metadata_text(locale, "description.txt")
+end
+
+def testflight_marketing_url(locale)
+  env_value("TESTFLIGHT_MARKETING_URL") ||
+    testflight_metadata_text(locale, "marketing_url.txt") ||
+    metadata_text(locale, "marketing_url.txt")
+end
+
+def testflight_privacy_policy_url(locale)
+  env_value("TESTFLIGHT_PRIVACY_POLICY_URL") ||
+    testflight_metadata_text(locale, "privacy_policy_url.txt") ||
+    metadata_text(locale, "privacy_policy_url.txt") ||
+    metadata_text(locale, "privacy_url.txt")
+end
+
+def testflight_feedback_email
+  env_value("TESTFLIGHT_FEEDBACK_EMAIL") || env_value("PILOT_BETA_APP_FEEDBACK")
+end
+
+def testflight_metadata_options(locale)
+  whats_new = testflight_whats_new(locale)
+  UI.user_error!(
+    "Missing TestFlight What to Test text. Add #{testflight_metadata_file(locale, 'whats_new.txt')} " \
+    "or #{metadata_file(locale, 'release_notes.txt')}."
+  ) if whats_new.nil?
+  UI.user_error!("TestFlight What to Test text is #{whats_new.bytesize}/4000 bytes") if whats_new.bytesize > 4000
+
+  description = testflight_description(locale)
+  UI.user_error!("TestFlight beta description is #{description.bytesize}/4000 bytes") if description && description.bytesize > 4000
+
+  localized_app_info = {}
+  localized_app_info[:description] = description if description
+
+  feedback_email = testflight_feedback_email
+  localized_app_info[:feedback_email] = feedback_email if feedback_email
+
+  marketing_url = testflight_marketing_url(locale)
+  localized_app_info[:marketing_url] = marketing_url if marketing_url
+
+  privacy_policy_url = testflight_privacy_policy_url(locale)
+  localized_app_info[:privacy_policy_url] = privacy_policy_url if privacy_policy_url
+
+  options = {
+    changelog: whats_new,
+    localized_build_info: {
+      locale => {
+        whats_new: whats_new
+      }
+    }
+  }
+
+  options[:localized_app_info] = { locale => localized_app_info } unless localized_app_info.empty?
+  options
+end
+
 platform :ios do
   desc "Validate App Store metadata text files locally"
   lane :validate_metadata do
-    locale = env_value("FASTLANE_METADATA_LOCALE") || "en-US"
+    locale = metadata_locale
     locale_path = File.join(METADATA_PATH, locale)
     UI.user_error!("Missing metadata locale directory: #{locale_path}") unless Dir.exist?(locale_path)
 
@@ -123,6 +208,20 @@ platform :ios do
     UI.success("Metadata files are ready for deliver.")
   end
 
+  desc "Validate TestFlight metadata text files locally"
+  lane :validate_testflight_metadata do
+    locale = metadata_locale
+    options = testflight_metadata_options(locale)
+    whats_new = options.fetch(:changelog)
+    description = options.dig(:localized_app_info, locale, :description)
+
+    UI.message("TestFlight locale: #{locale}")
+    UI.message("whats_new.txt: #{whats_new.bytesize}/4000 bytes")
+    UI.message("description: #{description.bytesize}/4000 bytes") if description
+    UI.message("feedback email: #{testflight_feedback_email ? 'configured' : 'not configured'}")
+    UI.success("TestFlight metadata is ready for pilot.")
+  end
+
   desc "Upload App Store metadata from fastlane/metadata"
   lane :metadata do
     validate_metadata
@@ -138,6 +237,27 @@ platform :ios do
       submit_for_review: false,
       force: true
     )
+  end
+
+  desc "Update TestFlight metadata for an already-uploaded Routey build"
+  lane :testflight_metadata do |options|
+    validate_testflight_metadata
+    api_key = app_store_connect_key
+    locale = metadata_locale
+
+    testflight_options = {
+      api_key: api_key,
+      app_identifier: APP_IDENTIFIER,
+      app_platform: "ios",
+      distribute_only: true,
+      skip_submission: true,
+      skip_waiting_for_build_processing: true
+    }.merge(testflight_metadata_options(locale))
+
+    testflight_options[:app_version] = options[:app_version].to_s if options[:app_version]
+    testflight_options[:build_number] = options[:build_number].to_s if options[:build_number]
+
+    upload_to_testflight(testflight_options)
   end
 
   desc "Build an App Store archive for Routey"
@@ -208,9 +328,9 @@ platform :ios do
       skip_waiting_for_build_processing: false,
       distribute_external: external_distribution,
       notify_external_testers: external_distribution
-    }
+    }.merge(testflight_metadata_options(metadata_locale))
 
-    # Internal testers automatically see processed internal builds. Echo avoids
+    # Internal testers automatically see processed internal builds. Routey avoids
     # passing the Nightly group because Pilot treats explicit group distribution
     # as an external submission that requires Beta App Review metadata.
     if testflight_group && external_distribution
