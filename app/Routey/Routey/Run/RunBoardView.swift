@@ -63,10 +63,14 @@ struct RunBoardView: View {
             }
           }
         }
+        .onMove(perform: move)
       }
     }
     .navigationDestination(for: RunStop.ID.self) { runStopID in
       RunStopDetailView(runID: runID, runStopID: runStopID)
+    }
+    .toolbar {
+      EditButton()
     }
     .alert("Couldn't Update Run", isPresented: $isShowingError) {
       Button("OK", role: .cancel) {}
@@ -95,6 +99,36 @@ struct RunBoardView: View {
     } catch {
       show(error)
     }
+  }
+
+  private func move(from offsets: IndexSet, to destination: Int) {
+    let movedIDs = Set(offsets.map { board.stops[$0].runStopID })
+    var reorderedStops = board.stops
+    reorderedStops.move(fromOffsets: offsets, toOffset: destination)
+
+    do {
+      for stop in reorderedStops where movedIDs.contains(stop.runStopID) {
+        let precedingID = precedingRunStopID(for: stop.runStopID, in: reorderedStops)
+        try RunOperations.moveRunStop(
+          stop.runStopID,
+          after: precedingID,
+          in: database
+        )
+      }
+      sendChanges(reason: "run stops reordered")
+    } catch {
+      show(error)
+    }
+  }
+
+  private func precedingRunStopID(
+    for runStopID: RunStop.ID,
+    in stops: [RunStopSummary]
+  ) -> RunStop.ID? {
+    guard let index = stops.firstIndex(where: { $0.runStopID == runStopID }), index > 0 else {
+      return nil
+    }
+    return stops[index - 1].runStopID
   }
 
   private func sendChanges(reason: String) {
