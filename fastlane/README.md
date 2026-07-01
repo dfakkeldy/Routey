@@ -23,6 +23,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 Validate App Store metadata text files locally
 
+### ios validate_testflight_metadata
+
+```sh
+[bundle exec] fastlane ios validate_testflight_metadata
+```
+
+Validate TestFlight metadata text files locally
+
 ### ios metadata
 
 ```sh
@@ -30,6 +38,14 @@ Validate App Store metadata text files locally
 ```
 
 Upload App Store metadata from fastlane/metadata
+
+### ios testflight_metadata
+
+```sh
+[bundle exec] fastlane ios testflight_metadata
+```
+
+Update TestFlight metadata for an already-uploaded Routey build
 
 ### ios build
 

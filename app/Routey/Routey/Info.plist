@@ -38,6 +38,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Routey uses the camera to read parcel labels and add them to today's run.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
