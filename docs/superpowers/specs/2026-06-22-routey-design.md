@@ -1,7 +1,7 @@
 # Routey — Design Spec (V1.0)
 
 - **Date:** 2026-06-22
-- **Status:** Draft for review
+- **Status:** Product design plus implementation checkpoint
 - **Author:** Dan Fakkeldy (rural mail carrier & creator), with Claude
 - **Scope of this doc:** the full product vision + the V1.0 cut line + the technical architecture to build it.
 
@@ -11,11 +11,25 @@
 
 Routey is an **offline-first iOS app for rural mail carriers** that replaces the
 notebook-and-scanner workflow with **sort → snap → deliver**, built around the carrier's
-real master route. V1.0 ships on iPhone with on-device OCR; a watchOS companion (V1.1)
-and CarPlay navigation (V1.2) reuse the same shared code and data.
+master route. V1.0 is scoped as an iPhone app with on-device OCR; a watchOS companion
+(V1.1) and CarPlay navigation (V1.2) reuse the same shared code and data after the
+iPhone app is ready.
 
-The app is built and tested on a live rural route. The guiding rule: **if it doesn't
-save time in the truck, it doesn't ship.**
+The app is privately validated against real-world rural delivery workflows; committed
+fixtures and public examples use invented rural-style data only. The guiding rule: **if
+it doesn't save time in the truck, it doesn't ship.**
+
+### Implementation status, 2026-06-28
+
+The current `nightly` train has the tested package-first foundations for the V1.0
+workflow: route import/edit/search, the headless OCR matcher, Today's Run domain
+operations, history search, report content, and encrypted route handoff. The visible
+Today's Run screens, camera Snap-to-Add UI, PDF/print/share UI, encrypted file UI,
+Production CloudKit schema deployment, and production-device release testing are still
+open gates.
+
+The sync decision is to proceed with SQLiteData + private CloudKit under append-only
+schema discipline unless the remaining manual graph matrix reveals a hard failure.
 
 ---
 
@@ -209,6 +223,14 @@ optionally colored. The digital replacement for the sticky-note layer.
   signature **spawns a follow-up task** at the relevant CMB stop.
 - **Bulk check-off:** tap the last stop to mark everything before it done.
 
+**As-built (2026-06-30):** The initial Today's Run drive-loop UI shipped as a
+TabView home with Run, Routes, and Search tabs. The Run tab idempotently opens
+today's first-route run, shows progress and signature count from the `RunBoard`
+read model, displays parcel and warning badges, supports single check-off, "Done
+through here", read-only stop detail, and drag reorder via `RunOperations`.
+Proof-of-delivery/outcome logging UI, filters, and follow-up task UI remain
+deferred.
+
 ### End of day
 - Today's Run archives into **History**; a fresh Run generates tomorrow.
 
@@ -279,6 +301,8 @@ optionally colored. The digital replacement for the sticky-note layer.
 - `RecognizeDocumentsRequest` for the sort-case grid (structured boxes → rows/columns).
 - All Vision work off the main thread.
 
+**As-built (2026-06-29):** Snap-to-Add UI shipped using `VNRecognizeTextRequest` + `VNDetectBarcodesRequest`. Candidate sourcing loads all route addresses and scores them in memory (FTS-based blocking deferred until profiling warrants it). `customWords` seeded from the route's distinct street names + rural keywords (RR/CONC/HWY/LOT/SS/PO/BOX). Camera capture device-tested; the `.noMatch` manual fallback currently lets the carrier pick from ranked candidates (full predictive-search-to-add integration is a follow-up).
+
 ### Address matcher (pure Swift, no network/geocoding)
 - `normalize → block → weighted-component-score → rank → threshold`.
 - Normalize: diacritic folding + a bilingual Canadian postal abbreviation table (ST/RUE, AVE,
@@ -340,8 +364,8 @@ optionally colored. The digital replacement for the sticky-note layer.
 ## 9. Testing strategy
 
 - **Swift Testing** throughout.
-- **Address matcher** — the highest-value unit tests: a fixture corpus of real rural
-  Canadian addresses (civic, RR, Conc Rd, Hwy+Lot, shared boxes, near-miss numbers)
+- **Address matcher** — the highest-value unit tests: a fixture corpus of invented
+  rural-style Canadian addresses (civic, RR, Conc Rd, Hwy+Lot, shared boxes, near-miss numbers)
   asserting normalization, gated numeric logic, ranking, and the confidence bands.
 - **Encrypted export round-trip** — encrypt→decrypt equality; wrong-passphrase failure;
   header/version handling; tamper → auth failure.

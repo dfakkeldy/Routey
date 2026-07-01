@@ -10,11 +10,17 @@
 
 **Depends on:** Plan 01 (`Address`), Plan 03 (`SearchIndex` blocking is reused for candidate generation). The camera UI shell is finished in Plan 05.
 
+**Status 2026-06-28:** PR #15 merged the headless `RouteyOCR` core into
+`nightly`: normalization, gated/ranked matching, keyword detection, `LabelReading`
+protocol, and `SnapPipeline` are tested with fixture text. A concrete Vision reader,
+camera capture, barcode detection, and parcel persistence remain deferred to app/UI
+work.
+
 ## Global Constraints
 
 - Inherited from Plan 01.
 - **On-device only.** Vision: `recognitionLevel = .accurate`, `recognitionLanguages = ["en-CA","fr-CA"]`, **`usesLanguageCorrection = false`** (correction corrupts civic/RR/postal), seed `customWords` with route street names + rural keywords (RR, CONC, HWY, LOT, SS, PO BOX), always pass EXIF orientation, read `topCandidates(3)`. Run all Vision work off the main thread.
-- **Civic agreement is gated:** a confidently-read mismatched civic number disqualifies a candidate ("12 Main" never matches "21 Main").
+- **Civic agreement is gated:** a confidently-read mismatched civic number disqualifies a candidate ("12 Example Lane" never matches "21 Example Lane").
 - **Foundation Models extraction is out of scope** here — the deterministic parser/matcher is the backbone.
 
 ---
@@ -51,12 +57,12 @@ app/Routey/Snap/  (finished in Plan 05)
 
 **Normalization rules:** lowercase + fold diacritics; expand a bilingual abbreviation table (`st/rue→street`, `ave→avenue`, `rd/ch→road`, `hwy→highway`, `conc→concession`, `rr→rural route`, `ss→sub station`, `apt/unit/suite→unit`, `n/s/e/o/w` directionals); extract a leading or trailing integer as `civic`; extract `RR <n>`, `Conc Rd <n>`, `Hwy <n> Lot <n>` as `routeNumber`; extract a Canadian postal code (`A#A #A#`) into `postal`; remaining street words → `streetTokens`. Rural formats may have no civic.
 
-- [ ] **Step 1:** Add target; `swift build`.
-- [ ] **Step 2: Write failing tests** — assert: `"10100 County Rd 12"` → civic 10100, streetTokens `["highway","19"]`; `"1284 Concession Rd 6"` → civic 1284, routeNumber/street capture "concession"; `"RR 2 Riverbend A1A 1X0"` → routeNumber "rr 2", postal "a1a1x0", civic nil; diacritic + abbrev folding (`"123 Rue Principale O"` → street tokens normalized). Damerau-Levenshtein: `dl("recieve","receive")==1`, transposition counted as 1.
-- [ ] **Step 3:** Run — FAIL.
-- [ ] **Step 4: Implement** the normalizer (deterministic, table-driven) + Damerau-Levenshtein (standard DP, ~30 lines). No network.
-- [ ] **Step 5:** Run — PASS.
-- [ ] **Step 6:** Commit `"Add bilingual address normalizer + edit distance"`.
+- [x] **Step 1:** Add target; `swift build`.
+- [x] **Step 2: Write failing tests** — assert: `"9900 Example County Rd 12"` → civic 9900, streetTokens include `["example","county","road","12"]`; `"8800 Sample Concession Rd 6"` → civic 8800, routeNumber/street capture "concession"; `"RR 2 Fictional Hamlet A1A 1X0"` → routeNumber "rr 2", postal "a1a1x0", civic nil; diacritic + abbrev folding (`"123 Rue Exemple O"` → street tokens normalized). Damerau-Levenshtein: `dl("recieve","receive")==1`, transposition counted as 1.
+- [x] **Step 3:** Run — FAIL.
+- [x] **Step 4: Implement** the normalizer (deterministic, table-driven) + Damerau-Levenshtein (standard DP, ~30 lines). No network.
+- [x] **Step 5:** Run — PASS.
+- [x] **Step 6:** Commit `"Add bilingual address normalizer + edit distance"`.
 
 ---
 
@@ -77,16 +83,16 @@ app/Routey/Snap/  (finished in Plan 05)
 - **Postal/route:** agreement adds confidence; weight ~0.1.
 - **Bands:** auto-accept when top ≥ ~0.90, margin to #2 ≥ ~0.15, and civic agrees (or no civic on either); disambiguate (2–5) in the mid band; manual below a floor.
 
-- [ ] **Step 1: Write failing tests** with rural fixtures:
+- [x] **Step 1: Write failing tests** with invented rural-style fixtures:
   - exact civic+street → `autoAccept`.
-  - confident mismatched civic ("12 Main" vs candidate "21 Main") → disqualified (not top).
-  - two units at "31 Elm St" differing only by occupant → occupant name picks the right one (auto-accept or top of disambiguate).
+  - confident mismatched civic ("12 Example Lane" vs candidate "21 Example Lane") → disqualified (not top).
+  - two units at "31 Example St" differing only by occupant → occupant name picks the right one (auto-accept or top of disambiguate).
   - near-miss street with same civic → reasonable ranking.
   - no plausible candidate → `manual`.
-- [ ] **Step 2:** Run — FAIL.
-- [ ] **Step 3: Implement** `rank` + `band`. Pure functions; deterministic.
-- [ ] **Step 4:** Run — PASS.
-- [ ] **Step 5:** Commit `"Add gated, occupant-aware address matcher with confidence bands"`.
+- [x] **Step 2:** Run — FAIL.
+- [x] **Step 3: Implement** `rank` + `band`. Pure functions; deterministic.
+- [x] **Step 4:** Run — PASS.
+- [x] **Step 5:** Commit `"Add gated, occupant-aware address matcher with confidence bands"`.
 
 ---
 
@@ -98,15 +104,19 @@ app/Routey/Snap/  (finished in Plan 05)
 - `struct LabelFlags: OptionSet, Sendable { ... static let signature, customs, registered, ... }`
 - `enum LabelKeywords { static func detect(in text: String) -> LabelFlags }` — case-insensitive scan for "signature"/"signature required"/"signature requise", customs/duty/"douane", "registered"/"recommandé", etc.
 
-- [ ] **Step 1: Write failing tests** — `"... SIGNATURE REQUIRED ..."` → contains `.signature`; French `"signature requise"` → `.signature`; `"CUSTOMS DUTY $4.50"` → `.customs`; plain label → empty.
-- [ ] **Step 2:** Run — FAIL.
-- [ ] **Step 3: Implement** the scanner (bilingual keyword sets).
-- [ ] **Step 4:** Run — PASS.
-- [ ] **Step 5:** Commit `"Add bilingual label keyword detection (signature/customs)"`.
+- [x] **Step 1: Write failing tests** — `"... SIGNATURE REQUIRED ..."` → contains `.signature`; French `"signature requise"` → `.signature`; `"CUSTOMS DUTY $4.50"` → `.customs`; plain label → empty.
+- [x] **Step 2:** Run — FAIL.
+- [x] **Step 3: Implement** the scanner (bilingual keyword sets).
+- [x] **Step 4:** Run — PASS.
+- [x] **Step 5:** Commit `"Add bilingual label keyword detection (signature/customs)"`.
 
 ---
 
 ### Task 4: Vision LabelReader (device)
+
+**Status 2026-06-28:** Not implemented in the current nightly train. The protocol
+boundary exists and the pipeline is fixture-tested; Vision/device reading remains
+open.
 
 **Files:** `LabelReader.swift`, plus a fixture-image test if a sample label is available.
 
@@ -129,10 +139,10 @@ app/Routey/Snap/  (finished in Plan 05)
 - `struct MatchResult: Sendable { var band: MatchBand; var ranked: [ScoredCandidate]; var flags: LabelFlags; var readout: LabelReadout }`
 - `struct SnapPipeline { var reader: any LabelReading; var candidateProvider: (AddressComponents) -> [Address]; func process(_ image: CGImage, orientation: CGImagePropertyOrientation) async throws -> MatchResult }` — reads → normalizes the best lines → gets candidates (via `SearchIndex` blocking on civic/street) → ranks → bands → detects flags.
 
-- [ ] **Step 1: Write failing test** with a stub reader + in-memory candidates: a "signature required" label for "31 Elm St / Alex" yields `band == autoAccept(sarahID)` and `flags.contains(.signature)`.
-- [ ] **Step 2:** Run — FAIL.
-- [ ] **Step 3: Implement** `SnapPipeline.process`.
-- [ ] **Step 4:** Run — PASS. `swift test` (all). Commit `"Assemble snap pipeline (read -> match -> flags)"`.
+- [x] **Step 1: Write failing test** with a stub reader + in-memory candidates: a "signature required" label for "31 Example St / Alex Example" yields `band == autoAccept(matchedID)` and `flags.contains(.signature)`.
+- [x] **Step 2:** Run — FAIL.
+- [x] **Step 3: Implement** `SnapPipeline.process`.
+- [x] **Step 4:** Run — PASS. `swift test` (all). Commit `"Assemble snap pipeline (read -> match -> flags)"`.
 
 > The camera capture screen + "add to Today's Run" + running signatures count are built in **Plan 05 Task (Snap-to-Add)**, where the `Parcel`/`TodaysRun` model exists. This plan delivers the pure perception+matching the UI calls.
 
@@ -140,7 +150,7 @@ app/Routey/Snap/  (finished in Plan 05)
 
 ## Plan self-review
 
-- **Spec coverage:** on-device OCR (text+barcode) ✓ (T4), bilingual normalization + rural formats ✓ (T1), gated civic + occupant tie-break + confidence bands ✓ (T2), signature/customs keyword detection ✓ (T3), assembled pipeline ✓ (T5). Parcel creation + signatures count deferred to Plan 05 (explicit).
-- **Placeholders:** none — all matcher/normalizer/keyword logic is fully coded and fixture-tested; the camera reader is behind a protocol so the pipeline is testable headlessly.
+- **Spec coverage:** bilingual normalization + rural formats ✓ (T1), gated civic + occupant tie-break + confidence bands ✓ (T2), signature/customs keyword detection ✓ (T3), `LabelReading` protocol boundary ✓ (T4), and the headless matcher pipeline ✓ (T5). Concrete Vision OCR/barcode reading, parcel creation, and signatures count remain deferred to app/UI work.
+- **Placeholders:** none in the merged headless matcher/normalizer/keyword/pipeline logic; committed fixtures use invented rural-style data only.
 - **Type consistency:** `AddressComponents` (T1) → `AddressMatcher.rank` (T2) → `SnapPipeline` (T5); `LabelFlags` (T3) flows into `MatchResult` (T5); `MatchBand` defined once (T2).
-- **Risk honesty:** Vision accuracy on real labels is validated with a fixture image if available, else the pipeline is proven with a stub reader and the device reader is exercised manually in Plan 05's camera flow.
+- **Risk honesty:** Vision accuracy on device labels is not validated in the current nightly train; the pipeline is proven with a stub reader, and the concrete device reader/manual camera flow remains open.

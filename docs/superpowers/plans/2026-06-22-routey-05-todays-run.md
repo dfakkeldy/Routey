@@ -10,6 +10,13 @@
 
 **Depends on:** Plan 01 (model/persistence), Plan 04 (`SnapPipeline`, `LabelFlags`). UI requires the app shell (Plan 01 Task 5).
 
+**Status 2026-06-28:** PR #16 merged the package/domain MVP into `nightly`:
+v2 daily tables, synced configuration, run generation, reorder, parcel add,
+signature count, delivery logging, follow-up tasks, and bulk check-off are tested
+headlessly. The visible Today's Run screens, deliver flow, camera Snap-to-Add,
+barcode generator/display, and manual smoke checklist remain open and require
+explicit UI confirmation before app chrome is changed.
+
 ## Global Constraints
 
 - Inherited from Plan 01: UUID PKs; **append-only synced schema** (these are NEW tables — allowed; add to the `SyncEngine` tables list); no non-PK UNIQUE; FK `ON DELETE` only CASCADE/SET NULL/SET DEFAULT; STRICT; package boundary.
@@ -57,11 +64,11 @@ app/Routey/Run/
 
 **Migration `"Create v2 daily tables"`** (registered AFTER the v1 migration; never edits v1 tables). Each table: UUID PK (`ON CONFLICT REPLACE DEFAULT (uuid())`), STRICT, `runID … REFERENCES "todaysRuns"("id") ON DELETE CASCADE`, soft refs (`stopID`/`addressID`/`parcelID`/`targetStopID`) `ON DELETE SET NULL` (and nullable). `Date` columns stored per SQLiteData's default (REAL/TEXT — match the `@Table` mapping).
 
-- [ ] **Step 1: Write failing schema test** — migrate, assert the 5 new tables exist; insert a `TodaysRun` + `RunStop` + `Parcel` + `DeliveryRecord` + `FollowUpTask`; delete the run; assert all 5 children cascade to 0.
-- [ ] **Step 2:** Run — FAIL.
-- [ ] **Step 3: Implement** `Daily.swift` structs + the v2 migration + add the 5 types to the synced tables list in `AppDatabase.swift` and to `SyncEngine(for:tables:)` (Plan 01 Task 6's call — update it).
-- [ ] **Step 4:** Run — PASS.
-- [ ] **Step 5:** Commit `"Add v2 daily tables (run, parcels, delivery records, tasks)"`.
+- [x] **Step 1: Write failing schema test** — migrate, assert the 5 new tables exist; insert a `TodaysRun` + `RunStop` + `Parcel` + `DeliveryRecord` + `FollowUpTask`; delete the run; assert all 5 children cascade to 0.
+- [x] **Step 2:** Run — FAIL.
+- [x] **Step 3: Implement** `Daily.swift` structs + the v2 migration + add the 5 types to the synced tables list in `AppDatabase.swift` and to `SyncEngine(for:tables:)` (Plan 01 Task 6's call — update it).
+- [x] **Step 4:** Run — PASS.
+- [x] **Step 5:** Commit `"Add v2 daily tables (run, parcels, delivery records, tasks)"`.
 
 ---
 
@@ -72,10 +79,10 @@ app/Routey/Run/
 **Interfaces:**
 - `enum RunGeneration { static func generate(routeID: Route.ID, serviceDate: String, now: Date, into db: any DatabaseWriter) throws -> TodaysRun.ID }` — creates a `TodaysRun`; copies every master `Stop` (in `sortIndex` order) into a `RunStop` snapshot (denormalized `tieOut`/`displayName`/`kind`, `sortIndex` preserved, `isDone=false`, `stopID` soft-linked). Idempotent per (route, date): if a run already exists for that route+date, return it unchanged.
 
-- [ ] **Step 1: Write failing test** — import a 3-stop route (Plan 02), generate a run for "2026-06-22", assert 3 RunStops in the same order with snapshot names; calling generate again returns the same run id and still 3 RunStops (idempotent).
-- [ ] **Step 2:** Run — FAIL.
-- [ ] **Step 3: Implement** `generate` (pass `now`/`serviceDate` in — no `Date()`-in-logic so it's testable).
-- [ ] **Step 4:** Run — PASS. Commit `"Add Today's Run generation from master route"`.
+- [x] **Step 1: Write failing test** — import a 3-stop route (Plan 02), generate a run for "2026-06-22", assert 3 RunStops in the same order with snapshot names; calling generate again returns the same run id and still 3 RunStops (idempotent).
+- [x] **Step 2:** Run — FAIL.
+- [x] **Step 3: Implement** `generate` (pass `now`/`serviceDate` in — no `Date()`-in-logic so it's testable).
+- [x] **Step 4:** Run — PASS. Commit `"Add Today's Run generation from master route"`.
 
 ---
 
@@ -89,10 +96,10 @@ app/Routey/Run/
   - `static func addParcel(runID:, addressID: Address.ID?, source: String, requiresSignature: Bool, isCustoms: Bool, toDoor: Bool, labelSnapshot: String, trackingCode: String, trackingSymbology: String, in db:) throws -> Parcel.ID`
   - `static func signatureCount(runID:, in db: any DatabaseReader) throws -> Int` — parcels in the run with `requiresSignature && !isDelivered`.
 
-- [ ] **Step 1: Write failing tests** — reorder 3 run stops and assert order; add two parcels (one signature) and assert `signatureCount == 1`; mark it delivered, assert count drops to 0.
-- [ ] **Step 2:** Run — FAIL.
-- [ ] **Step 3: Implement.** Reuse the gap-index helper (extract `RouteEditing.nextIndex` to a shared `Ordering.between(...)` if cleaner — and update its callers + tests).
-- [ ] **Step 4:** Run — PASS. Commit `"Add run reorder, parcel add, and signatures count"`.
+- [x] **Step 1: Write failing tests** — reorder 3 run stops and assert order; add two parcels (one signature) and assert `signatureCount == 1`; mark it delivered, assert count drops to 0.
+- [x] **Step 2:** Run — FAIL.
+- [x] **Step 3: Implement.** Reuse the gap-index helper (extract `RouteEditing.nextIndex` to a shared `Ordering.between(...)` if cleaner — and update its callers + tests).
+- [x] **Step 4:** Run — PASS. Commit `"Add run reorder, parcel add, and signatures count"`.
 
 ---
 
@@ -104,16 +111,17 @@ app/Routey/Run/
 - `static func logDelivery(runID:, runStopID: RunStop.ID, parcelID: Parcel.ID?, addressID: Address.ID?, outcome: String, location: (lat: Double, lon: Double)?, photoPath: String?, loggedAt: Date, in db:) throws -> DeliveryRecord.ID` — inserts a `DeliveryRecord`; if `outcome == "notHomeCarded"` and the address is served by a CMB compartment, **spawn a `FollowUpTask`** ("drop notice card in <compartment label>") targeting that CMB stop; if a `parcelID` is given, set the parcel `isDelivered = true` for terminal outcomes.
 - `static func bulkCheckOff(throughRunStop id: RunStop.ID, runID:, in db:) throws` — mark every RunStop with `sortIndex <= target.sortIndex` as `isDone = true`.
 
-- [ ] **Step 1: Write failing tests** — (a) logging `notHomeCarded` for a CMB-served address creates exactly one FollowUpTask targeting the right stop with the compartment label in its text; (b) logging `safedrop` with a parcel marks the parcel delivered and creates no task; (c) `bulkCheckOff` through the 3rd of 5 stops marks 3 done, 2 not.
-- [ ] **Step 2:** Run — FAIL.
-- [ ] **Step 3: Implement.** Determine "served by CMB compartment" via the address's delivery point (`kind == "compartment"`); compose the task text from `module.name` + `deliveryPoint.label`.
-- [ ] **Step 4:** Run — PASS. `swift test` (all). Commit `"Add delivery logging, follow-up tasks, bulk check-off"`.
+- [x] **Step 1: Write failing tests** — (a) logging `notHomeCarded` for a CMB-served address creates exactly one FollowUpTask targeting the right stop with the compartment label in its text; (b) logging `safedrop` with a parcel marks the parcel delivered and creates no task; (c) `bulkCheckOff` through the 3rd of 5 stops marks 3 done, 2 not.
+- [x] **Step 2:** Run — FAIL.
+- [x] **Step 3: Implement.** Determine "served by CMB compartment" via the address's delivery point (`kind == "compartment"`); compose the task text from `module.name` + `deliveryPoint.label`.
+- [x] **Step 4:** Run — PASS. `swift test` (all). Commit `"Add delivery logging, follow-up tasks, bulk check-off"`.
 
 ---
 
 ### Task 5: Today's Run screen + filters (UI)
 
 > Requires app shell.
+> Not implemented as of 2026-06-28; visible UI changes require explicit confirmation.
 
 **Files:** `app/Routey/Run/TodaysRunView.swift`.
 
@@ -126,10 +134,11 @@ app/Routey/Run/
 ### Task 6: Deliver flow (UI) — outcome + GPS + photo
 
 > Requires app shell.
+> Not implemented as of 2026-06-28; visible UI changes require explicit confirmation.
 
 **Files:** `app/Routey/Run/DeliverView.swift`.
 
-- [ ] **Step 1:** From a RunStop, present outcome buttons (the 7 outcomes); on tap, capture `CLLocation` (one-shot, non-blocking — log without GPS if unavailable), optionally a photo (saved to Application Support, store the relative path), then call `RunOperations.logDelivery`. Surface any spawned follow-up task (e.g. a toast "Card to drop at Cornerstore M2-C7"). Follow-up tasks appear on their target stop in the run list.
+- [ ] **Step 1:** From a RunStop, present outcome buttons (the 7 outcomes); on tap, capture `CLLocation` (one-shot, non-blocking — log without GPS if unavailable), optionally a photo (saved to Application Support, store the relative path), then call `RunOperations.logDelivery`. Surface any spawned follow-up task (e.g. a toast "Card to drop at Sample Site M2-C7"). Follow-up tasks appear on their target stop in the run list.
 - [ ] **Step 2:** Run in simulator (simulate a location); verify a record is written, a photo path is saved, and a `notHomeCarded` on a CMB address surfaces the follow-up.
 - [ ] **Step 3:** Commit `"Add deliver flow (outcome, GPS, photo, follow-up surfacing)"`.
 
@@ -138,6 +147,7 @@ app/Routey/Run/
 ### Task 7: Snap-to-Add (UI) — camera → match → parcel
 
 > Requires app shell + Plan 04 (`SnapPipeline`).
+> Not implemented as of 2026-06-28; visible UI changes require explicit confirmation.
 
 **Files:** `app/Routey/Run/SnapToAddView.swift`.
 
@@ -148,6 +158,10 @@ app/Routey/Run/
 ---
 
 ### Task 8: Scannable barcode re-display (Day-1 must-have)
+
+**Status 2026-06-28:** Not implemented. `Parcel` stores tracking code and
+symbology, but there is no barcode generator or display UI in the current nightly
+train.
 
 **Why:** the carrier captures a parcel's tracking code once in the morning (Task 7), then must
 re-enter it into the official scanner — at sorting and again at the door. Routey instead
@@ -172,8 +186,8 @@ re-displays the captured code as a crisp barcode the scanner reads directly.
 
 ## Plan self-review
 
-- **Spec coverage:** Today's Run snapshot + idempotent generation ✓ (T2), reorder ✓ (T3), rich outcomes ✓ (T4), cross-stop follow-up tasks ✓ (T4), bulk check-off ✓ (T4), proof of delivery (GPS+timestamp+photo file ref) ✓ (T1/T6), signatures count ✓ (T3/T7), Snap-to-Add via Plan 04 ✓ (T7), **tracking-code capture + scannable barcode re-display** ✓ (T1 model fields, T7 capture, T8 generator+bright display), dog warnings on next stop ✓ (T5), filters incl. no-flyers+parcels ✓ (T5). Archival to History is Plan 06.
-- **Placeholders:** none in headless tasks (1–4); UI tasks (5–7) specify exact behavior + the domain calls they make.
+- **Spec coverage:** Today's Run snapshot + idempotent generation ✓ (T2), reorder ✓ (T3), parcel add + signatures count ✓ (T3), rich delivery record domain ✓ (T4), cross-stop follow-up tasks ✓ (T4), bulk check-off ✓ (T4), and proof-of-delivery storage fields (timestamp, optional coordinates, optional photo file reference) ✓ (T1/T4). Visible Today screens, delivery GPS/photo capture, Snap-to-Add camera flow, tracking-code capture UI, barcode generator/display, warning banners, and filters remain open app/UI work.
+- **Placeholders:** none in headless tasks (1–4); UI tasks (5–8) remain pending and specify the domain calls they should make when visible app work is approved.
 - **Type consistency:** the 5 model types (T1) are used verbatim in generation (T2) and operations (T3/T4); outcome string set is fixed; `signatureCount`/`logDelivery`/`bulkCheckOff`/`moveRunStop` signatures are reused by the UI.
 - **Append-only honesty:** these are NEW tables added in a v2 migration; the v1 tables are untouched; the new types are added to the SyncEngine list.
 - **Single-device honesty:** the run is single-device-per-day by design; no concurrent-run-edit merge logic is attempted (matches the sync-gate decision).

@@ -1,0 +1,1 @@
+Pre-release build focused on offline route import, editing, local search, sync hooks, and the tested package foundations for the V1.0 delivery workflow.

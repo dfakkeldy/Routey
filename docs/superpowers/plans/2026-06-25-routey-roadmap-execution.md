@@ -8,6 +8,13 @@
 
 **Tech Stack:** Swift 6, SwiftUI, SQLiteData/GRDB, private CloudKit, Vision, CryptoKit/CommonCrypto, Swift Testing, PDF/AirPrint in the iOS app shell.
 
+**Status 2026-07-01:** `nightly` now includes the tested headless package
+foundation, the iOS route/search/Snap-to-Add/Today's Run shell, and a working
+internal TestFlight lane. The current blockers moved from package construction
+to release completion: finish the remaining visible V1.0 workflow, deploy and
+prove Production CloudKit, complete App Store metadata/assets/compliance, and
+run a production-device smoke pass with invented data only.
+
 ## Global Constraints
 
 - Routey is carrier-agnostic: never commit employer names, real route data, real street/site/place names, civic numbers, or carrier-specific jargon.
@@ -100,7 +107,7 @@ check if a second iPhone becomes available.
 - [x] Add a temporary macOS proof client that seeds invented, carrier-agnostic test data only.
 - [ ] Install on one physical iPhone and one signed Mac app using the same iCloud account.
 - [ ] Verify parent-before-child arrival, cascade deletes, many-to-many joins, and a concurrent reorder using `sortIndex`.
-- [ ] Record an explicit decision: proceed with SQLiteData or pivot to Core Data + `NSPersistentCloudKitContainer`.
+- [x] Record an explicit decision: proceed with SQLiteData or pivot to Core Data + `NSPersistentCloudKitContainer`.
 
 **Status 2026-06-25:** Local M1 setup is complete in the app shell. `RouteyApp`
 now opens the local database and starts a private-only SQLiteData `SyncEngine`
@@ -116,6 +123,27 @@ build is currently blocked because the available "Mac Team Provisioning Profile:
 *" does not include the iCloud capability or `iCloud.com.routey.app` container.
 The actual CloudKit round-trip needs a Mac app ID/provisioning profile with that
 container, plus the iPhone signed into the same iCloud account.
+
+**Status 2026-06-28:** PR #13 merged to `nightly` as `54f9ceb` (`Add
+foreground Routey sync hooks (#13)`), and GitHub's Build gate + tests passed in
+14m13s. The currently documented manual proof covers a physical iPhone clean
+reinstall whose database matched the Mac proof database's invented placeholder
+proof rows, with no unsynced rows observed. This proves the documented
+clean-install pull path and supports proceeding with SQLiteData + private
+CloudKit unless the remaining manual matrix reveals a hard failure. The evidence
+does not explicitly document that the signed Mac app install was unblocked, so
+that checklist item remains open.
+
+The synced schema is now under append-only discipline: preserve UUID primary
+keys, avoid non-primary-key uniqueness on synced tables, and add only new
+optional/defaulted synced columns or new synced tables instead of renaming,
+dropping, or retyping existing synced schema.
+
+Remaining manual matrix follow-up: the repo does not yet document every graph
+edge independently. Signed Mac app install evidence, nested iPhone edit -> Mac
+pull, Mac `sortIndex` move -> iPhone pull, delete/cascade propagation, and
+same-row or concurrent reorder behavior remain manual checks. Until the reorder
+behavior is documented, Today's Run stays single-device-per-day.
 
 **Verification:**
 ```bash
@@ -137,11 +165,11 @@ For simulator/device logs when diagnosing sync:
 ```
 
 Manual Mac+iPhone gate:
-- Mac proof app seeds a proof route graph and pushes it; iPhone receives it without orphan rows.
-- iPhone edits nested rows; Mac proof app pulls and reflects the changes.
-- Mac proof app moves a proof stop and pushes it; iPhone reflects the `sortIndex` reorder.
-- One side deletes the proof route; owned rows cascade consistently on the other side.
-- If both sides reorder different stops, the result is understandable under last-write-wins and gap indexing.
+- [x] Mac proof database has invented placeholder proof rows; a clean reinstall iPhone receives matching rows with no unsynced rows observed.
+- [ ] iPhone edits nested rows; Mac proof app pulls and reflects the changes.
+- [ ] Mac proof app moves a proof stop and pushes it; iPhone reflects the `sortIndex` reorder.
+- [ ] One side deletes the proof route; owned rows cascade consistently on the other side.
+- [ ] If both sides reorder different stops, the result is understandable under last-write-wins and gap indexing.
 
 **Exit criteria:**
 - Written proceed/fallback decision.
@@ -155,11 +183,12 @@ Manual Mac+iPhone gate:
 **Primary source plans:** `2026-06-22-routey-02-import-editing.md`.
 
 **Work:**
-- [ ] Add `RouteyImport` for tolerant pasted/CSV route parsing.
-- [ ] Add `RouteyDomain` edit operations for routes, stops, delivery points, addresses, tags, and gap-based ordering.
-- [ ] Build in-memory database tests for parser -> importer -> persisted graph.
-- [ ] Add iOS Route List, Stop Detail, Address Editor, Tag Picker, and Import screens.
-- [ ] Keep all UI state in `@MainActor @Observable` view models or view-owned `@State`; database/domain logic remains outside views.
+- [x] Add `RouteyImport` for tolerant pasted/CSV route parsing.
+- [x] Add `RouteyDomain` edit operations for stops, addresses, tags, and gap-based stop ordering.
+- [ ] Add remaining route and delivery-point edit operations.
+- [x] Build in-memory database tests for parser -> importer -> persisted graph.
+- [x] Add iOS Route List, Stop Detail, Address Editor, Tag Picker, and Import screens.
+- [x] Keep all UI state in `@MainActor @Observable` view models or view-owned `@State`; database/domain logic remains outside views.
 
 **Verification:**
 ```bash
@@ -186,11 +215,22 @@ App smoke checks:
 **Primary source plans:** `2026-06-22-routey-03-search-sortcase.md`.
 
 **Work:**
-- [ ] Add `RouteySearch` and local, non-synced FTS5 tables.
-- [ ] Build deterministic FTS rebuild from the master graph.
-- [ ] Add `SearchService` returning ranked hits with locator details.
-- [ ] Wire rebuild after import/edit operations and at app launch if needed.
-- [ ] Build predictive Search and Virtual Sort Case UI.
+- [x] Add `RouteySearch` and local, non-synced FTS5 tables.
+- [x] Build deterministic FTS rebuild from the master graph.
+- [x] Add `SearchService` returning ranked hits with locator details.
+- [x] Wire rebuild after import/edit operations and at app launch if needed.
+- [x] Build predictive Search UI.
+- [ ] Build Virtual Sort Case UI.
+
+**Status 2026-06-28:** `cd RouteyKit && swift test` passes with 31 Swift
+Testing tests in 9 suites. M2 is implemented for tolerant import, importer
+persistence, stop/address/tag editing, gap stop ordering, and the route/import
+editing screens; remaining M2 gaps are full route and delivery-point edit
+operations plus refreshed offline app smoke evidence. M3 is implemented for the
+local FTS5 index, deterministic rebuild, located `SearchService` hits,
+import/edit/app-launch rebuild wiring, and predictive Search UI; remaining M3
+gaps are Virtual Sort Case UI and any tag-term query matching required by the
+smoke checklist.
 
 **Verification:**
 ```bash
@@ -215,13 +255,22 @@ App smoke checks:
 **Primary source plans:** `2026-06-22-routey-04-ocr-matcher.md`.
 
 **Work:**
-- [ ] Add `RouteyOCR` with a pure `AddressNormalizer`.
-- [ ] Add `AddressMatcher` using normalize -> block -> weighted score -> rank -> threshold.
-- [ ] Add gated numeric agreement: confident mismatched numbers disqualify candidates.
-- [ ] Add occupant-name disambiguation for shared civics.
-- [ ] Add keyword detection for signature/customs-style handling.
-- [ ] Wrap Vision label reading behind a testable boundary.
-- [ ] Assemble `SnapPipeline` for Plan 05 consumption.
+- [x] Add `RouteyOCR` with a pure `AddressNormalizer`.
+- [x] Add `AddressMatcher` using normalize -> block -> weighted score -> rank -> threshold.
+- [x] Add gated numeric agreement: confident mismatched numbers disqualify candidates.
+- [x] Add occupant-name disambiguation for shared civics.
+- [x] Add keyword detection for signature/customs-style handling.
+- [x] Wrap label reading behind a testable boundary; the first shipped slice uses fixture text input, not camera UI.
+- [x] Assemble `SnapPipeline` for Plan 05 consumption.
+
+**Status 2026-06-28:** PR #15 merged to `nightly` as `a0db96f` (`Add
+Routey OCR matcher core (#15)`). The merged headless slice adds the
+`RouteyOCR` target, deterministic normalization/matching, conservative numeric
+mismatch handling, occupant disambiguation, invented keyword fixtures, a
+`LabelReading` protocol boundary, and `SnapPipeline`. Camera/Vision UI remains
+deferred.
+
+**Status 2026-06-29 (M4 IMPLEMENTED):** The camera-OCR UI is fully implemented. Snap-to-Add uses `VNRecognizeTextRequest` + `VNDetectBarcodesRequest` with customWords seeded from route street names + rural keywords. All-addresses in-memory scoring (FTS blocking deferred). Camera capture device-tested on physical iPhone. See `docs/superpowers/plans/2026-06-29-snap-to-add-camera.md` for implementation details.
 
 **Verification:**
 ```bash
@@ -248,13 +297,33 @@ Device/simulator checks once camera/OCR UI exists:
 **Primary source plans:** `2026-06-22-routey-05-todays-run.md`.
 
 **Work:**
-- [ ] Add daily synced tables for runs, run stops, parcels, delivery records, and follow-up tasks.
-- [ ] Snapshot run stops from the master route so in-progress days survive master edits.
-- [ ] Implement run generation, gap-index reorder, parcel add, signature counts, delivery outcomes, follow-up spawning, and bulk check-off in `RouteyDomain`.
+- [x] Add daily synced tables for runs, run stops, parcels, delivery records, and follow-up tasks.
+- [x] Snapshot run stops from the master route so in-progress days survive master edits.
+- [x] Implement run generation, gap-index reorder, parcel add, signature counts, delivery outcomes, follow-up spawning, and bulk check-off in `RouteyDomain`.
+- [x] Add Today's Run drive-loop UI: Run/Routes/Search tabs, live run board, check-off, stop detail, and drag reorder.
 - [ ] Add Today's Run screen filters: full route, no-flyers + parcels, parcels, signatures.
 - [ ] Add Deliver flow with GPS/timestamp and optional photo file reference.
-- [ ] Add Snap-to-Add UI using `SnapPipeline`.
+- [x] Add Snap-to-Add UI using `SnapPipeline`.
 - [ ] Add scannable barcode re-display if still a Day-1 requirement.
+
+**Status 2026-06-28:** PR #16 merged to `nightly` as `fa2f937` (`Add
+Today's Run domain core (#16)`). The merged package slice adds the v2 daily
+schema and synced tables, route snapshot generation, reorder/parcel/signature
+operations, delivery logging with optional location/photo references, follow-up
+tasks, and bulk check-off. The visible Today's Run app screens are still gated
+behind explicit UI confirmation.
+
+**Status 2026-06-29 (M5 Snap-to-Add UI IMPLEMENTED):** The Snap-to-Add UI is complete, integrating camera capture, `VNRecognizeTextRequest` + `VNDetectBarcodesRequest`, address matching via the `SnapPipeline`, and three-band confidence UX (auto-accept, disambiguation list, `.noMatch` fallback). Device-tested on physical iPhone. See `docs/superpowers/plans/2026-06-29-snap-to-add-camera.md` for camera/OCR integration specifics.
+
+**Status 2026-06-30 (M5 Today's Run UI IMPLEMENTED):** The initial drive-loop
+UI is complete on `codex/todays-run-ui`. The app now opens to Run, Routes, and
+Search tabs; the Run tab generates today's run, observes `RunBoard`, shows
+progress/signatures plus parcel and warning badges, and supports single
+check-off, "Done through here", read-only stop detail, and drag reorder. See
+`docs/superpowers/plans/2026-06-29-todays-run-ui.md` and
+`docs/superpowers/specs/2026-06-29-todays-run-ui-design.md`. Remaining M5
+follow-ups are filters, proof-of-delivery/outcome logging UI, follow-up task UI,
+and broader device truck-loop gesture testing.
 
 **Verification:**
 ```bash
@@ -283,11 +352,17 @@ App smoke checks:
 **Primary source plans:** `2026-06-22-routey-06-history-reports.md`.
 
 **Work:**
-- [ ] Archive completed runs into searchable history.
-- [ ] Add filtered history queries by address, date, tag, outcome, and photo presence.
-- [ ] Add a pure `ReportBuilder` for tie-out sheets, case strips, and filtered lists.
+- [x] Archive completed runs into searchable history.
+- [x] Add filtered history queries by address, date, tag, outcome, and photo presence.
+- [x] Add a pure `ReportBuilder` for tie-out sheets, case strips, and filtered lists.
 - [ ] Render reports to PDF and expose print/share in the iOS app.
 - [ ] Prefer SwiftUI `ImageRenderer` where rendering SwiftUI content; keep UIKit-only rendering behind `#if os(iOS)` if lower-level PDF APIs are required.
+
+**Status 2026-06-28:** PR #17 merged to `nightly` as `b295ee3` (`Add Routey
+history domain (#17)`), and PR #18 merged as `d79758d` (`Add Routey report
+builder (#18)`). The merged headless slices cover archival, filtered delivery
+history, address-query history via the search index, tie-out sheets, case
+strips, and filtered report content. PDF, print, and share UI remain deferred.
 
 **Verification:**
 ```bash
@@ -314,12 +389,19 @@ App smoke checks:
 **Primary source plans:** `2026-06-22-routey-07-encrypted-handoff.md`.
 
 **Work:**
-- [ ] Add `RouteyExport` with Codable DTOs separate from persistence models.
-- [ ] Implement versioned envelope: magic `RTYE`, format version, KDF ID, PBKDF2 iteration count, salt, nonce, payload schema version, and GCM AAD binding.
-- [ ] Use AES-256-GCM and wrong-passphrase authentication failure as the only verifier.
-- [ ] Add borrowed/read-only route flag before sync live if possible; otherwise additive migration only.
+- [x] Add `RouteyExport` with Codable DTOs separate from persistence models.
+- [x] Implement versioned envelope: magic `RTYE`, format version, KDF ID, PBKDF2 iteration count, salt, nonce, payload schema version, and GCM AAD binding.
+- [x] Use AES-256-GCM and wrong-passphrase authentication failure as the only verifier.
+- [x] Add borrowed/read-only route flag before sync live if possible; otherwise additive migration only.
 - [ ] Add export/import UI via custom `.routey` UTType and file/transfer affordances.
-- [ ] Ensure no plaintext route export path exists in V1.0.
+- [x] Ensure no plaintext route export path exists in V1.0.
+
+**Status 2026-06-28:** PR #19 merged to `nightly` as `e5cc634` (`Add Routey
+encrypted handoff domain (#19)`). The merged package slice adds `RouteyExport`,
+authenticated encrypted envelopes, DTO mapping, encrypted export/import round
+trips with fresh IDs, and an additive v3 `routes.isBorrowed` migration with
+domain read-only guards for borrowed routes. File import/export UI remains
+deferred.
 
 **Verification:**
 ```bash
@@ -337,21 +419,47 @@ Security checks:
 - Export fixture contains invented data only.
 
 **Exit criteria:**
-- Relief handoff works offline through an encrypted file.
-- Borrowed routes cannot be accidentally edited as owned routes.
+- Encrypted handoff works offline at the domain/data layer; `.routey` file UI
+  remains app work.
+- Borrowed routes cannot be edited through tested domain operations; visible
+  borrowed-route affordances remain app/UI work.
 
 ## M8: Release Readiness
 
 **Purpose:** Convert the implemented roadmap into a shippable V1.0 iPhone cut.
 
 **Work:**
-- [ ] Run full package and app tests.
-- [ ] Run SwiftLint if installed.
-- [ ] Audit privacy, file protection, photo storage, location usage strings, and CloudKit entitlements.
-- [ ] Verify all user-facing copy remains carrier-agnostic.
+- [x] Run full package and app tests.
+- [x] Run SwiftLint if installed.
+- [x] Audit privacy, file protection, photo storage, location usage strings, and CloudKit entitlements.
+- [x] Verify all user-facing copy remains carrier-agnostic.
 - [ ] Deploy CloudKit schema changes to Production and test against Production before release.
-- [ ] Confirm watchOS and CarPlay deferred fields remain present or intentionally optional.
-- [ ] Update README/spec/plans to match shipped behavior.
+- [x] Confirm watchOS and CarPlay deferred fields remain present or intentionally optional.
+- [x] Update README/spec/plans/devlog/metadata to match shipped behavior.
+
+**Status 2026-06-28:** Local release-readiness checks on the `nightly` train
+passed for `RouteyKit` build/test, the current Routey app test target, and a
+generic iOS app build. SwiftLint was not installed in the local environment.
+The built app bundle uses `com.danfakkeldy.routey`, minimum iOS 18.0, and a
+CloudKit entitlement for `iCloud.com.routey.app`. Current app code has no
+active camera, photo library, or location APIs; photo paths and coordinates are
+domain fields for deferred UI. Production CloudKit schema deployment,
+Production-environment device testing, and the visible V1.0 app workflows
+remain manual release gates.
+
+**Status 2026-06-28, release docs:** README, the design spec, detailed Plans
+04-07, the devlog, and fastlane metadata were reconciled so they name the merged
+headless package train without claiming visible Today's Run, camera, PDF/share,
+encrypted file UI, Production CloudKit, watchOS, or CarPlay work is complete.
+
+**Status 2026-07-01, release train:** A manual `nightly` dispatch of
+`release-trains.yml` completed successfully as GitHub Actions run `28495461531`.
+The build used Xcode 26.5, compiled the iOS app and macOS proof app, selected
+build number `0.1 (4)`, waited for App Store Connect processing, and fastlane
+reported `Successfully distributed build to Internal testers`. This proves the
+internal TestFlight lane after the metadata/app-icon fixes. It does not prove
+external TestFlight, App Store review readiness, Production CloudKit, final
+screenshots, or privacy/compliance metadata.
 
 **Verification:**
 ```bash
@@ -425,7 +533,9 @@ if command -v swiftlint >/dev/null; then swiftlint; fi
 ## Execution Notes
 
 - Implement one milestone at a time and keep each milestone independently shippable to the next internal gate.
-- Do not start user-facing feature milestones until M1 has an explicit persistence decision.
+- The M1 proceed decision has been recorded; keep remaining CloudKit work focused
+  on Production schema/device proof instead of reopening the SQLiteData vs. Core
+  Data decision unless the proof fails.
 - Keep the existing detailed `2026-06-22-routey-0N-*` plans as the task-level source of truth; update them when architecture or schema decisions change.
 - After any data-model or architecture change, update the design spec or add an architecture doc before the knowledge decays.
 

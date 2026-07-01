@@ -10,6 +10,12 @@
 
 **Depends on:** Plan 01 (model/persistence), Plan 02 (`RouteEditing` for read-only enforcement). UI requires app shell.
 
+**Status 2026-06-28:** PR #19 merged the headless encrypted handoff domain into
+`nightly`: crypto envelope, DTO mapping, route export/import round trip, additive
+`routes.isBorrowed`, and domain read-only guards are tested. `.routey` UTType
+registration, file import/export UI, file-protection handling for exported files,
+and borrowed-route UI affordances remain open app/UI work.
+
 ## Global Constraints
 
 - Inherited from Plan 01.
@@ -56,9 +62,9 @@ app/Routey/Share/
 
 **Wire format:** `magic "RTYE"(4) | formatVersion:UInt8=1 | kdfID:UInt8=1 | iterations:UInt32-BE | saltLen:UInt8 | salt | payloadSchemaVersion:UInt16-BE | nonce(12) | ciphertext+tag`. The header (everything before the nonce) is the GCM AAD.
 
-- [ ] **Step 1:** Add `RouteyExport` target (no model dep yet for this task) + test target; `swift build`.
+- [x] **Step 1:** Add `RouteyExport` target (no model dep yet for this task) + test target; `swift build`.
 
-- [ ] **Step 2: Write failing tests** — `RouteyCryptoTests.swift`:
+- [x] **Step 2: Write failing tests** — `RouteyCryptoTests.swift`:
 
 ```swift
 import Testing
@@ -105,9 +111,9 @@ import Foundation
 }
 ```
 
-- [ ] **Step 3:** Run — FAIL.
+- [x] **Step 3:** Run — FAIL.
 
-- [ ] **Step 4: Implement** `RouteyCrypto.swift`:
+- [x] **Step 4: Implement** `RouteyCrypto.swift`:
 
 ```swift
 import Foundation
@@ -201,9 +207,9 @@ public enum RouteyCrypto {
 }
 ```
 
-- [ ] **Step 5:** Run — PASS (5/5). (If `CommonCrypto` import needs a modulemap on this toolchain, it is available directly on Apple platforms via `import CommonCrypto`.)
+- [x] **Step 5:** Run — PASS (5/5). (If `CommonCrypto` import needs a modulemap on this toolchain, it is available directly on Apple platforms via `import CommonCrypto`.)
 
-- [ ] **Step 6:** Commit `"Add passphrase crypto envelope (PBKDF2 -> AES-GCM, versioned AAD)"`.
+- [x] **Step 6:** Commit `"Add passphrase crypto envelope (PBKDF2 -> AES-GCM, versioned AAD)"`.
 
 ---
 
@@ -217,10 +223,10 @@ public enum RouteyCrypto {
   - `static func buildDTO(routeID: Route.ID, from db: any DatabaseReader) throws -> RouteExportDTO` — gathers the route + all rows reachable from it (stops → modules/points → joined addresses → their tags).
   - `static func insert(_ dto: RouteExportDTO, asBorrowed: Bool, into db: any DatabaseWriter) throws -> Route.ID` — inserts with **freshly minted UUIDs** (remap all IDs so an imported route never collides with the holder's own rows), sets `isBorrowed`.
 
-- [ ] **Step 1: Write failing test** (in `ExportImportRoundTripTests`, paired with Task 4) — deferred; this task's test: `buildDTO` on a known small graph returns the expected counts (stops, points, addresses, tags, joins).
-- [ ] **Step 2:** Run — FAIL.
-- [ ] **Step 3: Implement** DTOs + mapping. `insert` regenerates every UUID and rewrites foreign keys consistently via an old→new id map.
-- [ ] **Step 4:** Run — PASS. Commit `"Add route export DTOs + model mapping with id remap"`.
+- [x] **Step 1: Write failing test** (in `ExportImportRoundTripTests`, paired with Task 4) — deferred; this task's test: `buildDTO` on a known small graph returns the expected counts (stops, points, addresses, tags, joins).
+- [x] **Step 2:** Run — FAIL.
+- [x] **Step 3: Implement** DTOs + mapping. `insert` regenerates every UUID and rewrites foreign keys consistently via an old→new id map.
+- [x] **Step 4:** Run — PASS. Commit `"Add route export DTOs + model mapping with id remap"`.
 
 ---
 
@@ -228,10 +234,10 @@ public enum RouteyCrypto {
 
 **Files:** `RouteyPersistence/Schema.swift` (+ v3 migration), `RouteyModel/Route.swift` (+ field), `RouteyDomain/RouteEditing.swift` (guard), tests.
 
-- [ ] **Step 1: Write failing tests** — after a v3 migration, `routes` has `isBorrowed`; `RouteEditing.addStop` (and other edits) throw `RouteEditingError.routeIsBorrowed` when the route `isBorrowed == true`.
-- [ ] **Step 2:** Run — FAIL.
-- [ ] **Step 3: Implement.** v3 migration: `ALTER TABLE "routes" ADD COLUMN "isBorrowed" INTEGER NOT NULL DEFAULT 0` (additive — allowed under append-only/CloudKit). Add `var isBorrowed = false` to `Route`. Add an `isBorrowed` check at the top of each mutating `RouteEditing` op (look up the owning route; throw if borrowed).
-- [ ] **Step 4:** Run — PASS. Commit `"Add borrowed flag (v3) + read-only guard for imported routes"`.
+- [x] **Step 1: Write failing tests** — after a v3 migration, `routes` has `isBorrowed`; `RouteEditing.addStop` (and other edits) throw `RouteEditingError.routeIsBorrowed` when the route `isBorrowed == true`.
+- [x] **Step 2:** Run — FAIL.
+- [x] **Step 3: Implement.** v3 migration: `ALTER TABLE "routes" ADD COLUMN "isBorrowed" INTEGER NOT NULL DEFAULT 0` (additive — allowed under append-only/CloudKit). Add `var isBorrowed = false` to `Route`. Add an `isBorrowed` check at the top of each mutating `RouteEditing` op (look up the owning route; throw if borrowed).
+- [x] **Step 4:** Run — PASS. Commit `"Add borrowed flag (v3) + read-only guard for imported routes"`.
 
 ---
 
@@ -243,16 +249,17 @@ public enum RouteyCrypto {
 - `enum RouteExporter { static func export(routeID:, passphrase: String, iterations: UInt32, from db:) throws -> Data }` — `buildDTO` → `JSONEncoder` → `RouteyCrypto.encrypt(payloadSchemaVersion: current)`.
 - `enum EncryptedRouteImporter { static func `import`(_ data: Data, passphrase: String, into db:) throws -> Route.ID }` — `RouteyCrypto.decrypt` → check `payloadSchemaVersion <= supported` (else throw) → `JSONDecoder` → `DTOMapping.insert(asBorrowed: true)`.
 
-- [ ] **Step 1: Write failing round-trip test** — build a route with a CMB (stops, modules, compartments, shared address, tags); `export` with a passphrase; `import` the bytes into a **fresh** DB with the passphrase; assert the full graph is restored (counts match), the new route `isBorrowed == true`, and IDs differ from the originals. Also assert importing with the wrong passphrase throws.
-- [ ] **Step 2:** Run — FAIL.
-- [ ] **Step 3: Implement** exporter/importer (production export uses `iterations = max(600_000, calibrated)`; tests pass a smaller count).
-- [ ] **Step 4:** Run — PASS. `swift test` (all suites across all plans). Commit `"Add encrypted route exporter + importer with round-trip test"`.
+- [x] **Step 1: Write failing round-trip test** — build a route with a CMB (stops, modules, compartments, shared address, tags); `export` with a passphrase; `import` the bytes into a **fresh** DB with the passphrase; assert the full graph is restored (counts match), the new route `isBorrowed == true`, and IDs differ from the originals. Also assert importing with the wrong passphrase throws.
+- [x] **Step 2:** Run — FAIL.
+- [x] **Step 3: Implement** exporter/importer (production export uses `iterations = max(600_000, calibrated)`; tests pass a smaller count).
+- [x] **Step 4:** Run — PASS. `swift test` (all suites across all plans). Commit `"Add encrypted route exporter + importer with round-trip test"`.
 
 ---
 
 ### Task 5: Export/Import UI
 
 > Requires app shell.
+> Not implemented as of 2026-06-28.
 
 **Files:** `app/Routey/Share/ExportRouteView.swift`, `ImportRouteView.swift`; register a `.routey` `UTType`.
 
@@ -266,7 +273,7 @@ public enum RouteyCrypto {
 
 ## Plan self-review
 
-- **Spec coverage:** encrypted `.routey` export/import ✓ (T1/T4/T5), PBKDF2→AES-GCM with versioned AAD header + stored iterations ✓ (T1), wrong-passphrase = auth failure, no plaintext verifier ✓ (T1), DTOs decoupled from models with independent `payloadSchemaVersion` ✓ (T2/T4), id remap so imports never collide ✓ (T2), borrowed/read-only imported routes ✓ (T3/T5), file is the sole handoff (no CloudKit sharing) ✓ (constraints). 
-- **Placeholders:** none — the crypto envelope and round-trip are fully coded + tested; DTO mapping and exporter/importer are specified with complete signatures and an end-to-end round-trip test.
-- **Type consistency:** `RouteyCrypto.encrypt/decrypt` (T1) used by exporter/importer (T4); `RouteExportDTO` (T2) flows through encode→encrypt→decrypt→decode→insert; `isBorrowed` (T3) set by importer and read by the UI.
+- **Spec coverage:** encrypted domain export/import round trip ✓ (T1/T4), PBKDF2→AES-GCM with versioned AAD header + stored iterations ✓ (T1), wrong-passphrase = auth failure, no plaintext verifier ✓ (T1), DTOs decoupled from models with independent `payloadSchemaVersion` ✓ (T2/T4), id remap so imports never collide ✓ (T2), borrowed/read-only imported routes enforced in the domain ✓ (T3), and file remains the sole handoff path (no CloudKit sharing) ✓ (constraints). `.routey` UTType registration, ShareLink/fileImporter UI, file protection, and borrowed-route UI affordances remain pending app/UI work.
+- **Placeholders:** none in the merged crypto/domain round-trip; committed fixtures use invented route data only.
+- **Type consistency:** `RouteyCrypto.encrypt/decrypt` (T1) used by exporter/importer (T4); `RouteExportDTO` (T2) flows through encode→encrypt→decrypt→decode→insert; `isBorrowed` (T3) is set by importer and enforced by domain edit guards. UI reads of borrowed state remain pending.
 - **Security honesty:** salt+nonce are random per export (tested), header is AAD-bound (tamper test), iterations stored in-header and ≥600k in production; no plaintext password verifier (auth failure is the signal). KDF is PBKDF2 (CryptoKit has none); `kdfID` reserves a slot for a future Argon2id upgrade without breaking old files.

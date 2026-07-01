@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Routey — The Delivery Companion for Rural Mail Carriers</title>
-  <meta name="description" content="Routey is the iOS, watchOS, and CarPlay delivery companion built for rural mail carriers. Scan parcel labels with OCR, manage your master route, and log deliveries from your wrist — even with zero cell signal.">
+  <title>Routey — Offline-First Route Tools for Rural Mail Carriers</title>
+  <meta name="description" content="Routey is an offline-first iPhone app in early TestFlight for rural mail carriers. Import a route, search locally, snap parcel labels with OCR, and run the day even with zero cell signal.">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Routey — The Delivery Companion for Rural Mail Carriers">
-  <meta property="og:description" content="Scan a hundred parcel labels in minutes, see your next stop on your wrist, and navigate any route with CarPlay. Built by a working carrier, for carriers.">
+  <meta property="og:title" content="Routey — Offline-First Route Tools for Rural Mail Carriers">
+  <meta property="og:description" content="Import a route, search locally, snap parcel labels with OCR, and run the day from an offline-first iPhone app. Built by a working carrier, for carriers.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://dfakkeldy.github.io/Routey/">
   <meta name="twitter:card" content="summary_large_image">
@@ -697,11 +697,11 @@
     <div class="container">
       <div class="hero-grid">
         <div class="hero-copy">
-          <span class="hero-badge"><span class="dot"></span>In active development — early access coming</span>
+          <span class="hero-badge"><span class="dot"></span>Internal TestFlight active — V1.0 in progress</span>
           <h1>Your route.<br><em>Your rules.</em></h1>
           <p class="subtitle">
-            Routey is the delivery companion built for rural mail carriers. Scan a hundred
-            parcel labels in minutes, see your next stop on your wrist, and keep moving —
+            Routey is the offline-first iPhone companion built for rural mail carriers.
+            Import a route, search it locally, snap parcel labels with OCR, and keep moving
             even where there's no cell signal.
           </p>
           <div class="btn-row">
@@ -712,9 +712,9 @@
             <a href="#features" class="btn btn-ghost">Explore features</a>
           </div>
           <div class="pill-row">
-            <span class="pill ios">iOS</span>
-            <span class="pill watch">watchOS</span>
-            <span class="pill carplay">CarPlay</span>
+            <span class="pill ios">iPhone now</span>
+            <span class="pill watch">watchOS planned</span>
+            <span class="pill carplay">CarPlay planned</span>
           </div>
         </div>
 
@@ -725,12 +725,12 @@
               <div class="phone-notch"></div>
               <div class="phone-body">
                 <div class="phone-title">
-                  <strong>Today's Route</strong>
+                  <strong>Today's Run</strong>
                   <small>42 / 117 stops</small>
                 </div>
                 <div class="next-stop">
                   <div class="ns-label">Next Stop</div>
-                  <div class="ns-addr">1284 Concession Rd 6</div>
+                  <div class="ns-addr">Stop A-12</div>
                   <div class="ns-meta">
                     <span class="ns-chip sig">Signature</span>
                     <span class="ns-chip dog">Dog on site</span>
@@ -738,22 +738,22 @@
                 </div>
                 <div class="stop-row done">
                   <span class="check"><svg viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-                  <span class="stop-addr">1240 Concession Rd 6</span>
+                  <span class="stop-addr">Stop A-10</span>
                   <span class="stop-kind">Safedrop</span>
                 </div>
                 <div class="stop-row done">
                   <span class="check"><svg viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-                  <span class="stop-addr">1262 Concession Rd 6</span>
+                  <span class="stop-addr">Stop A-11</span>
                   <span class="stop-kind">Mailbox</span>
                 </div>
                 <div class="stop-row todo">
                   <span class="check"></span>
-                  <span class="stop-addr">1310 Concession Rd 6</span>
+                  <span class="stop-addr">Stop A-13</span>
                   <span class="stop-kind">Community box</span>
                 </div>
                 <div class="stop-row todo">
                   <span class="check"></span>
-                  <span class="stop-addr">88 Maple Side Rd</span>
+                  <span class="stop-addr">Stop B-02</span>
                   <span class="stop-kind">Customs</span>
                 </div>
               </div>
@@ -762,7 +762,7 @@
           <div class="watch">
             <div class="watch-screen">
               <div class="watch-label">Next Stop</div>
-              <div class="watch-addr">1284 Concession Rd 6</div>
+              <div class="watch-addr">Planned</div>
               <div class="watch-btn">✓ Safedrop</div>
               <div class="watch-btn alt">Carded</div>
             </div>
@@ -784,8 +784,8 @@
         <p>Every feature works in dead zones. Rural routes don't wait for cell towers.</p>
       </div>
       <div class="stat reveal">
-        <div class="stat-big"><em>3</em> screens</div>
-        <p>Phone, wrist, and dashboard — the right information on the right device.</p>
+        <div class="stat-big">iPhone <em>first</em></div>
+        <p>The V1.0 cut focuses on the phone workflow; wrist and dashboard surfaces come later.</p>
       </div>
     </div>
   </div>
@@ -860,9 +860,8 @@
           <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7"/><polyline points="12 9 12 12 13.5 13.5"/><path d="M16.51 17.35l-.35 3.83a2 2 0 0 1-2 1.82H9.83a2 2 0 0 1-2-1.82l-.35-3.83m.01-10.7l.35-3.83A2 2 0 0 1 9.83 1h4.35a2 2 0 0 1 2 1.82l.35 3.83"/></svg></div>
           <h3>watchOS Companion</h3>
           <p>
-            Your next stop, always on your wrist. Visual alerts for signatures and customs.
-            One tap logs the delivery — Safedrop, Mailbox, In Person, or Carded — with GPS
-            and timestamp, then auto-advances to the next parcel.
+            Planned after the iPhone cut: next-stop glanceability, signature/customs alerts,
+            and fast delivery outcomes from the wrist once the phone workflow is stable.
           </p>
         </div>
 
@@ -870,9 +869,8 @@
           <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="22" height="12" rx="3"/><circle cx="7.5" cy="12" r="1.5"/><path d="M14 10h5M14 14h3"/></svg></div>
           <h3>CarPlay Navigation</h3>
           <p>
-            Turn-by-turn guidance, stop to stop, on your vehicle's built-in display. Every
-            mailbox, every community box, or just today's parcels. Drive an unfamiliar route like
-            you've run it for twenty years.
+            Planned after V1.0: stop-to-stop navigation on the vehicle display, with the
+            same offline source of truth and no network dependency in the truck.
           </p>
         </div>
 
@@ -889,9 +887,9 @@
           <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
           <h3>Proof of Delivery</h3>
           <p>
-            Toggle signature required, customs and duty, or catalogue flags per parcel. Every
-            delivery is logged with type, GPS coordinates, and optional photo evidence — so
-            "did I deliver it?" is never a question.
+            Domain support exists for delivery outcomes, optional location/photo references,
+            follow-ups, and history. The V1.0 app still needs the visible delivery logging UI
+            before this is ready for review.
           </p>
         </div>
 
@@ -940,8 +938,8 @@
         </div>
         <div class="step reveal">
           <div class="step-num">3</div>
-          <h3>Deliver from your wrist</h3>
-          <p>Your watch shows the next stop. One tap logs the delivery and advances. Eyes on the road, hands on the parcels.</p>
+          <h3>Deliver from Today's Run</h3>
+          <p>Work the run from your iPhone first: check off stops, inspect details, reorder, and keep the day local.</p>
         </div>
       </div>
     </div>
@@ -960,11 +958,10 @@
         </p>
         <br>
         <p>
-          Routey is what I built instead. Every feature was <strong>tested on a real route
-          the same week it was written</strong> — offline-first because my route has no signal,
-          OCR scanning because nobody should hand-type a hundred addresses, and a watch
-          companion because my hands are usually full of parcels. If it doesn't save time
-          in the truck, it doesn't ship.
+          Routey is what I built instead. Every feature has to survive the truck: offline-first
+          because rural routes lose signal, OCR scanning because nobody should hand-type a
+          morning of labels, and a tight iPhone workflow before the watch or dashboard get
+          their turn. If it doesn't save time in the truck, it doesn't ship.
         </p>
       </blockquote>
       <div class="attribution">
@@ -975,14 +972,44 @@
     </div>
   </section>
 
+  <!-- ── Roadmap ──────────────────────────────── -->
+  <section id="roadmap">
+    <div class="container">
+      <span class="section-label">Roadmap</span>
+      <h2>Internal TestFlight is running. V1.0 still has gates.</h2>
+      <p class="section-intro">
+        The current nightly proves the iPhone foundation and internal upload path. The App Store
+        cut ships only after the remaining phone workflow, Production CloudKit, metadata, and
+        device smoke checks are finished.
+      </p>
+      <div class="features-grid" style="margin-top:2.5rem;">
+        <div class="feature-card reveal">
+          <span class="tag">Now</span>
+          <h3>iPhone nightly</h3>
+          <p>Route import/editing, local search, Snap-to-Add OCR, and the first Today's Run UI are in the integration train.</p>
+        </div>
+        <div class="feature-card reveal">
+          <span class="tag">Next</span>
+          <h3>V1.0 release gates</h3>
+          <p>Finish delivery outcomes, filters, PDF/share, encrypted file UI, Production CloudKit, screenshots, and compliance metadata.</p>
+        </div>
+        <div class="feature-card reveal">
+          <span class="tag">Later</span>
+          <h3>Apple ecosystem surfaces</h3>
+          <p>watchOS and CarPlay stay planned until the phone workflow is stable, reviewed, and useful in the truck.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ── CTA ──────────────────────────────────── -->
   <section class="cta">
     <div class="container">
       <span class="section-label" style="justify-content:center; display:inline-flex;">Early Access</span>
       <h2>Coming soon to a route near you.</h2>
       <p>
-        Routey is in active development, built and tested on a live rural route.
-        Star the project to follow along — early access opens soon.
+        Routey is in active development with internal TestFlight builds running.
+        Star the project to follow along while V1.0 moves toward review.
       </p>
       <div class="btn-row">
         <a href="https://github.com/dfakkeldy/Routey" class="btn btn-primary" target="_blank" rel="noopener">
