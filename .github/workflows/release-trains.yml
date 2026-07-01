@@ -206,6 +206,9 @@ jobs:
           FASTLANE_SKIP_UPDATE_CHECK: "1"
           FASTLANE_HIDE_CHANGELOG: "1"
           CHANNEL: ${{ needs.resolve.outputs.channel }}
+          TESTFLIGHT_FEEDBACK_EMAIL: ${{ secrets.TESTFLIGHT_FEEDBACK_EMAIL }}
+          TESTFLIGHT_MARKETING_URL: ${{ vars.TESTFLIGHT_MARKETING_URL || '' }}
+          TESTFLIGHT_PRIVACY_POLICY_URL: ${{ vars.TESTFLIGHT_PRIVACY_POLICY_URL || '' }}
         run: |
           set -euo pipefail
 
