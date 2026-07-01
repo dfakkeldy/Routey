@@ -210,6 +210,18 @@ public enum RunOperations {
     }
   }
 
+  public static func setRunStopDone(
+    _ id: RunStop.ID,
+    done: Bool,
+    in database: any DatabaseWriter
+  ) throws {
+    try database.write { db in
+      try RunStop.find(id)
+        .update { $0.isDone = #bind(done) }
+        .execute(db)
+    }
+  }
+
   private static func sortIndex(for siblings: [RunStop], after precedingRunStopID: RunStop.ID?) -> Double {
     guard let precedingRunStopID else {
       return (siblings.first?.sortIndex ?? 1.0) - 1.0

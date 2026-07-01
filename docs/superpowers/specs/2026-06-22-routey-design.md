@@ -223,6 +223,14 @@ optionally colored. The digital replacement for the sticky-note layer.
   signature **spawns a follow-up task** at the relevant CMB stop.
 - **Bulk check-off:** tap the last stop to mark everything before it done.
 
+**As-built (2026-06-30):** The initial Today's Run drive-loop UI shipped as a
+TabView home with Run, Routes, and Search tabs. The Run tab idempotently opens
+today's first-route run, shows progress and signature count from the `RunBoard`
+read model, displays parcel and warning badges, supports single check-off, "Done
+through here", read-only stop detail, and drag reorder via `RunOperations`.
+Proof-of-delivery/outcome logging UI, filters, and follow-up task UI remain
+deferred.
+
 ### End of day
 - Today's Run archives into **History**; a fresh Run generates tomorrow.
 
