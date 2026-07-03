@@ -340,4 +340,51 @@ platform :ios do
 
     upload_to_testflight(testflight_options)
   end
+
+  desc "Capture App Store screenshots with snapshot"
+  lane :screenshots do
+    capture_screenshots(
+      project: PROJECT_PATH,
+      scheme: SCHEME,
+      devices: [
+        "iPhone 17 Pro Max",
+        "iPhone 17e",
+        "iPad Pro 13-inch (M5)"
+      ],
+      languages: ["en-US"],
+      launch_arguments: ["--screenshot-mode"],
+      xcargs: "-parallel-testing-enabled NO",
+      output_directory: "fastlane/screenshots",
+      only_testing: ["RouteyUITests/RouteyScreenshotUITests/testAppStoreScreenshots"],
+      erase_simulator: true,
+      localize_simulator: true,
+      reinstall_app: true,
+      clear_previous_screenshots: true,
+      override_status_bar: true,
+      skip_open_summary: true,
+      concurrent_simulators: false
+    )
+  end
+
+  desc "Upload generated screenshots without uploading metadata or a binary"
+  lane :upload_screenshots do
+    api_key = app_store_connect_key
+
+    upload_to_app_store(
+      api_key: api_key,
+      app_identifier: APP_IDENTIFIER,
+      screenshots_path: "fastlane/screenshots",
+      skip_binary_upload: true,
+      skip_metadata: true,
+      overwrite_screenshots: true,
+      run_precheck_before_submit: false,
+      force: true
+    )
+  end
+
+  desc "Capture and upload App Store screenshots"
+  lane :screenshot_release do
+    screenshots
+    upload_screenshots
+  end
 end
