@@ -28,12 +28,20 @@
 			remoteGlobalIDString = CC0ECFD82FEC8ED30021BE3D;
 			remoteInfo = Routey;
 		};
+		21CD1D5C1E6E440C882226C0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC0ECFD12FEC8ED30021BE3D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CC0ECFD82FEC8ED30021BE3D;
+			remoteInfo = Routey;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		D58CAB8E74FA006A0BFB33C4 /* RouteyMacProof.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RouteyMacProof.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC0ECFD92FEC8ED30021BE3D /* Routey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Routey.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC0ECFE62FEC8ED60021BE3D /* RouteyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RouteyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A5804EA94AEF4DE98D95656E /* RouteyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RouteyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -77,6 +85,11 @@
 			path = RouteyTests;
 			sourceTree = "<group>";
 		};
+		976F6D0EB0924193856ECF2A /* RouteyUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = RouteyUITests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +125,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FDD3E04A1D6B45CE9B9EC182 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -121,6 +141,7 @@
 				CC0ECFDB2FEC8ED30021BE3D /* Routey */,
 				DA2BEF681679DD3E3935D280 /* RouteyMacProof */,
 				CC0ECFE92FEC8ED60021BE3D /* RouteyTests */,
+				976F6D0EB0924193856ECF2A /* RouteyUITests */,
 				CC0ECFDA2FEC8ED30021BE3D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -131,6 +152,7 @@
 				CC0ECFD92FEC8ED30021BE3D /* Routey.app */,
 				D58CAB8E74FA006A0BFB33C4 /* RouteyMacProof.app */,
 				CC0ECFE62FEC8ED60021BE3D /* RouteyTests.xctest */,
+				A5804EA94AEF4DE98D95656E /* RouteyUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -216,6 +238,29 @@
 			productReference = CC0ECFE62FEC8ED60021BE3D /* RouteyTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		32C74F6497254CB1AFF7113A /* RouteyUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C8A895D962BE4A7386CEEEF0 /* Build configuration list for PBXNativeTarget "RouteyUITests" */;
+			buildPhases = (
+				91E5552C19A6442ABDD3B5F4 /* Sources */,
+				FDD3E04A1D6B45CE9B9EC182 /* Frameworks */,
+				BF182BA581134AB99616BE95 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				46361E91110C40C0A5452117 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				976F6D0EB0924193856ECF2A /* RouteyUITests */,
+			);
+			name = RouteyUITests;
+			packageProductDependencies = (
+			);
+			productName = RouteyUITests;
+			productReference = A5804EA94AEF4DE98D95656E /* RouteyUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -252,6 +297,10 @@
 						CreatedOnToolsVersion = 26.5;
 						TestTargetID = CC0ECFD82FEC8ED30021BE3D;
 					};
+					32C74F6497254CB1AFF7113A = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = CC0ECFD82FEC8ED30021BE3D;
+					};
 				};
 			};
 			buildConfigurationList = CC0ECFD42FEC8ED30021BE3D /* Build configuration list for PBXProject "Routey" */;
@@ -274,6 +323,7 @@
 				CC0ECFD82FEC8ED30021BE3D /* Routey */,
 				1D46C39CBE4EA5F2D4504C7B /* RouteyMacProof */,
 				CC0ECFE52FEC8ED60021BE3D /* RouteyTests */,
+				32C74F6497254CB1AFF7113A /* RouteyUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -294,6 +344,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CC0ECFE42FEC8ED60021BE3D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BF182BA581134AB99616BE95 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -324,6 +381,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		91E5552C19A6442ABDD3B5F4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -331,6 +395,11 @@
 			isa = PBXTargetDependency;
 			target = CC0ECFD82FEC8ED30021BE3D /* Routey */;
 			targetProxy = CC0ECFE72FEC8ED60021BE3D /* PBXContainerItemProxy */;
+		};
+		46361E91110C40C0A5452117 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CC0ECFD82FEC8ED30021BE3D /* Routey */;
+			targetProxy = 21CD1D5C1E6E440C882226C0 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -622,6 +691,51 @@
 			};
 			name = Release;
 		};
+		65EA98EF07AE4D81A1D66C32 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8AXNA5B37R;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.danfakkeldy.routeyUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Routey;
+			};
+			name = Debug;
+		};
+		E56DD370E16E4050B78C4BBF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8AXNA5B37R;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.danfakkeldy.routeyUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Routey;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -657,6 +771,15 @@
 			buildConfigurations = (
 				CC0ECFFE2FEC8ED60021BE3D /* Debug */,
 				CC0ECFFF2FEC8ED60021BE3D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C8A895D962BE4A7386CEEEF0 /* Build configuration list for PBXNativeTarget "RouteyUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				65EA98EF07AE4D81A1D66C32 /* Debug */,
+				E56DD370E16E4050B78C4BBF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
