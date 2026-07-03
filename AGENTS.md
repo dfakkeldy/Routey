@@ -90,7 +90,10 @@ Because the schema syncs to CloudKit, it is **append-only once sync is live**:
 
 ## PR instructions
 
-- Normal feature work branches from **`nightly`** and opens PRs against **`nightly`**. Promotion PRs flow one way: `nightly` → `weekly` → `main`. `main` remains Routey's stable default branch.
+- Normal feature work branches from **`nightly`** and opens PRs against **`nightly`** (`gh pr create --base nightly …`). Promotion PRs flow one way: `nightly` → `weekly` → `main`. `main` remains Routey's stable default branch. In a fresh worktree, confirm the branch is cut from `nightly` before any edits; if tooling branched from the default, reset onto `origin/nightly` first.
+- Commit autonomously at natural checkpoints using Conventional Commits — do not wait to be asked.
+- Auto-push feature work (default ON): when committed work is ready, rebase it onto the latest `nightly` (`git fetch origin && git rebase origin/nightly`; `--force-with-lease` if the branch was already pushed), then push and open a ready-for-review PR into `nightly` without stopping to flag it — report the PR link afterward. If the rebase hits conflicts that cannot be resolved cleanly, stop and explain instead of forcing it.
+- Never push directly to the protected branches (`main`/`weekly`/`nightly`); they change only through PRs.
 - Run `cd RouteyKit && swift test` and confirm green before committing.
 - Keep every committed file **carrier-agnostic** — no employer name or real route data.
 - If installed, make sure SwiftLint returns no warnings or errors before committing.
