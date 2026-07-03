@@ -3,8 +3,17 @@
 Routey V1.0 is tracked in the execution plan at
 [`docs/superpowers/plans/2026-06-25-routey-roadmap-execution.md`](docs/superpowers/plans/2026-06-25-routey-roadmap-execution.md).
 
-Current checkpoint: M1 Mac+iPhone sync proof setup is implemented but the live CloudKit
-round-trip is blocked on Apple provisioning. Routey keeps `Tag` on UUID primary keys,
-with canonical tag-name reuse enforced in app/domain logic. Next gate: sign
-`RouteyMacProof` with an iCloud-enabled Mac profile for `iCloud.com.routey.app`, then run
-the Mac+iPhone proof on the same iCloud account.
+Current V1.0 cut line: ship the iPhone workflow Dan can use in the truck:
+Run/Routes/Search tabs, paste/CSV import, route/address/tag editing,
+predictive search, Snap-to-Add, Today's Run check-off, "done through here",
+and drag reorder.
+
+The tested package code for history, report content, encrypted handoff,
+delivery-outcome logging, and follow-up tasks stays in `RouteyKit`. The visible
+UI for reports/PDF/print/share, encrypted `.routey` handoff, delivery outcomes,
+Today's Run filters, and follow-up tasks moves to V1.1.
+
+Before V1.0 is treated as install-ready, the release gate is an airplane-mode
+physical-iPhone smoke test plus current CI/TestFlight evidence from the
+`nightly` release train. Production CloudKit schema deployment remains a release
+readiness gate, not something the app UI should block on.
