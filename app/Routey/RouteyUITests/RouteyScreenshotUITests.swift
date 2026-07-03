@@ -11,6 +11,7 @@ final class RouteyScreenshotUITests: XCTestCase {
   func testAppStoreScreenshots() throws {
     launchScreenshotApp()
 
+    selectTab("Routes")
     XCTAssertTrue(app.staticTexts["Routey Demo Loop"].waitForExistence(timeout: 10))
     captureScreenshot(named: "01-routes")
 
@@ -24,7 +25,7 @@ final class RouteyScreenshotUITests: XCTestCase {
 
     goBack()
     goBack()
-    app.buttons["Search"].tap()
+    selectTab("Search")
 
     let searchField = app.searchFields.firstMatch
     XCTAssertTrue(searchField.waitForExistence(timeout: 5))
@@ -41,6 +42,12 @@ final class RouteyScreenshotUITests: XCTestCase {
     app.launchEnvironment["ROUTEY_SCREENSHOT_MODE"] = "1"
     app.launchEnvironment["FASTLANE_SNAPSHOT"] = "1"
     app.launch()
+  }
+
+  private func selectTab(_ title: String) {
+    let tab = app.tabBars.buttons[title]
+    XCTAssertTrue(tab.waitForExistence(timeout: 5))
+    tab.tap()
   }
 
   private func captureScreenshot(named name: String) {

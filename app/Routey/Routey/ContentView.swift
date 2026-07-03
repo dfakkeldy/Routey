@@ -22,9 +22,11 @@ struct ContentView: View {
       }
     }
     .task {
+      guard !ScreenshotMode.isEnabled else { return }
       await RouteySyncing.synchronize(reason: "app appeared", using: syncEngine)
     }
     .onChange(of: scenePhase) { _, phase in
+      guard !ScreenshotMode.isEnabled else { return }
       switch phase {
       case .active:
         Task {
