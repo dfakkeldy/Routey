@@ -48,12 +48,4 @@ SQLiteData's private-CloudKit sync imposes hard constraints. Confidence in the l
 * Pre-release checklist for **every** release once sync is live: "Deploy Schema Changes" + test against the **Production** CloudKit scheme (the #1 first-submission failure mode).
 
 ## Release Engineering — Promotion Ladder
-Routey uses the one-way ladder `feature/*` → `nightly` → `weekly` → `main`. Feature work branches from `nightly` and PRs target `nightly`; `weekly` promotes from `nightly`; `main` is stable and promotes from `weekly`.
-
-| Branch | Purpose | Protection |
-| --- | --- | --- |
-| `nightly` | Integration and daily TestFlight train | Required `Build gate + tests`; PR review optional |
-| `weekly` | Monday beta train | Strict `Build gate + tests`; review approval optional |
-| `main` | Stable App Store release base | Strict `Build gate + tests`; review approval optional |
-
-Hotfix exception: branch from `main`, PR to `main`, then merge `main` back down into `weekly` and `nightly`.
+Routey uses the one-way ladder `feature/*` → `nightly` → `weekly` → `main`. The authoritative branch/PR rules and the branch-protection table live in **AGENTS.md ▸ PR instructions / Release Engineering — Promotion Ladder** (imported above): feature work branches from `nightly`, rebases onto `origin/nightly`, and auto-pushes/PRs into `nightly`; protected branches change only through PRs; hotfixes branch from `main`, PR to `main`, then merge `main` back down into `weekly` and `nightly`.
