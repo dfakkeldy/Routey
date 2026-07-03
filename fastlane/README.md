@@ -63,6 +63,30 @@ Build an App Store archive for Routey
 
 Build and upload Routey to TestFlight
 
+### ios screenshots
+
+```sh
+[bundle exec] fastlane ios screenshots
+```
+
+Capture App Store screenshots with snapshot
+
+### ios upload_screenshots
+
+```sh
+[bundle exec] fastlane ios upload_screenshots
+```
+
+Upload generated screenshots without uploading metadata or a binary
+
+### ios screenshot_release
+
+```sh
+[bundle exec] fastlane ios screenshot_release
+```
+
+Capture and upload App Store screenshots
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
