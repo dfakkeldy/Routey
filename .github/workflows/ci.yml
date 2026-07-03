@@ -167,7 +167,9 @@ jobs:
             -destination "${IOS_SIM_DESTINATION}" \
             -derivedDataPath DerivedData \
             -skipMacroValidation \
-            -skipPackagePluginValidation 2>&1 | tee "${test_log}"
+            -skipPackagePluginValidation \
+            -parallel-testing-enabled NO \
+            -only-testing:RouteyTests 2>&1 | tee "${test_log}"
           test_status="${PIPESTATUS[0]}"
           set -e
 
