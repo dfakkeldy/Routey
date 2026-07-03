@@ -20,10 +20,16 @@ Official handheld tools are slow, broken, and designed by people who've never ru
 - Tested package cores for OCR matching, Today's Run generation/operations,
   history search, report content, and encrypted route handoff.
 
+## V1.0 Cut
+
+The first internal TestFlight cut is the truck-ready iPhone loop: Run/Routes/Search
+tabs, paste/CSV import, route/address/tag editing, predictive search,
+Snap-to-Add, Today's Run check-off, "done through here", and drag reorder.
+
 ## Still In Progress
 
-- Proof-of-delivery/outcome logging UI, run filters, PDF/print/share, and
-  encrypted `.routey` file UI.
+- V1.1 UI for reports/PDF/print/share, encrypted `.routey` handoff,
+  proof-of-delivery/outcome logging, Today's Run filters, and follow-up tasks.
 - Production CloudKit schema deployment and production-device release testing.
 - watchOS and CarPlay surfaces.
 

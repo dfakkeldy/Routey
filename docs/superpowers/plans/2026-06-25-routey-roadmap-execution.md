@@ -19,6 +19,17 @@
 - Unit tests use Swift Testing, not XCTest.
 - Existing baseline as of this plan: `RouteyKit` has `RouteyModel` + `RouteyPersistence`, v1 schema tables, and 3 passing Swift Testing tests.
 
+## V1.0 Cut Decision
+
+V1.0 is the internal iPhone build for the field-critical loop: Run/Routes/Search
+tabs, paste/CSV import, route/address/tag editing, predictive search,
+Snap-to-Add, Today's Run check-off, "done through here", and drag reorder.
+
+The tested package/domain code for reports, encrypted handoff, delivery
+records, history, and follow-up tasks remains in `RouteyKit`. The visible UI for
+reports/PDF/print/share, encrypted `.routey` handoff export/import,
+delivery-outcome logging, Today's Run filters, and follow-up tasks is V1.1.
+
 ---
 
 ## Milestone Overview
@@ -30,10 +41,10 @@
 | M2 Import + master-route editing | M1 | Route parser, importer, edit operations, iOS route list/edit/import screens | Parser/import/edit tests green; UI works offline |
 | M3 Search + Virtual Sort Case | M2 | Local FTS5 index, predictive search, virtual sort-case UI | FTS rebuild/search tests green |
 | M4 OCR matcher | M2, feeds M5 | Vision label reader, deterministic address matcher, keyword detection | Fixture matcher/OCR tests green |
-| M5 Today's Run + delivery loop | M2, M3, M4 | Daily run generation, parcels, signatures, outcomes, follow-ups, proof records, Snap-to-Add UI | Domain tests green; truck-loop smoke test |
-| M6 History + reports | M5 | Archived runs, searchable delivery history, report builder, PDF/print/share | Archive/search/report tests green |
-| M7 Encrypted handoff | M2, M6 optional for content | Versioned `.routey` export/import, borrowed read-only routes | Crypto round-trip and tamper tests green |
-| M8 Release readiness | M1-M7 | App Store-ready V1.0 iPhone cut | Package/app tests, CloudKit Production schema check, privacy/security review |
+| M5 Today's Run + delivery loop | M2, M3, M4 | V1.0 UI: daily run generation, parcels, Snap-to-Add, check-off, bulk check-off, and drag reorder. V1.1 UI: outcomes, filters, follow-up tasks | Domain tests green; airplane-mode truck-loop smoke test |
+| M6 History + reports | M5 | V1.0 package: archived runs, searchable delivery history, report builder. V1.1 UI: PDF/print/share | Archive/search/report tests green |
+| M7 Encrypted handoff | M2, M6 optional for content | V1.0 package: versioned `.routey` export/import, borrowed read-only routes. V1.1 UI: file import/export affordances | Crypto round-trip and tamper tests green |
+| M8 Release readiness | M1-M5 plus M6/M7 package evidence | Install-ready V1.0 iPhone cut | Package/app tests, airplane-mode smoke check, CI/TestFlight train evidence |
 
 ## Dependency Graph
 
@@ -294,8 +305,9 @@ Device/simulator checks once camera/OCR UI exists:
 - [x] Snapshot run stops from the master route so in-progress days survive master edits.
 - [x] Implement run generation, gap-index reorder, parcel add, signature counts, delivery outcomes, follow-up spawning, and bulk check-off in `RouteyDomain`.
 - [x] Add Today's Run drive-loop UI: Run/Routes/Search tabs, live run board, check-off, stop detail, and drag reorder.
-- [ ] Add Today's Run screen filters: full route, no-flyers + parcels, parcels, signatures.
-- [ ] Add Deliver flow with GPS/timestamp and optional photo file reference.
+- [ ] V1.1: Add Today's Run screen filters: full route, no-flyers + parcels, parcels, signatures.
+- [ ] V1.1: Add Deliver flow with GPS/timestamp and optional photo file reference.
+- [ ] V1.1: Add follow-up task UI.
 - [x] Add Snap-to-Add UI using `SnapPipeline`.
 - [ ] Add scannable barcode re-display if still a Day-1 requirement.
 
@@ -315,8 +327,9 @@ progress/signatures plus parcel and warning badges, and supports single
 check-off, "Done through here", read-only stop detail, and drag reorder. See
 `docs/superpowers/plans/2026-06-29-todays-run-ui.md` and
 `docs/superpowers/specs/2026-06-29-todays-run-ui-design.md`. Remaining M5
-follow-ups are filters, proof-of-delivery/outcome logging UI, follow-up task UI,
-and broader device truck-loop gesture testing.
+follow-ups are filters, proof-of-delivery/outcome logging UI, and follow-up task
+UI; those visible surfaces are now V1.1. The V1.0 device gate is the narrower
+sort -> snap -> check-off -> reorder loop in airplane mode.
 
 **Verification:**
 ```bash
@@ -331,11 +344,11 @@ App smoke checks:
 - Generate today's run offline.
 - Add parcels manually and by snap.
 - Reorder stops and confirm only affected sort indexes change.
-- Log delivery outcomes, failed signature follow-up, photo reference, and last-stop bulk check-off.
+- Mark individual stops done and use "done through here" bulk check-off.
 - Relaunch offline and confirm the day state persists.
 
 **Exit criteria:**
-- The full sort -> snap -> deliver loop works offline.
+- The V1.0 sort -> snap -> check-off -> reorder loop works offline.
 - Today's Run remains single-device-per-day by product rule to avoid ordered-sync conflicts.
 
 ## M6: History + Reports
@@ -355,7 +368,8 @@ App smoke checks:
 history domain (#17)`), and PR #18 merged as `d79758d` (`Add Routey report
 builder (#18)`). The merged headless slices cover archival, filtered delivery
 history, address-query history via the search index, tie-out sheets, case
-strips, and filtered report content. PDF, print, and share UI remain deferred.
+strips, and filtered report content. PDF, print, and share UI remain deferred to
+V1.1.
 
 **Verification:**
 ```bash
@@ -366,14 +380,14 @@ cd RouteyKit && swift test
 ```
 
 App smoke checks:
-- Complete and archive a run.
-- Search history by invented address/tag/outcome.
-- Generate each report type.
-- Preview, share, and AirPrint a PDF from device/simulator.
+- V1.1: Complete and archive a run.
+- V1.1: Search history by invented address/tag/outcome.
+- V1.1: Generate each report type.
+- V1.1: Preview, share, and AirPrint a PDF from device/simulator.
 
 **Exit criteria:**
-- History is queryable offline.
-- Reports are generated from current local truth, not manually maintained data.
+- V1.0 keeps the tested history/report package code green.
+- V1.1 exposes history and report output through reachable app UI.
 
 ## M7: Encrypted Handoff
 
@@ -386,7 +400,7 @@ App smoke checks:
 - [x] Implement versioned envelope: magic `RTYE`, format version, KDF ID, PBKDF2 iteration count, salt, nonce, payload schema version, and GCM AAD binding.
 - [x] Use AES-256-GCM and wrong-passphrase authentication failure as the only verifier.
 - [x] Add borrowed/read-only route flag before sync live if possible; otherwise additive migration only.
-- [ ] Add export/import UI via custom `.routey` UTType and file/transfer affordances.
+- [ ] V1.1: Add export/import UI via custom `.routey` UTType and file/transfer affordances.
 - [x] Ensure no plaintext route export path exists in V1.0.
 
 **Status 2026-06-28:** PR #19 merged to `nightly` as `e5cc634` (`Add Routey
@@ -394,7 +408,7 @@ encrypted handoff domain (#19)`). The merged package slice adds `RouteyExport`,
 authenticated encrypted envelopes, DTO mapping, encrypted export/import round
 trips with fresh IDs, and an additive v3 `routes.isBorrowed` migration with
 domain read-only guards for borrowed routes. File import/export UI remains
-deferred.
+deferred to V1.1.
 
 **Verification:**
 ```bash
@@ -413,9 +427,9 @@ Security checks:
 
 **Exit criteria:**
 - Encrypted handoff works offline at the domain/data layer; `.routey` file UI
-  remains app work.
+  remains V1.1 app work.
 - Borrowed routes cannot be edited through tested domain operations; visible
-  borrowed-route affordances remain app/UI work.
+  borrowed-route affordances remain V1.1 app/UI work.
 
 ## M8: Release Readiness
 
@@ -426,6 +440,8 @@ Security checks:
 - [x] Run SwiftLint if installed.
 - [x] Audit privacy, file protection, photo storage, location usage strings, and CloudKit entitlements.
 - [x] Verify all user-facing copy remains carrier-agnostic.
+- [ ] Verify the latest `nightly` release train produces the build intended for internal TestFlight.
+- [ ] Run the airplane-mode physical-iPhone smoke checklist.
 - [ ] Deploy CloudKit schema changes to Production and test against Production before release.
 - [x] Confirm watchOS and CarPlay deferred fields remain present or intentionally optional.
 - [x] Update README/spec/plans/devlog/metadata to match shipped behavior.
@@ -434,16 +450,15 @@ Security checks:
 passed for `RouteyKit` build/test, the current Routey app test target, and a
 generic iOS app build. SwiftLint was not installed in the local environment.
 The built app bundle uses `com.danfakkeldy.routey`, minimum iOS 18.0, and a
-CloudKit entitlement for `iCloud.com.routey.app`. Current app code has no
-active camera, photo library, or location APIs; photo paths and coordinates are
-domain fields for deferred UI. Production CloudKit schema deployment,
-Production-environment device testing, and the visible V1.0 app workflows
-remain manual release gates.
+CloudKit entitlement for `iCloud.com.routey.app`. Production CloudKit schema
+deployment, Production-environment device testing, and the visible V1.0 app
+workflows remain manual release gates.
 
-**Status 2026-06-28, release docs:** README, the design spec, detailed Plans
-04-07, the devlog, and fastlane metadata were reconciled so they name the merged
-headless package train without claiming visible Today's Run, camera, PDF/share,
-encrypted file UI, Production CloudKit, watchOS, or CarPlay work is complete.
+**Status 2026-07-03, cut-line docs:** README, ROADMAP, and this plan now name
+the V1.0 internal field cut as Run/Routes/Search, import/edit/search,
+Snap-to-Add, check-off, "done through here", and drag reorder. Reports/PDF/share,
+encrypted file UI, delivery outcomes, run filters, follow-up task UI, Production
+CloudKit, watchOS, and CarPlay remain outside the visible V1.0 UI gate.
 
 **Verification:**
 ```bash
@@ -458,13 +473,14 @@ xcodebuild -scheme Routey -destination 'platform=iOS Simulator,name=iPhone 16' -
 ```
 
 Manual release gates:
-- Airplane-mode walkthrough of sort -> snap -> deliver -> history -> export.
+- Airplane-mode walkthrough of import -> search -> snap -> check-off -> reorder -> persistence.
+- Internal TestFlight install check on Dan's physical iPhone.
 - Two physical devices with same private iCloud store after Production schema deployment.
 - Locked-phone/file-protection check before any CarPlay-facing build.
 - App Store privacy answers match actual APIs and stored data.
 
 **Exit criteria:**
-- V1.0 iPhone app can be used without signal for the complete core workflow.
+- V1.0 iPhone app can be used without signal for the cut truck workflow.
 - Sync backup works without becoming part of the critical path.
 - Production CloudKit schema is deployed and verified.
 
@@ -523,7 +539,7 @@ if command -v swiftlint >/dev/null; then swiftlint; fi
 
 ## Self-Review
 
-- Spec coverage: V1.0 iPhone scope is covered through M2-M7; V1.1 watchOS and V1.2 CarPlay are deferred but protected by schema and file-protection checkpoints.
+- Spec coverage: V1.0 iPhone UI scope is covered through M2-M5; M6/M7 package code remains tested while report and handoff UI moves to V1.1. V1.1 watchOS and V1.2 CarPlay are deferred but protected by schema and file-protection checkpoints.
 - Dependencies: Sync proof precedes import/editing; import/editing feeds search, OCR matching, Today's Run, and encrypted handoff; Today's Run feeds history/reports.
 - Risk coverage: The top spec risks are represented as gates: CloudKit Production schema, SQLiteData proof, encrypted handoff instead of CloudKit sharing, append-only schema, and future locked-phone access.
 - Placeholder scan: No milestone is marked TBD; unknowns are expressed as explicit decisions or gates.

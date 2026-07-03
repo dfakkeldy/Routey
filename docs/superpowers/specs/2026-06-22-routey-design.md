@@ -19,14 +19,19 @@ The app is privately validated against real-world rural delivery workflows; comm
 fixtures and public examples use invented rural-style data only. The guiding rule: **if
 it doesn't save time in the truck, it doesn't ship.**
 
-### Implementation status, 2026-06-28
+### Implementation status, 2026-07-03
 
-The current `nightly` train has the tested package-first foundations for the V1.0
-workflow: route import/edit/search, the headless OCR matcher, Today's Run domain
-operations, history search, report content, and encrypted route handoff. The visible
-Today's Run screens, camera Snap-to-Add UI, PDF/print/share UI, encrypted file UI,
-Production CloudKit schema deployment, and production-device release testing are still
-open gates.
+The V1.0 cut line is the field-critical iPhone workflow: Run/Routes/Search tabs,
+paste/CSV import, route/address/tag editing, predictive search, camera
+Snap-to-Add, Today's Run check-off, "done through here", and drag reorder.
+
+The current `nightly` train also has tested package-first foundations for
+history search, report content, delivery records, follow-up tasks, and encrypted
+route handoff. Those domain slices stay in `RouteyKit`, but their visible UI
+moves to V1.1: reports/PDF/print/share, encrypted `.routey` handoff
+export/import, delivery-outcome logging, Today's Run filters, and follow-up
+tasks. Production CloudKit schema deployment, TestFlight install proof, and
+production-device smoke testing remain release gates.
 
 The sync decision is to proceed with SQLiteData + private CloudKit under append-only
 schema discipline unless the remaining manual graph matrix reveals a hard failure.
@@ -62,30 +67,30 @@ These constraints shape every decision below:
 
 ## 4. Scope
 
-### V1.0 — iPhone
-- Master Route management (create/import/edit), always editable (route is living).
-- Full domain model: Stops, Delivery Points (boxes/compartments), CMB sites with
-  Modules, Addresses, Tags, shared boxes, clustered roadside boxes.
-- **Virtual Sort Case** — search + membership + slot lookup; shared-slot disambiguation;
-  per-slot color flags + notes.
-- **OCR Snap-to-Add** (flagship) — photograph a parcel label → extract address +
-  keywords (incl. **Signature**, customs) → match to route → add to Today's Run in
-  delivery order. Running "today's signatures" count/list.
-- **Today's Run** — daily working instance: reorderable drive sequence, parcel loading,
-  progress/check-off (incl. last-stop bulk check-off), rich delivery outcomes,
-  cross-stop follow-up tasks. Archived to History nightly.
-- **Proof of delivery** — outcome + GPS + timestamp + optional photo (file-referenced).
-- **History / Delivery Intelligence** — full-text searchable past deliveries (by
-  address, date, tag, photo), flag/dog filters.
-- **Setup/import** — CSV (Reminders export) + **sort-case photo OCR**, plus manual
-  build/edit. Tie-out sheet is a helpful reference, not required.
-- **Print / Reports** (PDF + AirPrint) — **tie-out sheet**, **case strips**, and
-  **filtered lists** (e.g. all `no-flyers`, parcels delivered on a date).
-- **Encrypted `.routey` export/import** for relief handoff (sole sharing mechanism).
-- **Private iCloud sync** for backup + multi-device, fully offline-capable.
+### V1.0 — iPhone internal field cut
+- Master Route management with paste/CSV import plus route/address/tag editing.
+- Full domain model in `RouteyKit`: Stops, Delivery Points
+  (boxes/compartments), Modules, Addresses, Tags, shared boxes, clustered
+  roadside boxes, parcels, delivery records, and follow-up tasks.
+- Local predictive search and route membership lookup with locator details.
+- **OCR Snap-to-Add** (flagship) — photograph a parcel label -> extract address +
+  keywords -> match to route -> add to Today's Run in delivery order.
+- **Today's Run** — Run/Routes/Search tabs, daily run generation, parcel loading,
+  progress/check-off, "done through here", read-only stop detail, and drag
+  reorder.
+- **Private iCloud sync** hooks for backup + multi-device, with the UI remaining
+  offline-first and never blocking on the network.
 
-### V1.1 — watchOS (deferred, but designed-for now)
-- Next stop on the wrist, dog/warning alerts, one-tap delivery log, auto-advance.
+### V1.1 — iPhone workflow expansion and watchOS
+- Reports/PDF/print/share UI for tie-out sheets, case strips, and filtered lists.
+- Encrypted `.routey` handoff export/import UI for relief coverage.
+- Delivery-outcome logging UI with GPS/timestamp and optional photo reference.
+- Today's Run filters: full route, no-flyers + parcels, parcels, signatures.
+- Follow-up task UI.
+- History / Delivery Intelligence UI over the tested history/report package
+  code.
+- watchOS companion: next stop on the wrist, dog/warning alerts, one-tap
+  delivery log, auto-advance.
 
 ### V1.2 — CarPlay (deferred, but designed-for now)
 - Turn-by-turn stop-to-stop on the dash. Requires per-stop GPS coordinates
@@ -210,8 +215,8 @@ optionally colored. The digital replacement for the sticky-note layer.
   module (deliverable points − no-flyer addresses).
 
 ### Pre-drive — Plan
-- View Today's Run through a **filter**: *full route* / *no-flyers + parcels* /
-  *today's parcels* / *signatures*.
+- V1.1: View Today's Run through a **filter**: *full route* /
+  *no-flyers + parcels* / *today's parcels* / *signatures*.
 - **Reorder** (drag) for construction, weather, or to fit a door visit "when nearest";
   optionally promote a change to the Master if permanent.
 
@@ -219,8 +224,8 @@ optionally colored. The digital replacement for the sticky-note layer.
 - **Next stop** front-and-center (what the V1.1 watch mirrors). Dog/scary-dog **warning**
   fires when that stop comes up.
 - At a cluster/CMB: expand to delivery points; handle mail + parcels (box vs door).
-- **Log outcome** per parcel/stop with GPS + timestamp + optional photo. A failed door
-  signature **spawns a follow-up task** at the relevant CMB stop.
+- V1.1: **Log outcome** per parcel/stop with GPS + timestamp + optional photo.
+  A failed door signature **spawns a follow-up task** at the relevant CMB stop.
 - **Bulk check-off:** tap the last stop to mark everything before it done.
 
 **As-built (2026-06-30):** The initial Today's Run drive-loop UI shipped as a
@@ -228,15 +233,16 @@ TabView home with Run, Routes, and Search tabs. The Run tab idempotently opens
 today's first-route run, shows progress and signature count from the `RunBoard`
 read model, displays parcel and warning badges, supports single check-off, "Done
 through here", read-only stop detail, and drag reorder via `RunOperations`.
-Proof-of-delivery/outcome logging UI, filters, and follow-up task UI remain
-deferred.
+Proof-of-delivery/outcome logging UI, filters, and follow-up task UI are V1.1.
 
 ### End of day
-- Today's Run archives into **History**; a fresh Run generates tomorrow.
+- V1.0 keeps the tested archive/history package code. Visible History review is
+  V1.1.
 
 ### Print / Reports (on demand)
-- **Tie-out sheet** (route in delivery order), **case strips** (printable slot labels to
-  replace worn strips), **filtered lists** (by tag/date/outcome) → PDF + AirPrint/share.
+- V1.1: **Tie-out sheet** (route in delivery order), **case strips**
+  (printable slot labels to replace worn strips), **filtered lists** (by
+  tag/date/outcome) -> PDF + AirPrint/share.
 
 ---
 
@@ -375,7 +381,9 @@ deferred.
   coverage for parent-before-child and cascade deletes.
 - **OCR** — sample label + sort-case images as fixtures (recognition is on-device/
   deterministic enough to snapshot candidate output).
-- **Key flows** — snapshot/UI tests for sort, snap, deliver, and print output.
+- **Key flows** — snapshot/UI tests for V1.0 sort, snap, check-off, reorder,
+  and persistence; V1.1 extends this to reports, handoff, outcomes, filters, and
+  follow-up task UI.
 
 ---
 
