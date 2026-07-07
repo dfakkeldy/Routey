@@ -142,6 +142,117 @@ import RouteyModel
     #expect(suggestion.totalDistance == 0)
   }
 
+  @Test func suggestOrdersCoordinateBackedParcelStops() throws {
+    let database = try freshDB()
+    let routeID = UUID()
+    let runID = UUID()
+    let firstStopID = UUID()
+    let farStopID = UUID()
+    let nearStopID = UUID()
+    let firstRunStopID = UUID()
+    let farRunStopID = UUID()
+    let nearRunStopID = UUID()
+    let firstAddressID = UUID()
+    let farAddressID = UUID()
+    let nearAddressID = UUID()
+
+    try database.write { db in
+      try Route.insert { Route(id: routeID, name: "Sample Route") }.execute(db)
+      try TodaysRun.insert {
+        TodaysRun(id: runID, routeID: routeID, serviceDate: "2026-07-07")
+      }
+      .execute(db)
+
+      try Stop.insert {
+        Stop(
+          id: firstStopID,
+          routeID: routeID,
+          tieOut: "A",
+          sortIndex: 0,
+          displayName: "First stop",
+          latitude: 45.0,
+          longitude: -63.0
+        )
+      }
+      .execute(db)
+      try Stop.insert {
+        Stop(
+          id: farStopID,
+          routeID: routeID,
+          tieOut: "B",
+          sortIndex: 1,
+          displayName: "Far stop",
+          latitude: 45.30,
+          longitude: -63.0
+        )
+      }
+      .execute(db)
+      try Stop.insert {
+        Stop(
+          id: nearStopID,
+          routeID: routeID,
+          tieOut: "C",
+          sortIndex: 2,
+          displayName: "Near stop",
+          latitude: 45.01,
+          longitude: -63.0
+        )
+      }
+      .execute(db)
+
+      try RunStop.insert {
+        RunStop(
+          id: firstRunStopID,
+          runID: runID,
+          stopID: firstStopID,
+          tieOut: "A",
+          displayName: "First stop",
+          sortIndex: 0
+        )
+      }
+      .execute(db)
+      try RunStop.insert {
+        RunStop(
+          id: farRunStopID,
+          runID: runID,
+          stopID: farStopID,
+          tieOut: "B",
+          displayName: "Far stop",
+          sortIndex: 1
+        )
+      }
+      .execute(db)
+      try RunStop.insert {
+        RunStop(
+          id: nearRunStopID,
+          runID: runID,
+          stopID: nearStopID,
+          tieOut: "C",
+          displayName: "Near stop",
+          sortIndex: 2
+        )
+      }
+      .execute(db)
+
+      try seedAddressGraph(stopID: firstStopID, addressID: firstAddressID, in: db)
+      try seedAddressGraph(stopID: farStopID, addressID: farAddressID, in: db)
+      try seedAddressGraph(stopID: nearStopID, addressID: nearAddressID, in: db)
+
+      for addressID in [firstAddressID, farAddressID, nearAddressID] {
+        try Parcel.insert {
+          Parcel(runID: runID, addressID: addressID, labelSnapshot: "Invented label")
+        }
+        .execute(db)
+      }
+    }
+
+    let suggestion = try RunOptimization.suggest(runID: runID, start: nil, in: database)
+
+    #expect(suggestion.orderedRunStopIDs == [firstRunStopID, nearRunStopID, farRunStopID])
+    #expect(suggestion.unresolvedRunStopIDs.isEmpty)
+    #expect(suggestion.totalDistance > 0)
+  }
+
   private func seedAddressGraph(
     stopID: Stop.ID,
     addressID: Address.ID,
