@@ -42,4 +42,23 @@ import Testing
     #expect(result.orderedStops.map(\.order) == [0])
     #expect(result.totalDistance == 0)
   }
+
+  @Test func optimizerStartsWithNearestStopFromCurrentLocation() {
+    let start = NavigationCoordinate(latitude: 45.0, longitude: -63.0)
+    let far = RouteStopCandidate(
+      id: UUID(),
+      label: "Far",
+      coordinate: NavigationCoordinate(latitude: 45.30, longitude: -63.0),
+      existingSortIndex: 0
+    )
+    let near = RouteStopCandidate(
+      id: UUID(),
+      label: "Near",
+      coordinate: NavigationCoordinate(latitude: 45.01, longitude: -63.0),
+      existingSortIndex: 1
+    )
+
+    let result = RouteOptimizer.optimize(start: start, stops: [far, near])
+    #expect(result.orderedStops.first?.candidate.id == near.id)
+  }
 }
