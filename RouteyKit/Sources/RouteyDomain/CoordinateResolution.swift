@@ -14,6 +14,57 @@ public struct AddressResolutionCandidate: Equatable, Sendable {
   }
 }
 
+public struct ResolvedCoordinate: Equatable, Sendable {
+  public var latitude: Double
+  public var longitude: Double
+
+  public init(latitude: Double, longitude: Double) {
+    self.latitude = latitude
+    self.longitude = longitude
+  }
+}
+
+public struct CoordinateResolutionService: Sendable {
+  public var resolve: @Sendable (String) async throws -> ResolvedCoordinate?
+
+  public init(resolve: @escaping @Sendable (String) async throws -> ResolvedCoordinate?) {
+    self.resolve = resolve
+  }
+
+  @discardableResult
+  public func resolveMissingCoordinates(
+    routeID: Route.ID,
+    in database: any DatabaseWriter
+  ) async throws -> Int {
+    let candidates = try CoordinateResolution.candidates(routeID: routeID, in: database)
+    var resolvedCount = 0
+
+    for candidate in candidates {
+      guard let coordinate = try await resolve(candidate.query) else { continue }
+
+      try await database.write { db in
+        try Address.find(candidate.addressID)
+          .update {
+            $0.doorLatitude = #bind(coordinate.latitude)
+            $0.doorLongitude = #bind(coordinate.longitude)
+          }
+          .execute(db)
+
+        try Stop.find(candidate.stopID)
+          .update {
+            $0.latitude = #bind(coordinate.latitude)
+            $0.longitude = #bind(coordinate.longitude)
+          }
+          .execute(db)
+      }
+
+      resolvedCount += 1
+    }
+
+    return resolvedCount
+  }
+}
+
 public enum CoordinateResolution {
   public static func candidates(
     routeID: Route.ID,

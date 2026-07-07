@@ -6,14 +6,21 @@ import RouteyModel
 @testable import RouteyPersistence
 
 @Suite struct CoordinateResolutionTests {
+  private struct CoordinateFixture {
+    var routeID: Route.ID
+    var missingAddressID: Address.ID
+    var cachedAddressID: Address.ID
+    var missingStopID: Stop.ID
+    var cachedStopID: Stop.ID
+  }
+
   private func freshDB() throws -> DatabaseQueue {
     let database = try DatabaseQueue()
     try Schema.migrator.migrate(database)
     return database
   }
 
-  @Test func candidatesIncludeOnlyMissingAddressCoordinates() throws {
-    let database = try freshDB()
+  private func seedCoordinateFixture(in database: DatabaseQueue) throws -> CoordinateFixture {
     let routeID = UUID()
     let missingAddressID = UUID()
     let cachedAddressID = UUID()
@@ -71,14 +78,54 @@ import RouteyModel
       .execute(db)
     }
 
-    let candidates = try CoordinateResolution.candidates(routeID: routeID, in: database)
+    return CoordinateFixture(
+      routeID: routeID,
+      missingAddressID: missingAddressID,
+      cachedAddressID: cachedAddressID,
+      missingStopID: missingStopID,
+      cachedStopID: cachedStopID
+    )
+  }
+
+  @Test func candidatesIncludeOnlyMissingAddressCoordinates() throws {
+    let database = try freshDB()
+    let fixture = try seedCoordinateFixture(in: database)
+
+    let candidates = try CoordinateResolution.candidates(routeID: fixture.routeID, in: database)
 
     #expect(candidates == [
       AddressResolutionCandidate(
-        addressID: missingAddressID,
-        stopID: missingStopID,
+        addressID: fixture.missingAddressID,
+        stopID: fixture.missingStopID,
         query: "101 Sample Road"
       ),
     ])
+  }
+
+  @Test func resolveMissingCoordinatesCachesAddressAndStopCoordinates() async throws {
+    let database = try freshDB()
+    let fixture = try seedCoordinateFixture(in: database)
+    let service = CoordinateResolutionService { query in
+      #expect(query == "101 Sample Road")
+      return ResolvedCoordinate(latitude: 45.1, longitude: -63.2)
+    }
+
+    let resolvedCount = try await service.resolveMissingCoordinates(routeID: fixture.routeID, in: database)
+
+    #expect(resolvedCount == 1)
+
+    let fetchedAddress = try await database.read { db in
+      try Address.find(fixture.missingAddressID).fetchOne(db)
+    }
+    let address = try #require(fetchedAddress)
+    #expect(address.doorLatitude == 45.1)
+    #expect(address.doorLongitude == -63.2)
+
+    let fetchedStop = try await database.read { db in
+      try Stop.find(fixture.missingStopID).fetchOne(db)
+    }
+    let stop = try #require(fetchedStop)
+    #expect(stop.latitude == 45.1)
+    #expect(stop.longitude == -63.2)
   }
 }
