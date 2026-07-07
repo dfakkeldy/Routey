@@ -53,8 +53,8 @@ struct SnapView: View {
       ProgressView("Reading label…")
     case .result(let result):
       SnapResultView(result: result, model: model)
-    case .added(let signatureCount):
-      SnapAddedView(signatureCount: signatureCount, model: model)
+    case .added(let summary):
+      SnapAddedView(summary: summary, model: model)
         .task { await RouteySyncing.sendChanges(reason: "parcel snapped", using: syncEngine) }
     case .failed(let message):
       ContentUnavailableView {
@@ -69,7 +69,7 @@ struct SnapView: View {
 }
 
 private struct SnapAddedView: View {
-  let signatureCount: Int
+  let summary: SnapViewModel.AddedSummary
   let model: SnapViewModel
 
   var body: some View {
@@ -77,9 +77,15 @@ private struct SnapAddedView: View {
       Image(systemName: "checkmark.circle.fill")
         .font(.largeTitle)
         .foregroundStyle(.green)
-      Text("Parcel added")
+      Text(summary.title)
         .font(.title2).bold()
-      Text("Signatures today: \(signatureCount)")
+
+      if let message = summary.message {
+        Text(message)
+          .foregroundStyle(.secondary)
+      }
+
+      Text("Signatures today: \(summary.signatureCount)")
         .foregroundStyle(.secondary)
       HStack {
         Button("Undo", systemImage: "arrow.uturn.backward") {

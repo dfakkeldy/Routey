@@ -39,6 +39,16 @@ public struct TemporaryParcelInput: Equatable, Sendable {
   }
 }
 
+public struct TemporaryRouteBuildResult: Equatable, Sendable {
+  public var runID: TodaysRun.ID
+  public var parcelID: Parcel.ID
+
+  public init(runID: TodaysRun.ID, parcelID: Parcel.ID) {
+    self.runID = runID
+    self.parcelID = parcelID
+  }
+}
+
 public enum TemporaryRouteBuilder {
   private static let routeName = "Parcel Pile"
 
@@ -47,6 +57,13 @@ public enum TemporaryRouteBuilder {
     _ input: TemporaryParcelInput,
     into database: any DatabaseWriter
   ) throws -> TodaysRun.ID {
+    try addParcelToTemporaryRouteWithResult(input, into: database).runID
+  }
+
+  public static func addParcelToTemporaryRouteWithResult(
+    _ input: TemporaryParcelInput,
+    into database: any DatabaseWriter
+  ) throws -> TemporaryRouteBuildResult {
     try database.write { db in
       let route = try temporaryRoute(in: db)
       let run = try todaysRun(routeID: route.id, serviceDate: input.serviceDate, in: db)
@@ -55,6 +72,7 @@ public enum TemporaryRouteBuilder {
       let stopID = UUID()
       let addressID = UUID()
       let deliveryPointID = UUID()
+      let parcelID = UUID()
 
       try Stop.insert {
         Stop(
@@ -100,6 +118,7 @@ public enum TemporaryRouteBuilder {
 
       try Parcel.insert {
         Parcel(
+          id: parcelID,
           runID: run.id,
           addressID: addressID,
           source: "ocr",
@@ -113,7 +132,7 @@ public enum TemporaryRouteBuilder {
       }
       .execute(db)
 
-      return run.id
+      return TemporaryRouteBuildResult(runID: run.id, parcelID: parcelID)
     }
   }
 

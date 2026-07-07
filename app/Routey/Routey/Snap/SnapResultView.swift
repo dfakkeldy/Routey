@@ -52,6 +52,10 @@ private struct SnapPickList: View {
           }
         }
         if showsNotListed {
+          Button("Add as temporary stop", systemImage: "shippingbox") {
+            Task { await model.accept(addressID: nil) }
+          }
+
           Button("Not listed — retake", systemImage: "arrow.uturn.backward") {
             model.reset()
           }
