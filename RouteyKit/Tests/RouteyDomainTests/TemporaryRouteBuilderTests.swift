@@ -80,6 +80,44 @@ import Testing
     #expect(parcel.toDoor)
   }
 
+  @Test func addParcelReusesTemporaryRouteForSameServiceDate() throws {
+    let database = try freshDB()
+
+    let firstRunID = try TemporaryRouteBuilder.addParcelToTemporaryRoute(sampleInput(), into: database)
+    let secondRunID = try TemporaryRouteBuilder.addParcelToTemporaryRoute(
+      sampleInput(
+        civicNumber: 88,
+        street: "Oak Road",
+        trackingCode: "TRACK-002",
+        labelSnapshot: "88 Oak Road",
+        toDoor: false
+      ),
+      into: database
+    )
+
+    #expect(secondRunID == firstRunID)
+
+    let graph = try database.read { db in
+      (
+        routes: try Route.all.fetchAll(db),
+        runs: try TodaysRun.all.fetchAll(db),
+        stops: try Stop.order { $0.sortIndex }.fetchAll(db),
+        runStops: try RunStop.order { $0.sortIndex }.fetchAll(db),
+        parcels: try Parcel.all.fetchAll(db)
+      )
+    }
+
+    #expect(graph.routes.count == 1)
+    #expect(graph.runs.count == 1)
+    #expect(graph.stops.count == 2)
+    #expect(graph.runStops.count == 2)
+    #expect(graph.parcels.count == 2)
+    #expect(graph.stops.map(\.displayName) == ["31 Elm Street", "88 Oak Road"])
+    #expect(graph.stops.map(\.sortIndex) == [0.0, 1.0])
+    #expect(graph.runStops.map(\.stopID) == graph.stops.map(\.id))
+    #expect(graph.runStops.map(\.sortIndex) == [0.0, 1.0])
+  }
+
   private func sampleInput() -> TemporaryParcelInput {
     TemporaryParcelInput(
       serviceDate: "2026-07-07",
@@ -92,6 +130,27 @@ import Testing
       requiresSignature: true,
       isCustoms: true,
       toDoor: true
+    )
+  }
+
+  private func sampleInput(
+    civicNumber: Int?,
+    street: String,
+    trackingCode: String,
+    labelSnapshot: String,
+    toDoor: Bool
+  ) -> TemporaryParcelInput {
+    TemporaryParcelInput(
+      serviceDate: "2026-07-07",
+      labelSnapshot: labelSnapshot,
+      civicNumber: civicNumber,
+      street: street,
+      postalCode: "X0X 0X0",
+      trackingCode: trackingCode,
+      trackingSymbology: "code128",
+      requiresSignature: false,
+      isCustoms: false,
+      toDoor: toDoor
     )
   }
 }
