@@ -36,6 +36,7 @@ let package = Package(
         "RouteyModel",
         "RouteyImport",
         "RouteySearch",
+        "RouteyNavigation",
         .product(name: "SQLiteData", package: "sqlite-data"),
       ]
     ),

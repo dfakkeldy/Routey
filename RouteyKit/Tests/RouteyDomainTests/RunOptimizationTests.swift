@@ -1,0 +1,165 @@
+import Foundation
+import SQLiteData
+import Testing
+import RouteyModel
+@testable import RouteyDomain
+@testable import RouteyPersistence
+
+@Suite struct RunOptimizationTests {
+  private struct RunFixture {
+    var runID: TodaysRun.ID
+    var eligibleRunStopID: RunStop.ID
+    var unresolvedRunStopID: RunStop.ID
+    var nonParcelRunStopID: RunStop.ID
+  }
+
+  private func freshDB() throws -> DatabaseQueue {
+    let database = try DatabaseQueue()
+    try Schema.migrator.migrate(database)
+    return database
+  }
+
+  private func seedRun(in database: DatabaseQueue) throws -> RunFixture {
+    let routeID = UUID()
+    let runID = UUID()
+    let eligibleStopID = UUID()
+    let unresolvedStopID = UUID()
+    let nonParcelStopID = UUID()
+    let eligibleRunStopID = UUID()
+    let unresolvedRunStopID = UUID()
+    let nonParcelRunStopID = UUID()
+    let eligibleAddressID = UUID()
+    let unresolvedAddressID = UUID()
+    let nonParcelAddressID = UUID()
+
+    try database.write { db in
+      try Route.insert { Route(id: routeID, name: "Sample Route") }.execute(db)
+      try TodaysRun.insert {
+        TodaysRun(id: runID, routeID: routeID, serviceDate: "2026-07-07")
+      }
+      .execute(db)
+
+      try Stop.insert {
+        Stop(
+          id: eligibleStopID,
+          routeID: routeID,
+          tieOut: "A",
+          sortIndex: 0,
+          displayName: "Coordinate stop",
+          latitude: 45.0,
+          longitude: -63.0
+        )
+      }
+      .execute(db)
+      try Stop.insert {
+        Stop(
+          id: unresolvedStopID,
+          routeID: routeID,
+          tieOut: "B",
+          sortIndex: 1,
+          displayName: "Missing coordinate stop"
+        )
+      }
+      .execute(db)
+      try Stop.insert {
+        Stop(
+          id: nonParcelStopID,
+          routeID: routeID,
+          tieOut: "C",
+          sortIndex: 2,
+          displayName: "No parcel stop",
+          latitude: 45.2,
+          longitude: -63.2
+        )
+      }
+      .execute(db)
+
+      try RunStop.insert {
+        RunStop(
+          id: eligibleRunStopID,
+          runID: runID,
+          stopID: eligibleStopID,
+          tieOut: "A",
+          displayName: "Coordinate stop",
+          sortIndex: 0
+        )
+      }
+      .execute(db)
+      try RunStop.insert {
+        RunStop(
+          id: unresolvedRunStopID,
+          runID: runID,
+          stopID: unresolvedStopID,
+          tieOut: "B",
+          displayName: "Missing coordinate stop",
+          sortIndex: 1
+        )
+      }
+      .execute(db)
+      try RunStop.insert {
+        RunStop(
+          id: nonParcelRunStopID,
+          runID: runID,
+          stopID: nonParcelStopID,
+          tieOut: "C",
+          displayName: "No parcel stop",
+          sortIndex: 2
+        )
+      }
+      .execute(db)
+
+      try seedAddressGraph(stopID: eligibleStopID, addressID: eligibleAddressID, in: db)
+      try seedAddressGraph(stopID: unresolvedStopID, addressID: unresolvedAddressID, in: db)
+      try seedAddressGraph(stopID: nonParcelStopID, addressID: nonParcelAddressID, in: db)
+
+      try Parcel.insert {
+        Parcel(runID: runID, addressID: eligibleAddressID, labelSnapshot: "Invented label A")
+      }
+      .execute(db)
+      try Parcel.insert {
+        Parcel(runID: runID, addressID: unresolvedAddressID, labelSnapshot: "Invented label B")
+      }
+      .execute(db)
+    }
+
+    return RunFixture(
+      runID: runID,
+      eligibleRunStopID: eligibleRunStopID,
+      unresolvedRunStopID: unresolvedRunStopID,
+      nonParcelRunStopID: nonParcelRunStopID
+    )
+  }
+
+  @Test func suggestSeparatesEligibleAndUnresolvedParcelStops() throws {
+    let database = try freshDB()
+    let fixture = try seedRun(in: database)
+
+    let suggestion = try RunOptimization.suggest(runID: fixture.runID, start: nil, in: database)
+
+    #expect(suggestion.orderedRunStopIDs == [fixture.eligibleRunStopID])
+    #expect(suggestion.unresolvedRunStopIDs == [fixture.unresolvedRunStopID])
+    #expect(!suggestion.orderedRunStopIDs.contains(fixture.nonParcelRunStopID))
+    #expect(suggestion.totalDistance == 0)
+  }
+
+  private func seedAddressGraph(
+    stopID: Stop.ID,
+    addressID: Address.ID,
+    in db: Database
+  ) throws {
+    let deliveryPointID = UUID()
+
+    try DeliveryPoint.insert {
+      DeliveryPoint(id: deliveryPointID, stopID: stopID, label: "Box")
+    }
+    .execute(db)
+    try Address.insert {
+      Address(id: addressID, civicNumber: 101, street: "Sample Road")
+    }
+    .execute(db)
+    try DeliveryPointAddress.insert {
+      DeliveryPointAddress(deliveryPointID: deliveryPointID, addressID: addressID)
+    }
+    .execute(db)
+  }
+}
