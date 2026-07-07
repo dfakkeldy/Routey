@@ -19,8 +19,9 @@
 
 ## Learning Log From Previous Plan
 
-- [ ] Before executing Task 1, append the final Plan 3 optimization suggestion shape and Today's Run UI entry point.
-- [ ] Expected Plan 3 dependency: `RunOptimizationSuggestion` exposes optimized and unresolved run stop IDs, and `RunOptimization.apply(_:to:in:)` rewrites run stop order only after explicit user action.
+- [x] Plan 3 landed `RunOptimizationSuggestion(orderedRunStopIDs:unresolvedRunStopIDs:totalDistance:)`, `RunOptimization.suggest(runID:start:in:)`, and `RunOptimization.apply(_:to:in:)`.
+- [x] The Today's Run board now has an explicit `Optimize` toolbar action that previews/apply-confirms the optimized parcel stop order before rewriting `RunStop.sortIndex`.
+- [x] Plan 4 can build map previews from cached coordinates and current run stops without changing the optimizer contract; unresolved run stops should remain visible as a count/empty state instead of blocking the map.
 
 ## Planned Files
 
