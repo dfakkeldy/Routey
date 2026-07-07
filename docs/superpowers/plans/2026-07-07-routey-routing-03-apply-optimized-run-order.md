@@ -19,8 +19,11 @@
 
 ## Learning Log From Previous Plan
 
-- [ ] Before executing Task 1, append the final Plan 2 coordinate resolution API names and unresolved-coordinate behavior.
-- [ ] Expected Plan 2 dependency: `CoordinateResolution.candidates(routeID:in:)` lists missing coordinates, and `CoordinateResolutionService.resolveMissingCoordinates(routeID:in:)` caches coordinates without requiring network at run time.
+- [x] Plan 2 added `CoordinateResolution.candidates(routeID:in:)`, `AddressResolutionCandidate`, `ResolvedCoordinate`, and `CoordinateResolutionService(resolve:)`.
+- [x] `CoordinateResolutionService.resolveMissingCoordinates(routeID:in:)` is async, returns the count of successfully resolved addresses, and writes successful coordinates to both `Address.doorLatitude/doorLongitude` and `Stop.latitude/longitude`.
+- [x] Candidate generation is package-only and offline; `AppleAddressGeocoder` is app-only and uses `CLGeocoder.geocodeAddressString(_:)` from the explicit route-level "Resolve Coordinates" action.
+- [x] Plan 3 should treat `Stop.latitude/longitude` as the optimization source. Stops without both values stay unresolved and must not block Today's Run.
+- [x] Verification: `cd RouteyKit && swift test` passed with 100 tests in 28 suites, and the Routey iOS simulator app build passed through the Xcode build gate after Plan 2.
 
 ## Planned Files
 
