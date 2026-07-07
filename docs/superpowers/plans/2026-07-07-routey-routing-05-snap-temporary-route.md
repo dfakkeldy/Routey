@@ -20,8 +20,10 @@
 
 ## Learning Log From Previous Plan
 
-- [ ] Before executing Task 1, append the final Plan 4 map-preview conventions, handoff entry points, and any UI constraints discovered.
-- [ ] Expected Plan 4 dependency: Today's Run can surface coordinate-backed stops in a calm map preview and hand off a selected destination to Apple Maps without requesting location authorization.
+- [x] Plan 4 landed an app-local `RunMapSnapshot` that builds map stops from cached coordinates plus `RunOptimizationSuggestion`, keeping unresolved parcel stops as a count rather than blocking preview.
+- [x] `RunMapView` is reached from the Today's Run toolbar with numbered annotations, a straight-line `MapPolyline`, compass/scale controls, and no user-location authorization request.
+- [x] `AppleMapsHandoff.openDestination(title:coordinate:)` opens the selected or first mapped stop in Apple Maps driving mode; Routey still owns offline ordering and does not depend on directions for the parcel list.
+- [x] Plan 5 temporary stops should populate the same route/run/stop/address tables so coordinate resolution, optimization, map preview, and Apple Maps handoff work without a separate temporary-map path.
 
 ## Planned Files
 
