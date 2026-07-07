@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import RouteyNavigation
 
@@ -19,5 +20,26 @@ import Testing
     let distance = first.distance(to: second)
     #expect(distance > 1_100)
     #expect(distance < 1_120)
+  }
+
+  @Test func optimizingNoStopsReturnsEmptyResult() {
+    let result = RouteOptimizer.optimize(start: nil, stops: [])
+    #expect(result.orderedStops.isEmpty)
+    #expect(result.totalDistance == 0)
+  }
+
+  @Test func optimizingSingleStopReturnsThatStop() {
+    let stopID = UUID()
+    let stop = RouteStopCandidate(
+      id: stopID,
+      label: "Sample stop",
+      coordinate: NavigationCoordinate(latitude: 45.0, longitude: -63.0),
+      existingSortIndex: 7
+    )
+
+    let result = RouteOptimizer.optimize(start: nil, stops: [stop])
+    #expect(result.orderedStops.map(\.candidate.id) == [stopID])
+    #expect(result.orderedStops.map(\.order) == [0])
+    #expect(result.totalDistance == 0)
   }
 }
