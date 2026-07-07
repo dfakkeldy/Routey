@@ -10,6 +10,8 @@ struct RunBoardView: View {
   @Fetch private var board: RunBoard
   @State private var errorMessage = ""
   @State private var isShowingError = false
+  @State private var pendingOptimization: RunOptimizationSuggestion?
+  @State private var isShowingOptimizationConfirmation = false
 
   init(runID: TodaysRun.ID) {
     self.runID = runID
@@ -70,13 +72,66 @@ struct RunBoardView: View {
       RunStopDetailView(runID: runID, runStopID: runStopID)
     }
     .toolbar {
+      Button("Optimize", systemImage: "arrow.up.arrow.down", action: optimizeRun)
+        .disabled(board.stops.isEmpty)
+
       EditButton()
+    }
+    .alert(
+      "Use suggested order for parcel stops?",
+      isPresented: $isShowingOptimizationConfirmation,
+      presenting: pendingOptimization
+    ) { suggestion in
+      Button("Use Order") {
+        applyOptimization(suggestion)
+      }
+      Button("Cancel", role: .cancel) {
+        pendingOptimization = nil
+      }
+    } message: { suggestion in
+      Text(optimizationConfirmationMessage(for: suggestion))
     }
     .alert("Couldn't Update Run", isPresented: $isShowingError) {
       Button("OK", role: .cancel) {}
     } message: {
       Text(errorMessage)
     }
+  }
+
+  private func optimizeRun() {
+    do {
+      let suggestion = try RunOptimization.suggest(runID: runID, start: nil, in: database)
+      guard !suggestion.orderedRunStopIDs.isEmpty else {
+        errorMessage = "Resolve coordinates first"
+        isShowingError = true
+        return
+      }
+
+      pendingOptimization = suggestion
+      isShowingOptimizationConfirmation = true
+    } catch {
+      show(error)
+    }
+  }
+
+  private func applyOptimization(_ suggestion: RunOptimizationSuggestion) {
+    do {
+      try RunOptimization.apply(suggestion, to: runID, in: database)
+      pendingOptimization = nil
+      sendChanges(reason: "run stops optimized")
+    } catch {
+      show(error)
+    }
+  }
+
+  private func optimizationConfirmationMessage(for suggestion: RunOptimizationSuggestion) -> String {
+    let unresolvedCount = suggestion.unresolvedRunStopIDs.count
+    guard unresolvedCount > 0 else {
+      return "All coordinate-backed parcel stops will be reordered."
+    }
+
+    let label = unresolvedCount == 1 ? "stop needs" : "stops need"
+    return "\(unresolvedCount.formatted(.number)) parcel \(label) coordinates first."
   }
 
   private func setDone(_ isDone: Bool, for stop: RunStopSummary) {
