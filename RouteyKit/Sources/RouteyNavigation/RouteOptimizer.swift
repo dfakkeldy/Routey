@@ -7,8 +7,16 @@ public enum RouteOptimizer {
       return RouteOptimizationResult(orderedStops: [], totalDistance: 0)
     }
 
-    let ordered = nearestNeighborOrder(start: start, stops: stops)
-    return result(for: ordered, start: start)
+    let nearest = nearestNeighborOrder(start: start, stops: stops)
+    let improved = twoOpt(nearest, start: start)
+    return result(for: improved, start: start)
+  }
+
+  public static func nearestNeighborPreview(
+    start: NavigationCoordinate?,
+    stops: [RouteStopCandidate]
+  ) -> RouteOptimizationResult {
+    result(for: nearestNeighborOrder(start: start, stops: stops), start: start)
   }
 
   private static func nearestNeighborOrder(
@@ -55,5 +63,47 @@ public enum RouteOptimizer {
       return OptimizedStop(candidate: stop, order: index, distanceFromPrevious: distance)
     }
     return RouteOptimizationResult(orderedStops: optimized, totalDistance: total)
+  }
+
+  private static func twoOpt(
+    _ stops: [RouteStopCandidate],
+    start: NavigationCoordinate?
+  ) -> [RouteStopCandidate] {
+    guard stops.count >= 4 else { return stops }
+
+    var best = stops
+    var bestDistance = pathDistance(best, start: start)
+    var improved = true
+
+    while improved {
+      improved = false
+      for i in 0..<(best.count - 2) {
+        for k in (i + 1)..<best.count {
+          var candidate = best
+          candidate.replaceSubrange(i...k, with: candidate[i...k].reversed())
+          let candidateDistance = pathDistance(candidate, start: start)
+          if candidateDistance < bestDistance {
+            best = candidate
+            bestDistance = candidateDistance
+            improved = true
+          }
+        }
+      }
+    }
+
+    return best
+  }
+
+  private static func pathDistance(
+    _ stops: [RouteStopCandidate],
+    start: NavigationCoordinate?
+  ) -> Double {
+    var previous = start
+    return stops.reduce(into: 0.0) { total, stop in
+      if let previous {
+        total += previous.distance(to: stop.coordinate)
+      }
+      previous = stop.coordinate
+    }
   }
 }

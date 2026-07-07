@@ -61,4 +61,43 @@ import Testing
     let result = RouteOptimizer.optimize(start: start, stops: [far, near])
     #expect(result.orderedStops.first?.candidate.id == near.id)
   }
+
+  @Test func twoOptDoesNotIncreaseTotalDistance() {
+    let start = NavigationCoordinate(latitude: 45.0, longitude: -63.0)
+    let stops = [
+      RouteStopCandidate(
+        id: UUID(),
+        label: "A",
+        coordinate: .init(latitude: 45.00, longitude: -63.10),
+        existingSortIndex: 0
+      ),
+      RouteStopCandidate(
+        id: UUID(),
+        label: "B",
+        coordinate: .init(latitude: 45.10, longitude: -63.00),
+        existingSortIndex: 1
+      ),
+      RouteStopCandidate(
+        id: UUID(),
+        label: "C",
+        coordinate: .init(latitude: 45.10, longitude: -63.10),
+        existingSortIndex: 2
+      ),
+      RouteStopCandidate(
+        id: UUID(),
+        label: "D",
+        coordinate: .init(latitude: 45.00, longitude: -63.00),
+        existingSortIndex: 3
+      ),
+    ]
+
+    let nearestOnly = RouteOptimizer.nearestNeighborPreview(start: start, stops: stops)
+    let optimized = RouteOptimizer.optimize(start: start, stops: stops)
+
+    let optimizedIDs = optimized.orderedStops.map(\.candidate.id).sorted { $0.uuidString < $1.uuidString }
+    let inputIDs = stops.map(\.id).sorted { $0.uuidString < $1.uuidString }
+
+    #expect(optimized.totalDistance <= nearestOnly.totalDistance)
+    #expect(optimizedIDs == inputIDs)
+  }
 }
