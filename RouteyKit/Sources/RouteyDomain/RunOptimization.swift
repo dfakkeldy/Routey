@@ -30,6 +30,33 @@ public enum RunOptimization {
     }
   }
 
+  public static func apply(
+    _ suggestion: RunOptimizationSuggestion,
+    to runID: TodaysRun.ID,
+    in database: any DatabaseWriter
+  ) throws {
+    try database.write { db in
+      let runStops = try RunStop
+        .where { $0.runID.eq(#bind(runID)) }
+        .order { $0.sortIndex }
+        .fetchAll(db)
+      let runStopIDs = Set(runStops.map(\.id))
+      let optimizedIDs = suggestion.orderedRunStopIDs.filter { runStopIDs.contains($0) }
+      guard !optimizedIDs.isEmpty else { return }
+
+      let optimizedIDSet = Set(optimizedIDs)
+      let remainingIDs = runStops
+        .filter { !optimizedIDSet.contains($0.id) }
+        .map(\.id)
+
+      for (index, runStopID) in (optimizedIDs + remainingIDs).enumerated() {
+        try RunStop.find(runStopID)
+          .update { $0.sortIndex = #bind(Double(index)) }
+          .execute(db)
+      }
+    }
+  }
+
   private static func suggest(
     runID: TodaysRun.ID,
     start: NavigationCoordinate?,

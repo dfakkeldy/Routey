@@ -253,6 +253,162 @@ import RouteyModel
     #expect(suggestion.totalDistance > 0)
   }
 
+  @Test func applyReassignsOptimizedStopsBeforeRemainingStops() throws {
+    let database = try freshDB()
+    let routeID = UUID()
+    let runID = UUID()
+    let firstStopID = UUID()
+    let farStopID = UUID()
+    let nearStopID = UUID()
+    let unresolvedStopID = UUID()
+    let nonParcelStopID = UUID()
+    let firstRunStopID = UUID()
+    let farRunStopID = UUID()
+    let nearRunStopID = UUID()
+    let unresolvedRunStopID = UUID()
+    let nonParcelRunStopID = UUID()
+    let firstAddressID = UUID()
+    let farAddressID = UUID()
+    let nearAddressID = UUID()
+    let unresolvedAddressID = UUID()
+    let nonParcelAddressID = UUID()
+
+    try database.write { db in
+      try Route.insert { Route(id: routeID, name: "Sample Route") }.execute(db)
+      try TodaysRun.insert {
+        TodaysRun(id: runID, routeID: routeID, serviceDate: "2026-07-07")
+      }
+      .execute(db)
+
+      let stops = [
+        Stop(
+          id: firstStopID,
+          routeID: routeID,
+          tieOut: "A",
+          sortIndex: 0,
+          displayName: "First stop",
+          latitude: 45.0,
+          longitude: -63.0
+        ),
+        Stop(
+          id: farStopID,
+          routeID: routeID,
+          tieOut: "B",
+          sortIndex: 1,
+          displayName: "Far stop",
+          latitude: 45.30,
+          longitude: -63.0
+        ),
+        Stop(
+          id: nearStopID,
+          routeID: routeID,
+          tieOut: "C",
+          sortIndex: 2,
+          displayName: "Near stop",
+          latitude: 45.01,
+          longitude: -63.0
+        ),
+        Stop(
+          id: unresolvedStopID,
+          routeID: routeID,
+          tieOut: "D",
+          sortIndex: 3,
+          displayName: "Unresolved stop"
+        ),
+        Stop(
+          id: nonParcelStopID,
+          routeID: routeID,
+          tieOut: "E",
+          sortIndex: 4,
+          displayName: "No parcel stop",
+          latitude: 45.4,
+          longitude: -63.4
+        ),
+      ]
+      for stop in stops {
+        try Stop.insert { stop }.execute(db)
+      }
+
+      let runStops = [
+        RunStop(
+          id: firstRunStopID,
+          runID: runID,
+          stopID: firstStopID,
+          tieOut: "A",
+          displayName: "First stop",
+          sortIndex: 0
+        ),
+        RunStop(
+          id: farRunStopID,
+          runID: runID,
+          stopID: farStopID,
+          tieOut: "B",
+          displayName: "Far stop",
+          sortIndex: 1
+        ),
+        RunStop(
+          id: nearRunStopID,
+          runID: runID,
+          stopID: nearStopID,
+          tieOut: "C",
+          displayName: "Near stop",
+          sortIndex: 2
+        ),
+        RunStop(
+          id: unresolvedRunStopID,
+          runID: runID,
+          stopID: unresolvedStopID,
+          tieOut: "D",
+          displayName: "Unresolved stop",
+          sortIndex: 3
+        ),
+        RunStop(
+          id: nonParcelRunStopID,
+          runID: runID,
+          stopID: nonParcelStopID,
+          tieOut: "E",
+          displayName: "No parcel stop",
+          sortIndex: 4
+        ),
+      ]
+      for runStop in runStops {
+        try RunStop.insert { runStop }.execute(db)
+      }
+
+      try seedAddressGraph(stopID: firstStopID, addressID: firstAddressID, in: db)
+      try seedAddressGraph(stopID: farStopID, addressID: farAddressID, in: db)
+      try seedAddressGraph(stopID: nearStopID, addressID: nearAddressID, in: db)
+      try seedAddressGraph(stopID: unresolvedStopID, addressID: unresolvedAddressID, in: db)
+      try seedAddressGraph(stopID: nonParcelStopID, addressID: nonParcelAddressID, in: db)
+
+      for addressID in [firstAddressID, farAddressID, nearAddressID, unresolvedAddressID] {
+        try Parcel.insert {
+          Parcel(runID: runID, addressID: addressID, labelSnapshot: "Invented label")
+        }
+        .execute(db)
+      }
+    }
+
+    let suggestion = try RunOptimization.suggest(runID: runID, start: nil, in: database)
+    try RunOptimization.apply(suggestion, to: runID, in: database)
+
+    let runStops = try database.read { db in
+      try RunStop
+        .where { $0.runID.eq(#bind(runID)) }
+        .order { $0.sortIndex }
+        .fetchAll(db)
+    }
+
+    #expect(runStops.map(\.id) == [
+      firstRunStopID,
+      nearRunStopID,
+      farRunStopID,
+      unresolvedRunStopID,
+      nonParcelRunStopID,
+    ])
+    #expect(runStops.map(\.sortIndex) == [0, 1, 2, 3, 4])
+  }
+
   private func seedAddressGraph(
     stopID: Stop.ID,
     addressID: Address.ID,
