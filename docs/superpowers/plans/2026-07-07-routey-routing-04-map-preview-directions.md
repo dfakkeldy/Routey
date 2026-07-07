@@ -50,37 +50,37 @@ struct AppleMapsHandoff {
 
 ### Task 1: Build Map Snapshot Model
 
-- [ ] Add a small app model that converts `RunOptimizationSuggestion` plus run stop detail into `[RunMapStop]`.
-- [ ] Keep stops without coordinates out of the map list and report their count.
-- [ ] Use invented preview data for SwiftUI previews if previews exist.
-- [ ] Commit: `feat(app): prepare run map snapshot`.
+- [x] Add a small app model that converts `RunOptimizationSuggestion` plus run stop detail into `[RunMapStop]`.
+- [x] Keep stops without coordinates out of the map list and report their count.
+- [x] Use invented preview data for SwiftUI previews if previews exist.
+- [x] Commit: `feat(app): prepare run map snapshot`.
 
 ### Task 2: Add SwiftUI Map View
 
-- [ ] Create `RunMapView` using `Map(position:)`.
-- [ ] Render numbered markers for each coordinate-backed stop.
-- [ ] Render a `MapPolyline(coordinates:)` connecting stops in suggested order.
-- [ ] Use `.mapControls { MapCompass(); MapScaleView() }`.
-- [ ] Do not add `UserAnnotation()` yet.
-- [ ] Commit: `feat(app): add run map preview`.
+- [x] Create `RunMapView` using `Map(position:)`.
+- [x] Render numbered markers for each coordinate-backed stop.
+- [x] Render a `MapPolyline(coordinates:)` connecting stops in suggested order.
+- [x] Use `.mapControls { MapCompass(); MapScaleView() }`.
+- [x] Do not add `UserAnnotation()` yet.
+- [x] Commit: `feat(app): add run map preview`.
 
 ### Task 3: Add Apple Maps Handoff
 
-- [ ] Implement `AppleMapsHandoff.openDestination(title:coordinate:)` using `MKMapItem`.
-- [ ] Add a button on selected stop or first next stop: "Open in Maps".
-- [ ] Use driving directions mode.
-- [ ] If no coordinate exists, disable the button.
-- [ ] Commit: `feat(app): add Apple Maps next-stop handoff`.
+- [x] Implement `AppleMapsHandoff.openDestination(title:coordinate:)` using `MKMapItem`.
+- [x] Add a button on selected stop or first next stop: "Open in Maps".
+- [x] Use driving directions mode.
+- [x] If no coordinate exists, disable the button.
+- [x] Commit: `feat(app): add Apple Maps next-stop handoff`.
 
 ### Task 4: Wire From Today's Run
 
-- [ ] Add "Map" entry point from `RunBoardView`.
-- [ ] Pass the current run ID and load map stops from cached coordinates.
-- [ ] Show empty state: "Resolve coordinates to preview this run on a map."
-- [ ] Verify with app build through the Xcode build gate when feasible.
-- [ ] Commit: `feat(app): wire map preview into run board`.
+- [x] Add "Map" entry point from `RunBoardView`.
+- [x] Pass the current run ID and load map stops from cached coordinates.
+- [x] Show empty state: "Resolve coordinates to preview this run on a map."
+- [x] Verify with app build through the Xcode build gate when feasible.
+- [x] Commit: `feat(app): wire map preview into run board`.
 
 ## Plan 4 Completion Handoff
 
-- [ ] Update Plan 5 with any map model or UI conventions that should be reused for temporary routes.
-- [ ] Run `git status --short --branch`.
+- [x] Update Plan 5 with any map model or UI conventions that should be reused for temporary routes.
+- [x] Run `git status --short --branch`.

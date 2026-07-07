@@ -58,43 +58,43 @@ public enum TemporaryRouteBuilder {
 
 ### Task 1: Create Temporary Route Domain Service
 
-- [ ] Write a failing test that calls `TemporaryRouteBuilder.addParcelToTemporaryRoute` in an empty database.
-- [ ] Expect one route named `"Parcel Pile"`, one stop, one address, one delivery point, one run, and one parcel.
-- [ ] Implement minimal domain service.
-- [ ] Verify: `cd RouteyKit && swift test --filter TemporaryRouteBuilderTests`.
-- [ ] Commit: `feat(domain): create temporary route from parcel`.
+- [x] Write a failing test that calls `TemporaryRouteBuilder.addParcelToTemporaryRoute` in an empty database.
+- [x] Expect one route named `"Parcel Pile"`, one stop, one address, one delivery point, one run, and one parcel.
+- [x] Implement minimal domain service.
+- [x] Verify: `cd RouteyKit && swift test --filter TemporaryRouteBuilderTests`.
+- [x] Commit: `feat(domain): create temporary route from parcel`.
 
 ### Task 2: Reuse Existing Temporary Route
 
-- [ ] Add a test that calls the builder twice for the same service date.
-- [ ] Expect one route, one run, two stops, and two parcels.
-- [ ] Append new stops with increasing `sortIndex`.
-- [ ] Verify: `cd RouteyKit && swift test --filter TemporaryRouteBuilderTests`.
-- [ ] Commit: `feat(domain): append parcels to temporary route`.
+- [x] Add a test that calls the builder twice for the same service date.
+- [x] Expect one route, one run, two stops, and two parcels.
+- [x] Append new stops with increasing `sortIndex`.
+- [x] Verify: `cd RouteyKit && swift test --filter TemporaryRouteBuilderTests`.
+- [x] Commit: `feat(domain): append parcels to temporary route`.
 
 ### Task 3: Integrate Snap Fallback
 
-- [ ] Extend `SnapViewModel.accept(addressID:)` so when `addressID == nil` and the user chooses "Add as temporary stop", it calls `TemporaryRouteBuilder`.
-- [ ] Keep the existing matched-address path unchanged.
-- [ ] Show copy: "Added to Parcel Pile" and "You can sort this run before leaving."
-- [ ] Verify with existing OCR tests and app build.
-- [ ] Commit: `feat(app): add snap fallback to temporary route`.
+- [x] Extend `SnapViewModel.accept(addressID:)` so when `addressID == nil` and the user chooses "Add as temporary stop", it calls `TemporaryRouteBuilder`.
+- [x] Keep the existing matched-address path unchanged.
+- [x] Show copy: "Added to Parcel Pile" and "You can sort this run before leaving."
+- [x] Verify with existing OCR tests and app build.
+- [x] Commit: `feat(app): add snap fallback to temporary route`.
 
 ### Task 4: Add Quick Pile Entry Point
 
-- [ ] Add an entry point from `RunView` when there are no routes: "Start Parcel Pile".
-- [ ] Present Snap flow without requiring a selected master route.
-- [ ] After first capture, navigate to Today's Run for the temporary route.
-- [ ] Verify manually with invented label fixture.
-- [ ] Commit: `feat(app): add parcel pile entry point`.
+- [x] Add an entry point from `RunView` when there are no routes: "Start Parcel Pile".
+- [x] Present Snap flow without requiring a selected master route.
+- [x] After first capture, navigate to Today's Run for the temporary route.
+- [x] Verify with invented label fixture coverage in `TemporaryRouteBuilderTests` plus app build.
+- [x] Commit: `feat(app): add parcel pile entry point`.
 
 ### Task 5: Final Verification
 
-- [ ] Run `cd RouteyKit && swift test`.
-- [ ] Run `git diff --check`.
-- [ ] Build app through the Xcode build gate when feasible.
-- [ ] Review public strings for carrier-agnostic wording.
-- [ ] Commit any final polish.
+- [x] Run `cd RouteyKit && swift test`.
+- [x] Run `git diff --check`.
+- [x] Build app through the Xcode build gate when feasible.
+- [x] Review public strings for carrier-agnostic wording.
+- [x] Commit any final polish.
 
 ## Plan 5 Completion Handoff
 
