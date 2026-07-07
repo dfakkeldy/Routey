@@ -25,6 +25,8 @@ struct RouteStopsView: View {
     let visibleStops = filtered(stops)
 
     List {
+      CoordinateResolutionView(routeID: route.id)
+
       ForEach(visibleStops) { stop in
         NavigationLink(value: stop) {
           StopRowView(stop: stop)
