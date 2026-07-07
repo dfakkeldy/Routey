@@ -139,6 +139,11 @@ private struct RunMapStopPanel: View {
           .font(.caption)
           .foregroundStyle(.secondary)
       }
+
+      Button("Open in Maps", systemImage: "map") {
+        AppleMapsHandoff.openDestination(title: stop.title, coordinate: stop.coordinate)
+      }
+      .buttonStyle(.borderedProminent)
     }
     .padding()
     .frame(maxWidth: .infinity, alignment: .leading)
