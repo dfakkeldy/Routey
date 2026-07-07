@@ -72,6 +72,13 @@ struct RunBoardView: View {
       RunStopDetailView(runID: runID, runStopID: runStopID)
     }
     .toolbar {
+      NavigationLink {
+        RunMapView(runID: runID)
+      } label: {
+        Label("Map", systemImage: "map")
+      }
+      .disabled(board.stops.isEmpty)
+
       Button("Optimize", systemImage: "arrow.up.arrow.down", action: optimizeRun)
         .disabled(board.stops.isEmpty)
 
