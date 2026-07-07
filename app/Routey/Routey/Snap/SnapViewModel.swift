@@ -23,12 +23,12 @@ final class SnapViewModel {
   }
 
   private(set) var phase: Phase = .capturing
-  let route: Route
+  let route: Route?
 
   private let database: any DatabaseWriter
   private var lastAddedParcelID: UUID?
 
-  init(route: Route, database: any DatabaseWriter) {
+  init(route: Route?, database: any DatabaseWriter) {
     self.route = route
     self.database = database
   }
@@ -82,6 +82,11 @@ final class SnapViewModel {
             signatureCount: count
           )
         )
+        return
+      }
+
+      guard let route else {
+        phase = .failed("Import a route to add matched parcels.")
         return
       }
 

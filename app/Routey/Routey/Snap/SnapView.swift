@@ -3,7 +3,7 @@ import SQLiteData
 import SwiftUI
 
 struct SnapView: View {
-  let route: Route
+  let route: Route?
   let onClose: () -> Void
 
   @Dependency(\.defaultDatabase) private var database
