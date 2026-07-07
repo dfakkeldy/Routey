@@ -19,8 +19,11 @@
 
 ## Learning Log From Previous Plan
 
-- [ ] Before executing Task 1, append the final Plan 1 `RouteyNavigation` public APIs and any deviations from the planned optimizer behavior.
-- [ ] Expected Plan 1 dependency: `RouteStopCandidate`, `NavigationCoordinate`, `RouteOptimizationResult`, and `RouteOptimizer.optimize(start:stops:)` exist in the `RouteyNavigation` product.
+- [x] Plan 1 added the `RouteyNavigation` package product and target with no third-party dependencies.
+- [x] Final public APIs: `NavigationCoordinate(latitude:longitude:)`, `NavigationCoordinate.distance(to:)`, `RouteStopCandidate`, `OptimizedStop`, `RouteOptimizationResult`, `RouteOptimizer.optimize(start:stops:)`, and `RouteOptimizer.nearestNeighborPreview(start:stops:)`.
+- [x] Distance values are meters. When no start coordinate is supplied, the first optimized stop has `distanceFromPrevious == 0`; multi-stop ordering seeds from the deterministic first stop by `existingSortIndex`, `label`, and `id.uuidString`.
+- [x] 2-opt was implemented with `replaceSubrange(_:with:)` instead of mutating an array slice directly, which avoids a Swift mutable-subscript edge case.
+- [x] Verification: `cd RouteyKit && swift test` passed with 98 tests in 27 suites after Plan 1.
 
 ## Planned Files
 
