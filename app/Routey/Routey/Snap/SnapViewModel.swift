@@ -8,21 +8,27 @@ import SQLiteData
 @MainActor
 @Observable
 final class SnapViewModel {
+  struct AddedSummary: Equatable {
+    var title: String
+    var message: String?
+    var signatureCount: Int
+  }
+
   enum Phase: Equatable {
     case capturing
     case reading
     case result(SnapMatchResult)
-    case added(signatureCount: Int)
+    case added(AddedSummary)
     case failed(String)
   }
 
   private(set) var phase: Phase = .capturing
-  let route: Route
+  let route: Route?
 
   private let database: any DatabaseWriter
   private var lastAddedParcelID: UUID?
 
-  init(route: Route, database: any DatabaseWriter) {
+  init(route: Route?, database: any DatabaseWriter) {
     self.route = route
     self.database = database
   }
@@ -51,12 +57,45 @@ final class SnapViewModel {
       // Service date is intentionally stamped at accept time, not capture time:
       // a parcel belongs to the run it's confirmed into. (Domain decision, 2026-06-29.)
       let serviceDate = Self.serviceDate(for: .now)
+      guard let addressID else {
+        let temporaryResult = try TemporaryRouteBuilder.addParcelToTemporaryRouteWithResult(
+          TemporaryParcelInput(
+            serviceDate: serviceDate,
+            labelSnapshot: input.labelSnapshot,
+            civicNumber: result.components.civicNumber,
+            street: temporaryStreet(from: result.components),
+            postalCode: result.components.postalCode,
+            trackingCode: input.trackingCode,
+            trackingSymbology: input.trackingSymbology,
+            requiresSignature: input.requiresSignature,
+            isCustoms: input.isCustoms,
+            toDoor: input.toDoor
+          ),
+          into: database
+        )
+        lastAddedParcelID = temporaryResult.parcelID
+        let count = try RunOperations.signatureCount(runID: temporaryResult.runID, in: database)
+        phase = .added(
+          AddedSummary(
+            title: "Added to Parcel Pile",
+            message: "You can sort this run before leaving.",
+            signatureCount: count
+          )
+        )
+        return
+      }
+
+      guard let route else {
+        phase = .failed("Import a route to add matched parcels.")
+        return
+      }
+
       let runID = try RunGeneration.generate(
         routeID: route.id, serviceDate: serviceDate, now: .now, into: database
       )
       let parcelID = try RunOperations.addParcel(
         runID: runID,
-        addressID: input.addressID,
+        addressID: addressID,
         source: input.source,
         requiresSignature: input.requiresSignature,
         isCustoms: input.isCustoms,
@@ -68,7 +107,7 @@ final class SnapViewModel {
       )
       lastAddedParcelID = parcelID
       let count = try RunOperations.signatureCount(runID: runID, in: database)
-      phase = .added(signatureCount: count)
+      phase = .added(AddedSummary(title: "Parcel added", message: nil, signatureCount: count))
     } catch {
       phase = .failed(error.localizedDescription)
     }
@@ -101,5 +140,11 @@ final class SnapViewModel {
 
   static func serviceDate(for date: Date) -> String {
     date.formatted(.iso8601.year().month().day().dateSeparator(.dash))
+  }
+
+  private func temporaryStreet(from components: AddressComponents) -> String {
+    components.streetTokens
+      .map { $0.capitalized }
+      .joined(separator: " ")
   }
 }

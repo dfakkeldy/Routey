@@ -16,11 +16,16 @@ struct RunView: View {
     NavigationStack {
       Group {
         if routes.first == nil {
-          ContentUnavailableView(
-            "No Route",
-            systemImage: "map",
-            description: Text("Import a route on the Routes tab to start a run.")
-          )
+          ContentUnavailableView {
+            Label("No Route", systemImage: "map")
+          } description: {
+            Text("Import a route on the Routes tab to start a run.")
+          } actions: {
+            Button("Start Parcel Pile", systemImage: "shippingbox") {
+              isSnapping = true
+            }
+            .buttonStyle(.borderedProminent)
+          }
         } else if let runID {
           RunBoardView(runID: runID)
         } else {
@@ -54,10 +59,8 @@ struct RunView: View {
       }
     }
     .fullScreenCover(isPresented: $isSnapping) {
-      if let route = routes.first {
-        SnapView(route: route) {
-          isSnapping = false
-        }
+      SnapView(route: routes.first) {
+        isSnapping = false
       }
     }
     .alert("Couldn't Open Today's Run", isPresented: $isShowingError) {
