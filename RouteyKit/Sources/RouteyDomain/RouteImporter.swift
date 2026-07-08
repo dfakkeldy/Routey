@@ -53,6 +53,7 @@ public enum RouteImporter {
             civicNumber: parsedStop.civicNumber,
             street: parsedStop.street,
             occupantName: parsedStop.occupantName,
+            postalCode: parsedStop.postalCode,
             notes: parsedStop.notes ?? ""
           )
         }

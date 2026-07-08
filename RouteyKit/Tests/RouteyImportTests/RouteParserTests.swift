@@ -36,9 +36,9 @@ import Testing
 
   @Test func parsesCSVWithHeaders() {
     let csv = """
-      tieOut,civic,street,occupant,notes
-      1,10100,County Rd 12,,
-      20A,3400,County Rd 12,Alex,by the barn
+      tieOut,civic,street,occupant,postalCode,notes
+      1,10100,County Rd 12,,A1A 1A1,
+      20A,3400,County Rd 12,Alex,A1A 1A1,by the barn
       """
 
     let result = RouteParser.parse(csv)
@@ -49,12 +49,27 @@ import Testing
         tieOut: "1",
         civicNumber: 10100,
         street: "County Rd 12",
+        postalCode: "A1A 1A1",
         sourceLine: 2
       )
     )
     #expect(result.stops[1].tieOut == "20A")
     #expect(result.stops[1].occupantName == "Alex")
+    #expect(result.stops[1].postalCode == "A1A 1A1")
     #expect(result.stops[1].notes == "by the barn")
+  }
+
+  @Test func parsesCSVHeadersWithCommonSeparators() {
+    let csv = """
+      tie_out,civic,street,postal code
+      1,10100,County Rd 12,A1A 1A1
+      """
+
+    let result = RouteParser.parse(csv)
+
+    #expect(result.stops.count == 1)
+    #expect(result.stops[0].tieOut == "1")
+    #expect(result.stops[0].postalCode == "A1A 1A1")
   }
 
   @Test func streetOnlyRowIsKept() {
