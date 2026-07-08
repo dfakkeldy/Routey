@@ -57,6 +57,23 @@ import RouteySearch
     #expect(summary.skipped[0].reason == "no civic number or street")
   }
 
+  @Test func importPersistsPostalCodesFromCSV() throws {
+    let database = try freshDB()
+    let parsed = RouteParser.parse(
+      """
+      civic,street,postalCode
+      10100,County Rd 12,A1A 1A1
+      """
+    )
+
+    _ = try RouteImporter.importRoute(named: "Riverbend", from: parsed, into: database)
+
+    let addresses = try database.read { db in
+      try Address.all.fetchAll(db)
+    }
+    #expect(addresses.map(\.postalCode) == ["A1A 1A1"])
+  }
+
   @Test func importedRouteIsImmediatelySearchable() throws {
     let database = try freshDB()
     try database.write { db in
