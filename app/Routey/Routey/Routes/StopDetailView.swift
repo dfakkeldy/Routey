@@ -6,6 +6,7 @@ import RouteyModel
 struct StopDetailView: View {
   let stop: Stop
   @Dependency(\.defaultDatabase) private var database
+  @Dependency(\.defaultSyncEngine) private var syncEngine
   @FetchAll private var deliveryPoints: [DeliveryPoint]
   @State private var displayName: String
   @State private var tieOut: String
@@ -70,8 +71,15 @@ struct StopDetailView: View {
       try RouteEditing.updateStopTieOut(stop.id, to: tieOut, in: database)
       savedDisplayName = displayName
       savedTieOut = tieOut
+      sendChanges(reason: "stop saved")
     } catch {
       show(error)
+    }
+  }
+
+  private func sendChanges(reason: String) {
+    Task {
+      await RouteySyncing.sendChanges(reason: reason, using: syncEngine)
     }
   }
 

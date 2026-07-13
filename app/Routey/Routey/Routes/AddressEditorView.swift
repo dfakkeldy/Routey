@@ -6,6 +6,7 @@ import RouteyModel
 struct AddressEditorView: View {
   let address: Address
   @Dependency(\.defaultDatabase) private var database
+  @Dependency(\.defaultSyncEngine) private var syncEngine
   @State private var civicNumberText: String
   @State private var street: String
   @State private var occupantName: String
@@ -68,8 +69,15 @@ struct AddressEditorView: View {
         notes: notes,
         in: database
       )
+      sendChanges(reason: "address saved")
     } catch {
       show(error)
+    }
+  }
+
+  private func sendChanges(reason: String) {
+    Task {
+      await RouteySyncing.sendChanges(reason: reason, using: syncEngine)
     }
   }
 

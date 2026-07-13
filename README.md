@@ -2,22 +2,42 @@
 
 **Rural mail carrier logistics — built from the truck, not the boardroom.**
 
-Routey is an iOS + watchOS app that streamlines parcel management and delivery for rural mail carriers. It replaces the notebook-and-scanner workflow with three steps: sort, snap, deliver.
+Routey is an offline-first iOS app for rural delivery workflows, with watchOS
+and CarPlay planned after the iPhone app is ready. The product direction is
+simple: sort -> snap -> deliver.
 
 ## Why Routey?
 
 Official handheld tools are slow, broken, and designed by people who've never run a rural route. Routey is built by a carrier who lives the problem every day.
 
-## Key Features
+## Current Nightly
 
-- **📸 OCR Snap-to-Add** — Photograph a parcel label, auto-match to route order
-- **⌚ watchOS Companion** — Next-stop display, one-tap delivery logging, auto-advance
-- **📋 Master Route List** — Searchable database with community-mailbox compartments, flags, and notes
-- **🗺️ Flexible Views** — Parcels-only or full route, last-stop bulk checkoff
+- SQLiteData/GRDB local database with private CloudKit sync hooks.
+- Route import, route editing, and local predictive search in the iOS shell.
+- Camera Snap-to-Add with Vision OCR/barcode reading and route address matching.
+- Today's Run drive-loop UI with check-off, stop detail, parcel/warning badges,
+  and drag reorder.
+- Tested package cores for OCR matching, Today's Run generation/operations,
+  history search, report content, and encrypted route handoff.
+
+## V1.0 Cut
+
+The first internal TestFlight cut is the truck-ready iPhone loop: Run/Routes/Search
+tabs, paste/CSV import, route/address/tag editing, predictive search,
+Snap-to-Add, Today's Run check-off, "done through here", and drag reorder.
+
+## Still In Progress
+
+- V1.1 UI for reports/PDF/print/share, encrypted `.routey` handoff,
+  proof-of-delivery/outcome logging, Today's Run filters, and follow-up tasks.
+- Production CloudKit schema deployment and production-device release testing.
+- watchOS and CarPlay surfaces.
 
 ## Status
 
-🚧 Early development — landing page live at [dfakkeldy.github.io/Routey](https://dfakkeldy.github.io/Routey)
+Early development. The package-first nightly train is green, but V1.0 is not
+yet App Store-ready. Landing page live at
+[dfakkeldy.github.io/Routey](https://dfakkeldy.github.io/Routey).
 
 ## Release Engineering — Promotion Ladder
 

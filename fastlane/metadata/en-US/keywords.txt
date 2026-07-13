@@ -1,1 +1,1 @@
-mail,carrier,route,parcel,sort,scan,address,ocr,map,stop,checklist,workflow,field,package,notes
+mail,carrier,route,parcel,sort,address,ocr,stop,checklist,workflow,field,package,notes,offline

@@ -1,0 +1,1 @@
+Routey is a pre-release offline-first route planning and delivery workflow companion for rural delivery work. This beta is validating local route import and editing, Today's Run, local search, and sync foundations with invented test data only.

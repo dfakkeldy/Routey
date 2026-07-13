@@ -10,6 +10,11 @@
 
 **Depends on:** Plan 01 (model), Plan 05 (`DeliveryRecord`, `TodaysRun`), Plan 03 (`SearchIndex` for address-based history search). UI requires app shell.
 
+**Status 2026-06-28:** PR #17 merged history archival/search into `nightly`,
+and PR #18 merged the pure `ReportBuilder` content layer. History queries and
+report content are tested headlessly. PDF rendering, print/share, and History/
+Reports screens remain open app/UI work.
+
 ## Global Constraints
 
 - Inherited from Plan 01. **Reports are public-adjacent but internal to the carrier** — they may show route data; they are not marketing surfaces, so postal terms are fine.
@@ -45,10 +50,10 @@ app/Routey/History/
   - `struct HistoryFilter: Sendable { var dateFrom: Date?; var dateTo: Date?; var outcome: String?; var tagName: String?; var hasPhoto: Bool? }`
   - `static func records(matching: HistoryFilter, in db: any DatabaseReader) throws -> [DeliveryRecord]` — applies the filters (tag via join `addressTags→tags`; `hasPhoto` via `photoPath IS NOT NULL`).
 
-- [ ] **Step 1: Write failing tests** — seed a run with delivery records (one `safedrop` with photo, one `notHomeCarded` no photo, one address tagged `dog`); assert `records(outcome:"safedrop")` returns 1, `hasPhoto:true` returns 1, `tagName:"dog"` returns the tagged one, date-range filtering works.
-- [ ] **Step 2:** Run — FAIL.
-- [ ] **Step 3: Implement** with typed queries/joins; pass dates in (no `Date()` in logic).
-- [ ] **Step 4:** Run — PASS. Commit `"Add history archival + filtered delivery queries"`.
+- [x] **Step 1: Write failing tests** — seed a run with delivery records (one `safedrop` with photo, one `notHomeCarded` no photo, one address tagged `dog`); assert `records(outcome:"safedrop")` returns 1, `hasPhoto:true` returns 1, `tagName:"dog"` returns the tagged one, date-range filtering works.
+- [x] **Step 2:** Run — FAIL.
+- [x] **Step 3: Implement** with typed queries/joins; pass dates in (no `Date()` in logic).
+- [x] **Step 4:** Run — PASS. Commit `"Add history archival + filtered delivery queries"`.
 
 ---
 
@@ -57,12 +62,12 @@ app/Routey/History/
 **Files:** extend `History.swift`, `HistoryTests.swift`.
 
 **Interfaces:**
-- `static func records(forAddressQuery q: String, in db:) throws -> [DeliveryRecord]` — uses `SearchIndex.match(q)` to resolve address IDs, then returns their delivery records (most recent first). Answers "did I deliver to 1284, and when?"
+- `static func records(forAddressQuery q: String, in db:) throws -> [DeliveryRecord]` — uses `SearchIndex.match(q)` to resolve address IDs, then returns their delivery records (most recent first). Answers "did I deliver to this invented fixture address, and when?"
 
-- [ ] **Step 1: Write failing test** — deliver to "1284 Concession Rd 6", then `records(forAddressQuery:"128")` returns that record.
-- [ ] **Step 2:** Run — FAIL.
-- [ ] **Step 3: Implement** (RouteyDomain already depends on RouteySearch transitively via the app; add the dep if needed).
-- [ ] **Step 4:** Run — PASS. Commit `"Add address-based history search"`.
+- [x] **Step 1: Write failing test** — deliver to "9900 Example Concession Rd 6", then `records(forAddressQuery:"990")` returns that record.
+- [x] **Step 2:** Run — FAIL.
+- [x] **Step 3: Implement** (RouteyDomain already depends on RouteySearch transitively via the app; add the dep if needed).
+- [x] **Step 4:** Run — PASS. Commit `"Add address-based history search"`.
 
 ---
 
@@ -77,16 +82,17 @@ app/Routey/History/
   - `static func caseStrips(routeID:, in db:) throws -> Report` — rows of slot labels (civic(s) + tie-out) in case order, grouped for printing onto strips.
   - `static func filteredList(routeID:, tagName: String?, deliveredOn: Date?, in db:) throws -> Report` — e.g. all `no-flyers` addresses, or parcels delivered on a date.
 
-- [ ] **Step 1: Write failing tests** — build a small route + a CMB; assert `tieOutSheet` has the right column headers and a row per delivery point in `sortIndex` order with the compartment locator filled; `filteredList(tagName:"no-flyers")` returns only tagged addresses; `caseStrips` lists civic+tie-out per slot incl. shared civics.
-- [ ] **Step 2:** Run — FAIL.
-- [ ] **Step 3: Implement** (pure queries → `Report` rows; no rendering).
-- [ ] **Step 4:** Run — PASS. `swift test` (all). Commit `"Add ReportBuilder (tie-out sheet, case strips, filtered lists)"`.
+- [x] **Step 1: Write failing tests** — build a small route + a CMB; assert `tieOutSheet` has the right column headers and a row per delivery point in `sortIndex` order with the compartment locator filled; `filteredList(tagName:"no-flyers")` returns only tagged addresses; `caseStrips` lists civic+tie-out per slot incl. shared civics.
+- [x] **Step 2:** Run — FAIL.
+- [x] **Step 3: Implement** (pure queries → `Report` rows; no rendering).
+- [x] **Step 4:** Run — PASS. `swift test` (all). Commit `"Add ReportBuilder (tie-out sheet, case strips, filtered lists)"`.
 
 ---
 
 ### Task 4: PDF rendering + print/share (UI)
 
 > Requires app shell.
+> Not implemented as of 2026-06-28.
 
 **Files:** `app/Routey/History/PDFRenderer.swift`.
 
@@ -102,6 +108,7 @@ app/Routey/History/
 ### Task 5: History & Reports screens (UI)
 
 > Requires app shell.
+> Not implemented as of 2026-06-28.
 
 **Files:** `app/Routey/History/HistoryView.swift`, `ReportsView.swift`.
 
@@ -114,7 +121,7 @@ app/Routey/History/
 
 ## Plan self-review
 
-- **Spec coverage:** searchable delivery history incl. by-address and by-photo ✓ (T1–T2), flag/outcome/date filters ✓ (T1), print tie-out sheet ✓ (T3–T5), print **case strips** ✓ (T3–T5), print filtered lists (no-flyers, delivered-on-date) ✓ (T3–T5), archival ✓ (T1). 
-- **Placeholders:** none — history/report content fully coded + tested; only PDF rendering is app-level with a validity check.
+- **Spec coverage:** searchable delivery history incl. by-address and photo-path filtering ✓ (T1–T2), flag/outcome/date filters ✓ (T1), report content for tie-out sheet ✓ (T3), case strips ✓ (T3), filtered lists (no-flyers, delivered-on-date) ✓ (T3), and archival ✓ (T1). PDF rendering, preview, AirPrint, share, and visible History/Reports screens remain open app/UI work.
+- **Placeholders:** none in the merged history/report content layer; committed fixtures use invented route data only.
 - **Type consistency:** `HistoryFilter`/`Report` defined once and consumed by the UI; `ReportBuilder` outputs feed `PDFRenderer.render` verbatim.
-- **Testability honesty:** report *content* is unit-tested on macOS; PDF *rendering* (UIKit) is validated by a PDF-header/page check + manual print preview, since `UIGraphicsPDFRenderer` is iOS-only.
+- **Testability honesty:** report *content* is unit-tested on macOS; PDF *rendering* (UIKit) still needs a PDF-header/page check plus manual print/share preview when the app UI slice is approved.

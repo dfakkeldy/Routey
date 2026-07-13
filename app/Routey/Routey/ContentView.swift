@@ -1,58 +1,48 @@
 import SQLiteData
 import SwiftUI
-import RouteyModel
 
 struct ContentView: View {
-  @FetchAll(Route.order { $0.name }) private var routes: [Route]
-  @State private var isImportingRoute = false
+  @Environment(\.scenePhase) private var scenePhase
+  @Dependency(\.defaultSyncEngine) private var syncEngine
 
   var body: some View {
-    NavigationStack {
-      List(routes) { route in
-        NavigationLink(value: route) {
-          VStack(alignment: .leading) {
-            Text(route.name.isEmpty ? "Untitled route" : route.name)
-            if !route.rtaFSA.isEmpty {
-              Text(route.rtaFSA)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            }
-          }
-        }
+    TabView {
+      Tab("Run", systemImage: "shippingbox") {
+        RunView()
       }
-      .navigationTitle("Routes (\(routes.count))")
-      .navigationDestination(for: Route.self) { route in
-        RouteStopsView(route: route)
+
+      Tab("Routes", systemImage: "map") {
+        RoutesView()
       }
-      .navigationDestination(for: ContentDestination.self) { destination in
-        switch destination {
-        case .search:
+
+      Tab("Search", systemImage: "magnifyingglass") {
+        NavigationStack {
           SearchView()
         }
       }
-      .toolbar {
-        NavigationLink(value: ContentDestination.search) {
-          Label("Search", systemImage: "magnifyingglass")
+    }
+    .task {
+      guard !ScreenshotMode.isEnabled else { return }
+      await RouteySyncing.synchronize(reason: "app appeared", using: syncEngine)
+    }
+    .onChange(of: scenePhase) { _, phase in
+      guard !ScreenshotMode.isEnabled else { return }
+      switch phase {
+      case .active:
+        Task {
+          await RouteySyncing.synchronize(reason: "app became active", using: syncEngine)
         }
-
-        Button("Import", systemImage: "square.and.arrow.down") {
-          isImportingRoute = true
+      case .background:
+        Task {
+          await RouteySyncing.sendChanges(reason: "app entered background", using: syncEngine)
         }
-      }
-      .sheet(isPresented: $isImportingRoute) {
-        ImportRouteView()
-      }
-      .overlay {
-        if routes.isEmpty {
-          ContentUnavailableView("No Routes", systemImage: "map")
-        }
+      case .inactive:
+        break
+      @unknown default:
+        break
       }
     }
   }
-}
-
-private enum ContentDestination: Hashable {
-  case search
 }
 
 #Preview {

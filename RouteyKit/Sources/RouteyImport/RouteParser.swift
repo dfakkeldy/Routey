@@ -105,6 +105,7 @@ public enum RouteParser {
           civicNumber: civicNumber,
           street: street,
           occupantName: field("occupant", in: fields, header: header),
+          postalCode: field("postalcode", in: fields, header: header),
           notes: field("notes", in: fields, header: header),
           sourceLine: sourceLine
         )
@@ -126,6 +127,9 @@ public enum RouteParser {
   }
 
   private static func normalized(_ value: some StringProtocol) -> String {
-    String(value).trimmingCharacters(in: .whitespaces).lowercased()
+    String(value)
+      .trimmingCharacters(in: .whitespaces)
+      .lowercased()
+      .filter { !$0.isWhitespace && $0 != "_" && $0 != "-" }
   }
 }

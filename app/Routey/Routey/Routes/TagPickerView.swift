@@ -6,6 +6,7 @@ import RouteyModel
 struct TagPickerView: View {
   let addressID: Address.ID
   @Dependency(\.defaultDatabase) private var database
+  @Dependency(\.defaultSyncEngine) private var syncEngine
   @FetchAll private var allTags: [Tag]
   @FetchAll private var selectedTags: [Tag]
   @State private var newTagName = ""
@@ -81,6 +82,7 @@ struct TagPickerView: View {
       )
       newTagName = ""
       newTagIsWarning = false
+      sendChanges(reason: "tag added")
     } catch {
       show(error)
     }
@@ -98,8 +100,15 @@ struct TagPickerView: View {
       } else {
         try RouteEditing.detachTag(tag.id, fromAddress: addressID, in: database)
       }
+      sendChanges(reason: "tag selection changed")
     } catch {
       show(error)
+    }
+  }
+
+  private func sendChanges(reason: String) {
+    Task {
+      await RouteySyncing.sendChanges(reason: reason, using: syncEngine)
     }
   }
 

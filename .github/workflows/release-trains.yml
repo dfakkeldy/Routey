@@ -2,12 +2,21 @@ name: Release Trains
 
 on:
   schedule:
-    # America/Halifax 02:00 nightly, with UTC candidates for AST/ADT.
-    - cron: "0 5 * * *"
-    - cron: "0 6 * * *"
-    # America/Halifax 06:00 Monday weekly, with UTC candidates for AST/ADT.
-    - cron: "0 9 * * 1"
-    - cron: "0 10 * * 1"
+    # Times are UTC. GitHub cron is best-effort and can lag HOURS at peak, so
+    # the resolver keys on WHICH cron entry fired (github.event.schedule),
+    # never on the wall-clock time at execution — a delayed run still ships
+    # its train. Both UTC candidates for Halifax DST are listed; the resolver
+    # skips whichever candidate is inactive for the current UTC offset.
+    #
+    # The old "0 5/6 * * *" nightly gated on the run EXECUTING during the
+    # 02:xx Halifax hour; every run from 2026-06-28 through 2026-07-10 fired
+    # 2.5–4 h late at the :00 cron herd, so the nightly ship job never ran
+    # once. The :40 minute avoids the herd, and 08:40 UTC (05:40 Halifax ADT)
+    # is the same low-demand overnight-Americas window Echo's trains use.
+    - cron: "40 8 * * *"  # Nightly — 05:40 America/Halifax (ADT, UTC-3)
+    - cron: "40 9 * * *"  # Nightly — 05:40 America/Halifax (AST, UTC-4)
+    - cron: "40 8 * * 1"  # Weekly  — Mondays 05:40 America/Halifax (ADT)
+    - cron: "40 9 * * 1"  # Weekly  — Mondays 05:40 America/Halifax (AST)
   workflow_dispatch:
     inputs:
       channel:
@@ -30,33 +39,43 @@ jobs:
       - name: Resolve channel and branch
         id: resolve
         env:
-          EVENT_NAME: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
           DISPATCH_CHANNEL: ${{ inputs.channel || '' }}
         run: |
           set -euo pipefail
 
           channel=""
-          run_build="false"
+          run_build="true"
           reason=""
 
-          if [[ "${EVENT_NAME}" == "workflow_dispatch" ]]; then
-            channel="${DISPATCH_CHANNEL}"
-            run_build="true"
-            reason="manual dispatch"
-          else
-            local_hour="$(TZ=America/Halifax date +%H)"
-            local_weekday="$(TZ=America/Halifax date +%w)"
+          # Map the cron entry that fired to its channel. Scheduled runs carry
+          # their own cron string, so this stays correct no matter how late
+          # GitHub actually starts the run.
+          case "${SCHEDULE}" in
+            "40 8 * * *"|"40 9 * * *") channel="nightly"; reason="nightly cron '${SCHEDULE}'" ;;
+            "40 8 * * 1"|"40 9 * * 1") channel="weekly"; reason="weekly cron '${SCHEDULE}'" ;;
+            "") channel="${DISPATCH_CHANNEL}"; reason="manual dispatch" ;;
+            *) run_build="false"; reason="unrecognized cron '${SCHEDULE}'" ;;
+          esac
 
-            if [[ "${local_hour}" == "02" ]]; then
-              channel="nightly"
-              run_build="true"
-              reason="02:00 America/Halifax nightly window"
-            elif [[ "${local_weekday}" == "1" && "${local_hour}" == "06" ]]; then
-              channel="weekly"
-              run_build="true"
-              reason="06:00 America/Halifax Monday weekly window"
-            else
-              reason="inactive duplicate UTC schedule for DST handling"
+          # The only wall-clock use: skip the DST candidate that is inactive
+          # for the current Halifax offset (both candidates always fire).
+          if [[ -n "${SCHEDULE}" ]]; then
+            offset="$(TZ=America/Halifax date +%z)"
+            scheduled_hour="$(awk '{ print $2 }' <<<"${SCHEDULE}")"
+
+            case "${offset}" in
+              -0300) active_hour="8" ;;
+              -0400) active_hour="9" ;;
+              *)
+                echo "::error::Unexpected America/Halifax UTC offset: ${offset}"
+                exit 1
+                ;;
+            esac
+
+            if [[ "${scheduled_hour}" != "${active_hour}" ]]; then
+              run_build="false"
+              reason="inactive DST duplicate cron '${SCHEDULE}' for offset ${offset}"
             fi
           fi
 
@@ -78,8 +97,14 @@ jobs:
     needs: resolve
     if: needs.resolve.outputs.run-build == 'true'
     timeout-minutes: 75
+    # One shared group across ALL channels, deliberately not per-channel: the
+    # build number is latest_testflight_build_number + 1 (fastlane), so two
+    # overlapping runs read the same number and collide on upload ("Redundant
+    # Binary Upload"). That is guaranteed on Mondays, when the nightly and
+    # weekly crons fire at the same minute — serialise so the second run reads
+    # its number only after the first finishes uploading.
     concurrency:
-      group: release-trains-${{ needs.resolve.outputs.channel }}
+      group: release-trains
       cancel-in-progress: false
 
     steps:
@@ -206,6 +231,9 @@ jobs:
           FASTLANE_SKIP_UPDATE_CHECK: "1"
           FASTLANE_HIDE_CHANGELOG: "1"
           CHANNEL: ${{ needs.resolve.outputs.channel }}
+          TESTFLIGHT_FEEDBACK_EMAIL: ${{ secrets.TESTFLIGHT_FEEDBACK_EMAIL }}
+          TESTFLIGHT_MARKETING_URL: ${{ vars.TESTFLIGHT_MARKETING_URL || '' }}
+          TESTFLIGHT_PRIVACY_POLICY_URL: ${{ vars.TESTFLIGHT_PRIVACY_POLICY_URL || '' }}
         run: |
           set -euo pipefail
 

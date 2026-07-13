@@ -10,6 +10,9 @@ let package = Package(
     .library(name: "RouteyImport", targets: ["RouteyImport"]),
     .library(name: "RouteyDomain", targets: ["RouteyDomain"]),
     .library(name: "RouteySearch", targets: ["RouteySearch"]),
+    .library(name: "RouteyOCR", targets: ["RouteyOCR"]),
+    .library(name: "RouteyExport", targets: ["RouteyExport"]),
+    .library(name: "RouteyNavigation", targets: ["RouteyNavigation"]),
   ],
   dependencies: [
     .package(url: "https://github.com/pointfreeco/sqlite-data", exact: "1.6.6"),
@@ -33,6 +36,7 @@ let package = Package(
         "RouteyModel",
         "RouteyImport",
         "RouteySearch",
+        "RouteyNavigation",
         .product(name: "SQLiteData", package: "sqlite-data"),
       ]
     ),
@@ -43,6 +47,19 @@ let package = Package(
         .product(name: "SQLiteData", package: "sqlite-data"),
       ]
     ),
+    .target(
+      name: "RouteyOCR",
+      dependencies: ["RouteyModel"]
+    ),
+    .target(
+      name: "RouteyExport",
+      dependencies: [
+        "RouteyModel",
+        "RouteyPersistence",
+        .product(name: "SQLiteData", package: "sqlite-data"),
+      ]
+    ),
+    .target(name: "RouteyNavigation"),
     .testTarget(
       name: "RouteyPersistenceTests",
       dependencies: [
@@ -74,6 +91,26 @@ let package = Package(
         "RouteySearch",
         .product(name: "SQLiteData", package: "sqlite-data"),
       ]
+    ),
+    .testTarget(
+      name: "RouteyOCRTests",
+      dependencies: [
+        "RouteyModel",
+        "RouteyOCR",
+      ]
+    ),
+    .testTarget(
+      name: "RouteyExportTests",
+      dependencies: [
+        "RouteyExport",
+        "RouteyModel",
+        "RouteyPersistence",
+        .product(name: "SQLiteData", package: "sqlite-data"),
+      ]
+    ),
+    .testTarget(
+      name: "RouteyNavigationTests",
+      dependencies: ["RouteyNavigation"]
     ),
   ]
 )
