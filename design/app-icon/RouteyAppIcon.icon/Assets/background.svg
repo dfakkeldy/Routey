@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="routey-bg" x1="144" y1="64" x2="880" y2="980" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1E7E78"/>
+      <stop offset="0.48" stop-color="#12384F"/>
+      <stop offset="1" stop-color="#081726"/>
+    </linearGradient>
+    <radialGradient id="routey-glow-a" cx="36%" cy="31%" r="58%">
+      <stop offset="0" stop-color="#67F0C6" stop-opacity="0.48"/>
+      <stop offset="0.45" stop-color="#67F0C6" stop-opacity="0.13"/>
+      <stop offset="1" stop-color="#67F0C6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="routey-glow-b" cx="78%" cy="76%" r="50%">
+      <stop offset="0" stop-color="#58A7FF" stop-opacity="0.36"/>
+      <stop offset="0.48" stop-color="#58A7FF" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#58A7FF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="routey-sheen" x1="512" y1="104" x2="512" y2="444" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#routey-bg)"/>
+  <rect width="1024" height="1024" fill="url(#routey-glow-a)"/>
+  <rect width="1024" height="1024" fill="url(#routey-glow-b)"/>
+  <path d="M72 266C180 214 272 206 348 242C438 284 520 286 612 236C694 192 792 180 930 226" fill="none" stroke="#B8FFF0" stroke-width="8" stroke-linecap="round" opacity="0.10"/>
+  <path d="M60 374C178 336 286 342 374 390C462 438 548 440 652 390C742 346 838 344 958 386" fill="none" stroke="#B8FFF0" stroke-width="8" stroke-linecap="round" opacity="0.09"/>
+  <path d="M82 504C198 462 308 474 394 532C472 584 564 590 666 536C764 486 848 488 944 538" fill="none" stroke="#B8FFF0" stroke-width="8" stroke-linecap="round" opacity="0.08"/>
+  <path d="M74 650C206 600 330 616 420 684C500 744 598 750 704 690C796 638 874 638 954 690" fill="none" stroke="#B8FFF0" stroke-width="8" stroke-linecap="round" opacity="0.07"/>
+  <g opacity="0.13">
+    <rect x="152" y="166" width="104" height="46" rx="15" fill="#FFFFFF"/>
+    <rect x="272" y="166" width="104" height="46" rx="15" fill="#FFFFFF"/>
+    <rect x="392" y="166" width="104" height="46" rx="15" fill="#FFFFFF"/>
+    <rect x="512" y="166" width="104" height="46" rx="15" fill="#FFFFFF"/>
+    <rect x="632" y="166" width="104" height="46" rx="15" fill="#FFFFFF"/>
+    <rect x="752" y="166" width="104" height="46" rx="15" fill="#FFFFFF"/>
+  </g>
+  <path d="M164 112H860C826 254 714 342 512 342C310 342 198 254 164 112Z" fill="url(#routey-sheen)" opacity="0.82"/>
+</svg>
