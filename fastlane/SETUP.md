@@ -51,9 +51,10 @@ App Store Connect secrets are available.
 
 ## Current Release Proof
 
-On July 1, 2026, GitHub Actions run `28495461531` manually dispatched the
-`nightly` release train. It built Routey `0.1 (4)`, waited for processing, and
-fastlane reported successful distribution to internal testers. Treat that as
-proof of the internal TestFlight lane only; App Store review still needs final
-screenshots, privacy/compliance metadata, Production CloudKit validation, and
-device smoke evidence.
+On July 11 and 12, 2026, scheduled GitHub Actions runs `29148775636` and
+`29188738829` selected `nightly` despite delayed cron starts, built Routey
+`0.1 (7)` and `0.1 (8)`, waited for processing, and reported successful internal
+distribution. Treat that as proof of the scheduled resolver and internal
+TestFlight lane only; App Store review still needs final screenshots,
+privacy/compliance metadata, Production CloudKit validation, and device smoke
+evidence.

@@ -26,6 +26,7 @@ the V1.0 phone workflow is real and tested.
 | `RouteyDomain` | Testable workflows: import, editing, run generation, run operations, history, reports. |
 | `RouteyOCR` | Label reading seams, OCR normalization, address matching, Snap-to-Add mapping. |
 | `RouteyExport` | Versioned encrypted `.routey` handoff envelopes and DTO mapping. |
+| `RouteyNavigation` | Coordinate math and deterministic route-optimization seams for future navigation and CarPlay surfaces. |
 
 Dependencies flow downward through the package. Derived surfaces such as search
 stay rebuildable and local-only; synced model tables remain the source of truth.
@@ -95,19 +96,23 @@ source (`main /`). The release workflow lives on `main`, checks out the selected
 train branch, builds with Xcode 26.5, validates package/app compilation, and
 uploads through fastlane when the required secrets are present.
 
-Current upload proof: a manual `nightly` release-train run on July 1, 2026 built
-and processed Routey `0.1 (4)`, then fastlane distributed it to internal testers.
-That proves the internal TestFlight lane, not App Store submission readiness.
+Current upload proof: scheduled `nightly` release-train runs `29148775636` and
+`29188738829` selected the active train despite delayed cron starts, then built,
+processed, and internally distributed Routey `0.1 (7)` and `0.1 (8)` on July 11
+and 12, 2026. That proves the scheduled resolver and internal TestFlight lane,
+not App Store submission readiness.
 
 ## App Store Readiness Boundary
 
 Routey is not App Store-ready until these gates are complete:
 
 - Production CloudKit schema deployment and production-device validation.
-- Airplane-mode end-to-end sort -> snap -> deliver -> history -> export smoke.
-- Proof-of-delivery/outcome UI, run filters, PDF/print/share, and `.routey` file
-  UI decisions/implementation.
+- Airplane-mode physical-iPhone smoke of the V1.0 import/search/Snap-to-Add and
+  Today's Run check-off/reorder loop.
 - Final App Store screenshots, app icon validation, privacy answers,
   accessibility nutrition labels, age rating, support/privacy pages, and review
   notes.
 - Pricing/free-vs-paid decision and marketing plan sign-off.
+
+Proof-of-delivery/outcome UI, run filters, follow-up UI, PDF/print/share, and
+encrypted `.routey` file UI are V1.1 work, not V1.0 release gates.

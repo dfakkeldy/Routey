@@ -1,5 +1,9 @@
 # Marketing Strategy: Routey
 
+Planning snapshot captured July 1, 2026. Pricing and calendar entries below are
+working assumptions, not current launch commitments; revalidate them before
+using this document for an App Store submission or campaign.
+
 ## App Profile
 
 | Attribute | Value |
