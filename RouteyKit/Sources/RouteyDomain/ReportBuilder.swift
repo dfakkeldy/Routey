@@ -149,7 +149,7 @@ public enum ReportBuilder {
   ) throws -> Set<Address.ID> {
     guard let deliveredOn else { return [] }
 
-    let serviceDate = serviceDateString(for: deliveredOn)
+    let serviceDate = ServiceDate.local(for: deliveredOn)
     let runIDs = Set(try TodaysRun.all.fetchAll(db)
       .filter { $0.routeID == routeID && $0.serviceDate == serviceDate }
       .map(\.id))
@@ -163,19 +163,6 @@ public enum ReportBuilder {
       }
       return addressID
     })
-  }
-
-  private static func serviceDateString(for date: Date) -> String {
-    let components = Calendar.current.dateComponents([.year, .month, .day], from: date)
-    let year = components.year ?? 0
-    let month = components.month ?? 0
-    let day = components.day ?? 0
-
-    return "\(year)-\(twoDigit(month))-\(twoDigit(day))"
-  }
-
-  private static func twoDigit(_ value: Int) -> String {
-    value < 10 ? "0\(value)" : "\(value)"
   }
 
   private static func tieOutRow(for slot: Slot) -> [String] {
