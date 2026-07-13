@@ -32,9 +32,9 @@ upload/processing/distribution path.
 7. **Complete compliance questionnaires.** Fill in age rating, export
    compliance, content rights, EU DSA trader status, and accessibility nutrition
    labels. Run an accessibility pass before declaring support.
-8. **Decide pricing and free-vs-paid boundary.** Kickstart still tracks pricing
-   and free/paid decisions for July 7, so do not lock App Store copy or
-   campaigns until that product decision is made.
+8. **Confirm pricing and the free-vs-paid boundary.** Revalidate the current
+   business decision in its source of truth before locking App Store copy or
+   campaigns.
 9. **Run a submission rehearsal.** Use fastlane validation, Xcode archive
    validation, and an internal TestFlight build with final metadata. Confirm
    App Store Connect shows the build as processed and selectable.
