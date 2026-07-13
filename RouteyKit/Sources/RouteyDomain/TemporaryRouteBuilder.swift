@@ -50,7 +50,7 @@ public struct TemporaryRouteBuildResult: Equatable, Sendable {
 }
 
 public enum TemporaryRouteBuilder {
-  private static let routeName = "Parcel Pile"
+  public static let routeName = "Parcel Pile"
 
   @discardableResult
   public static func addParcelToTemporaryRoute(

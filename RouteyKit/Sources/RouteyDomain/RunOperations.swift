@@ -4,6 +4,8 @@ import RouteyModel
 
 public enum RunOperations {
   public enum ValidationError: Equatable, Error {
+    case runNotFound(TodaysRun.ID)
+    case addressDoesNotBelongToRun(addressID: Address.ID, runID: TodaysRun.ID)
     case runStopNotFound(RunStop.ID)
     case runStopDoesNotBelongToRun(runStopID: RunStop.ID, runID: TodaysRun.ID)
     case parcelNotFound(Parcel.ID)
@@ -58,6 +60,19 @@ public enum RunOperations {
     let parcelID = UUID()
 
     try database.write { db in
+      guard try TodaysRun.find(runID).fetchOne(db) != nil else {
+        throw ValidationError.runNotFound(runID)
+      }
+
+      if let addressID {
+        guard try RunAddressLookup.contains(addressID, runID: runID, in: db) else {
+          throw ValidationError.addressDoesNotBelongToRun(
+            addressID: addressID,
+            runID: runID
+          )
+        }
+      }
+
       try Parcel.insert {
         Parcel(
           id: parcelID,

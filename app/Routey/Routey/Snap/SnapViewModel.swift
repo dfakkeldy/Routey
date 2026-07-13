@@ -36,8 +36,13 @@ final class SnapViewModel {
   func handleCapturedImage(_ data: Data) async {
     phase = .reading
     do {
-      let addresses = try await database.read { db in
-        try Address.order { $0.street }.fetchAll(db)
+      let addresses: [Address]
+      if let route {
+        addresses = try await database.read { db in
+          try RouteAddressLookup.addresses(routeID: route.id, in: db)
+        }
+      } else {
+        addresses = []
       }
       let candidates = addresses.map(AddressCandidate.init)
       let words = Self.customWords(from: addresses)
@@ -56,7 +61,7 @@ final class SnapViewModel {
       let input = SnapToAdd.parcelInputs(from: result, addressID: addressID)
       // Service date is intentionally stamped at accept time, not capture time:
       // a parcel belongs to the run it's confirmed into. (Domain decision, 2026-06-29.)
-      let serviceDate = Self.serviceDate(for: .now)
+      let serviceDate = ServiceDate.local(for: .now)
       guard let addressID else {
         let temporaryResult = try TemporaryRouteBuilder.addParcelToTemporaryRouteWithResult(
           TemporaryParcelInput(
@@ -136,10 +141,6 @@ final class SnapViewModel {
     let streetWords = addresses.flatMap { $0.street.split(separator: " ").map(String.init) }
     let keywords = ["RR", "CONC", "HWY", "LOT", "SS", "PO", "BOX"]
     return Array(Set(streetWords)).sorted() + keywords
-  }
-
-  static func serviceDate(for date: Date) -> String {
-    date.formatted(.iso8601.year().month().day().dateSeparator(.dash))
   }
 
   private func temporaryStreet(from components: AddressComponents) -> String {

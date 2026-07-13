@@ -82,11 +82,20 @@ import RouteyModel
 
   @Test func addParcelAndSignatureCountTrackUndeliveredSignatureParcels() throws {
     let database = try freshDB()
-    let (_, runID) = try seedRun(in: database)
+    let (routeID, runID) = try seedRun(in: database)
     let addressID = UUID()
+    let deliveryPointID = UUID()
+    let stop = try #require(database.read { db in
+      try Stop.where { $0.routeID.eq(#bind(routeID)) }.fetchAll(db).first
+    })
 
     try database.write { db in
       try Address.insert { Address(id: addressID, street: "Placeholder Road") }.execute(db)
+      try DeliveryPoint.insert { DeliveryPoint(id: deliveryPointID, stopID: stop.id) }.execute(db)
+      try DeliveryPointAddress.insert {
+        DeliveryPointAddress(deliveryPointID: deliveryPointID, addressID: addressID)
+      }
+      .execute(db)
     }
 
     let signatureParcelID = try RunOperations.addParcel(
@@ -185,5 +194,142 @@ import RouteyModel
     let remaining = try database.read { db in try Parcel.where { $0.id.eq(#bind(parcelID)) }.fetchAll(db) }
     #expect(remaining.isEmpty)
     #expect(try RunOperations.signatureCount(runID: runID, in: database) == 0)
+  }
+
+  @Test func addParcelRejectsAnAddressOutsideTheRunRoute() throws {
+    let database = try freshDB()
+    let (selectedRouteID, runID) = try seedRun(in: database)
+    let otherRouteID = UUID()
+    let otherStopID = UUID()
+    let otherPointID = UUID()
+    let otherAddressID = UUID()
+
+    try database.write { db in
+      try Route.insert { Route(id: otherRouteID, name: "Backup Route") }.execute(db)
+      try Stop.insert { Stop(id: otherStopID, routeID: otherRouteID) }.execute(db)
+      try DeliveryPoint.insert { DeliveryPoint(id: otherPointID, stopID: otherStopID) }.execute(db)
+      try Address.insert { Address(id: otherAddressID, street: "Backup Road") }.execute(db)
+      try DeliveryPointAddress.insert {
+        DeliveryPointAddress(deliveryPointID: otherPointID, addressID: otherAddressID)
+      }
+      .execute(db)
+    }
+
+    #expect(
+      throws: RunOperations.ValidationError.addressDoesNotBelongToRun(
+        addressID: otherAddressID,
+        runID: runID
+      )
+    ) {
+      try RunOperations.addParcel(
+        runID: runID,
+        addressID: otherAddressID,
+        source: "ocr",
+        requiresSignature: false,
+        isCustoms: false,
+        toDoor: false,
+        labelSnapshot: "Invented backup-route label",
+        trackingCode: "",
+        trackingSymbology: "",
+        in: database
+      )
+    }
+
+    let route = try database.read { db in try TodaysRun.find(runID).fetchOne(db) }
+    let parcels = try database.read { db in
+      try Parcel.where { $0.runID.eq(#bind(runID)) }.fetchAll(db)
+    }
+    #expect(route?.routeID == selectedRouteID)
+    #expect(parcels.isEmpty)
+  }
+
+  @Test func addParcelRejectsAnAddressOutsideTheRunSnapshot() throws {
+    let database = try freshDB()
+    let (routeID, runID) = try seedRun(in: database)
+    let newStopID = UUID()
+    let newPointID = UUID()
+    let newAddressID = UUID()
+
+    try database.write { db in
+      try Stop.insert { Stop(id: newStopID, routeID: routeID) }.execute(db)
+      try DeliveryPoint.insert { DeliveryPoint(id: newPointID, stopID: newStopID) }.execute(db)
+      try Address.insert { Address(id: newAddressID, street: "Later Addition Road") }.execute(db)
+      try DeliveryPointAddress.insert {
+        DeliveryPointAddress(deliveryPointID: newPointID, addressID: newAddressID)
+      }
+      .execute(db)
+    }
+
+    #expect(
+      throws: RunOperations.ValidationError.addressDoesNotBelongToRun(
+        addressID: newAddressID,
+        runID: runID
+      )
+    ) {
+      try RunOperations.addParcel(
+        runID: runID,
+        addressID: newAddressID,
+        source: "ocr",
+        requiresSignature: false,
+        isCustoms: false,
+        toDoor: false,
+        labelSnapshot: "Invented later-added label",
+        trackingCode: "",
+        trackingSymbology: "",
+        in: database
+      )
+    }
+
+    let parcels = try database.read { db in
+      try Parcel.where { $0.runID.eq(#bind(runID)) }.fetchAll(db)
+    }
+    #expect(parcels.isEmpty)
+  }
+
+  @Test func addParcelAcceptsAnAddressSharedByBothRunSnapshots() throws {
+    let database = try freshDB()
+    let (firstRouteID, firstRunID) = try seedRun(in: database)
+    let (secondRouteID, secondRunID) = try seedRun(in: database)
+    let firstStop = try #require(database.read { db in
+      try Stop.where { $0.routeID.eq(#bind(firstRouteID)) }.fetchAll(db).first
+    })
+    let secondStop = try #require(database.read { db in
+      try Stop.where { $0.routeID.eq(#bind(secondRouteID)) }.fetchAll(db).first
+    })
+    let addressID = UUID()
+    let firstPointID = UUID()
+    let secondPointID = UUID()
+
+    try database.write { db in
+      try Address.insert { Address(id: addressID, street: "Shared Way") }.execute(db)
+      try DeliveryPoint.insert { DeliveryPoint(id: firstPointID, stopID: firstStop.id) }.execute(db)
+      try DeliveryPoint.insert { DeliveryPoint(id: secondPointID, stopID: secondStop.id) }.execute(db)
+      try DeliveryPointAddress.insert {
+        DeliveryPointAddress(deliveryPointID: firstPointID, addressID: addressID)
+      }
+      .execute(db)
+      try DeliveryPointAddress.insert {
+        DeliveryPointAddress(deliveryPointID: secondPointID, addressID: addressID)
+      }
+      .execute(db)
+    }
+
+    for runID in [firstRunID, secondRunID] {
+      _ = try RunOperations.addParcel(
+        runID: runID,
+        addressID: addressID,
+        source: "ocr",
+        requiresSignature: false,
+        isCustoms: false,
+        toDoor: false,
+        labelSnapshot: "Invented shared-address label",
+        trackingCode: "",
+        trackingSymbology: "",
+        in: database
+      )
+    }
+
+    let parcels = try database.read { db in try Parcel.all.fetchAll(db) }
+    #expect(Set(parcels.map(\.runID)) == [firstRunID, secondRunID])
   }
 }
