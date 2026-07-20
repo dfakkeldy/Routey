@@ -75,6 +75,25 @@ private struct SnapCandidateRow: View {
       if let occupant = candidate.occupantName {
         Text(occupant).font(.caption).foregroundStyle(.secondary)
       }
+      if let locator = candidate.locator {
+        Label(locator, systemImage: "square.grid.3x3")
+          .font(.caption)
+          .foregroundStyle(.secondary)
+      }
+      if !candidate.warningTagNames.isEmpty {
+        Label(
+          candidate.warningTagNames.joined(separator: " · "),
+          systemImage: "exclamationmark.triangle.fill"
+        )
+          .font(.caption)
+          .foregroundStyle(.orange)
+      }
+      let preferenceTags = candidate.tagNames.filter { !candidate.warningTagNames.contains($0) }
+      if !preferenceTags.isEmpty {
+        Text(preferenceTags.joined(separator: " · "))
+          .font(.caption)
+          .foregroundStyle(.secondary)
+      }
     }
   }
 }

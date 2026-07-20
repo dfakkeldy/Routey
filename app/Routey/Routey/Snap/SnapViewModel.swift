@@ -36,16 +36,16 @@ final class SnapViewModel {
   func handleCapturedImage(_ data: Data) async {
     phase = .reading
     do {
-      let addresses: [Address]
+      let contexts: [RouteAddressContext]
       if let route {
-        addresses = try await database.read { db in
-          try RouteAddressLookup.addresses(routeID: route.id, in: db)
+        contexts = try await database.read { db in
+          try RouteAddressLookup.contexts(routeID: route.id, in: db)
         }
       } else {
-        addresses = []
+        contexts = []
       }
-      let candidates = addresses.map(AddressCandidate.init)
-      let words = Self.customWords(from: addresses)
+      let candidates = contexts.map(Self.candidate(from:))
+      let words = Self.customWords(from: contexts.map(\.address))
       let reader = VisionLabelReader(imageData: data, customWords: words)
       let pipeline = SnapPipeline(reader: reader) { _ in candidates }
       let result = try await pipeline.process()
@@ -112,7 +112,14 @@ final class SnapViewModel {
       )
       lastAddedParcelID = parcelID
       let count = try RunOperations.signatureCount(runID: runID, in: database)
-      phase = .added(AddedSummary(title: "Parcel added", message: nil, signatureCount: count))
+      let candidate = result.ranked.first { $0.id == addressID }?.candidate
+      phase = .added(
+        AddedSummary(
+          title: "Parcel added",
+          message: candidate.flatMap(Self.confirmationMessage(for:)),
+          signatureCount: count
+        )
+      )
     } catch {
       phase = .failed(error.localizedDescription)
     }
@@ -141,6 +148,38 @@ final class SnapViewModel {
     let streetWords = addresses.flatMap { $0.street.split(separator: " ").map(String.init) }
     let keywords = ["RR", "CONC", "HWY", "LOT", "SS", "PO", "BOX"]
     return Array(Set(streetWords)).sorted() + keywords
+  }
+
+  static func candidate(from context: RouteAddressContext) -> AddressCandidate {
+    AddressCandidate(
+      id: context.address.id,
+      civicNumber: context.address.civicNumber,
+      civicRangeFrom: context.address.civicRangeFrom,
+      civicRangeTo: context.address.civicRangeTo,
+      suite: context.address.suite,
+      street: context.address.street,
+      occupantName: context.address.occupantName,
+      postalCode: context.address.postalCode,
+      locator: context.locator.isEmpty ? nil : context.locator,
+      tagNames: context.tagNames,
+      warningTagNames: context.warningTagNames
+    )
+  }
+
+  static func confirmationMessage(for candidate: AddressCandidate) -> String? {
+    let preferenceTags = candidate.tagNames.filter { !candidate.warningTagNames.contains($0) }
+    let lines = [
+      candidate.locator,
+      candidate.warningTagNames.isEmpty
+        ? nil
+        : "Warning: \(candidate.warningTagNames.joined(separator: " · "))",
+      preferenceTags.isEmpty
+        ? nil
+        : "Preference: \(preferenceTags.joined(separator: " · "))",
+    ]
+    .compactMap(\.self)
+
+    return lines.isEmpty ? nil : lines.joined(separator: "\n")
   }
 
   private func temporaryStreet(from components: AddressComponents) -> String {

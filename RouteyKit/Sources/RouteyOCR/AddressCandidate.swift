@@ -10,6 +10,13 @@ public struct AddressCandidate: Equatable, Identifiable, Sendable {
   public var street: String
   public var occupantName: String?
   public var postalCode: String?
+  public var locator: String?
+  public var tagNames: [String]
+  public var warningTagNames: [String]
+
+  public var hasWarning: Bool {
+    !warningTagNames.isEmpty
+  }
 
   public init(
     id: UUID = UUID(),
@@ -19,7 +26,10 @@ public struct AddressCandidate: Equatable, Identifiable, Sendable {
     suite: String? = nil,
     street: String,
     occupantName: String? = nil,
-    postalCode: String? = nil
+    postalCode: String? = nil,
+    locator: String? = nil,
+    tagNames: [String] = [],
+    warningTagNames: [String] = []
   ) {
     self.id = id
     self.civicNumber = civicNumber
@@ -29,6 +39,9 @@ public struct AddressCandidate: Equatable, Identifiable, Sendable {
     self.street = street
     self.occupantName = occupantName
     self.postalCode = postalCode
+    self.locator = locator
+    self.tagNames = tagNames
+    self.warningTagNames = warningTagNames
   }
 
   public init(_ address: Address) {

@@ -4,6 +4,27 @@ import RouteyModel
 @testable import RouteyOCR
 
 @Suite struct AddressMatcherTests {
+  @Test func rankingPreservesCaseLocatorMetadata() throws {
+    let candidate = AddressCandidate(
+      civicNumber: 101,
+      street: "Sample Road",
+      locator: "Community Boxes · Module 5 · Compartment 7 · Drive 10",
+      tagNames: ["dog", "no-flyers"],
+      warningTagNames: ["dog"]
+    )
+
+    let ranked = AddressMatcher.rank(
+      AddressNormalizer.normalize("101 Sample Road"),
+      against: [candidate]
+    )
+    let match = try #require(ranked.first?.candidate)
+
+    #expect(match.locator == candidate.locator)
+    #expect(match.tagNames == ["dog", "no-flyers"])
+    #expect(match.warningTagNames == ["dog"])
+    #expect(match.hasWarning)
+  }
+
   @Test func exactCivicAndStreetAutoAccepts() {
     let addressID = UUID()
     let components = AddressNormalizer.normalize("41 Maple Rd")
