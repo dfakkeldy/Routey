@@ -72,6 +72,22 @@ import Testing
     #expect(result.stops[0].postalCode == "A1A 1A1")
   }
 
+  @Test func parsesSharedSiteLocationAndTagsFromCSV() {
+    let csv = """
+      civic,street,site,module,compartment,tags,warnings
+      10100,County Rd 12,Community Boxes,5,7,no-flyers;side-door,dog
+      """
+
+    let result = RouteParser.parse(csv)
+
+    #expect(result.stops.count == 1)
+    #expect(result.stops[0].siteName == "Community Boxes")
+    #expect(result.stops[0].moduleName == "5")
+    #expect(result.stops[0].compartmentLabel == "7")
+    #expect(result.stops[0].tags == ["no-flyers", "side-door"])
+    #expect(result.stops[0].warningTags == ["dog"])
+  }
+
   @Test func streetOnlyRowIsKept() {
     let result = RouteParser.parse("Harbour Rd\n")
 

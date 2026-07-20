@@ -107,6 +107,11 @@ public enum RouteParser {
           occupantName: field("occupant", in: fields, header: header),
           postalCode: field("postalcode", in: fields, header: header),
           notes: field("notes", in: fields, header: header),
+          siteName: field("site", in: fields, header: header),
+          moduleName: field("module", in: fields, header: header),
+          compartmentLabel: field("compartment", in: fields, header: header),
+          tags: listField("tags", in: fields, header: header),
+          warningTags: listField("warnings", in: fields, header: header),
           sourceLine: sourceLine
         )
       )
@@ -124,6 +129,15 @@ public enum RouteParser {
     }
 
     return fields[index].isEmpty ? nil : fields[index]
+  }
+
+  private static func listField(_ name: String, in fields: [String], header: [String]) -> [String] {
+    guard let value = field(name, in: fields, header: header) else { return [] }
+
+    return value
+      .split(whereSeparator: { $0 == ";" || $0 == "|" })
+      .map { $0.trimmingCharacters(in: .whitespaces) }
+      .filter { !$0.isEmpty }
   }
 
   private static func normalized(_ value: some StringProtocol) -> String {

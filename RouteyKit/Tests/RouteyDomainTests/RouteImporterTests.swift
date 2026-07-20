@@ -74,6 +74,65 @@ import RouteySearch
     #expect(addresses.map(\.postalCode) == ["A1A 1A1"])
   }
 
+  @Test func importGroupsSharedSiteCompartmentAndAttachesTags() throws {
+    let database = try freshDB()
+    let parsed = RouteParser.parse(
+      """
+      civic,street,site,module,compartment,tags,warnings
+      10100,County Rd 12,Community Boxes,5,7,no-flyers,dog
+      10102,County Rd 12,Community Boxes,5,7,,
+      """
+    )
+
+    let summary = try RouteImporter.importRoute(named: "Riverbend", from: parsed, into: database)
+
+    let graph = try database.read { db in
+      (
+        stops: try Stop.all.fetchAll(db),
+        modules: try Module.all.fetchAll(db),
+        deliveryPoints: try DeliveryPoint.all.fetchAll(db),
+        addresses: try Address.all.fetchAll(db),
+        pointLinks: try DeliveryPointAddress.all.fetchAll(db),
+        tags: try Tag.all.fetchAll(db),
+        tagLinks: try AddressTag.all.fetchAll(db)
+      )
+    }
+
+    #expect(graph.stops.count == 1)
+    #expect(summary.stopsCreated == 1)
+    #expect(graph.stops.first?.displayName == "Community Boxes")
+    #expect(graph.modules.count == 1)
+    #expect(graph.modules.first?.name == "5")
+    #expect(graph.deliveryPoints.count == 1)
+    #expect(graph.deliveryPoints.first?.label == "7")
+    #expect(graph.addresses.count == 2)
+    #expect(graph.pointLinks.count == 2)
+    #expect(graph.tags.map(\.name).sorted() == ["dog", "no-flyers"])
+    #expect(graph.tags.first(where: { $0.name == "dog" })?.isWarning == true)
+    #expect(graph.tags.first(where: { $0.name == "no-flyers" })?.isWarning == false)
+    #expect(graph.tagLinks.count == 2)
+  }
+
+  @Test func importKeepsCompartmentWhenSiteNameIsUnknown() throws {
+    let database = try freshDB()
+    let parsed = RouteParser.parse(
+      """
+      civic,street,module,compartment
+      10100,County Rd 12,5,7
+      """
+    )
+
+    let summary = try RouteImporter.importRoute(named: "Riverbend", from: parsed, into: database)
+    let context = try database.read { db in
+      try #require(RouteAddressLookup.contexts(routeID: summary.routeID, in: db).first)
+    }
+
+    #expect(context.siteName == nil)
+    #expect(context.moduleName == "5")
+    #expect(context.compartmentLabel == "7")
+    #expect(context.locator == "Module 5 · Compartment 7")
+  }
+
   @Test func importedRouteIsImmediatelySearchable() throws {
     let database = try freshDB()
     try database.write { db in
