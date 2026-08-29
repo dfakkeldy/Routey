@@ -3,23 +3,17 @@
 Routey V1.0 is tracked in the execution plan at
 [`docs/superpowers/plans/2026-06-25-routey-roadmap-execution.md`](docs/superpowers/plans/2026-06-25-routey-roadmap-execution.md).
 
-Current checkpoint: the `nightly` train now has the headless V1.0 package
-foundation plus the initial iPhone app shell for route import/editing, predictive
-search, Snap-to-Add camera OCR, and Today's Run. A July 1, 2026 manual nightly
-release run built and distributed `0.1 (4)` to internal TestFlight testers.
+Current V1.0 cut line: ship the iPhone workflow Dan can use in the truck:
+Run/Routes/Search tabs, paste/CSV import, route/address/tag editing,
+predictive search, Snap-to-Add, Today's Run check-off, "done through here",
+and drag reorder.
 
-That is still not App Store readiness. The next release gates are:
+The tested package code for history, report content, encrypted handoff,
+delivery-outcome logging, and follow-up tasks stays in `RouteyKit`. The visible
+UI for reports/PDF/print/share, encrypted `.routey` handoff, delivery outcomes,
+Today's Run filters, and follow-up tasks moves to V1.1.
 
-1. Finish the visible V1.0 iPhone loop: proof-of-delivery/outcome UI, run
-   filters, PDF/print/share, and encrypted `.routey` file UI.
-2. Deploy and verify the CloudKit schema in Production with production-signed
-   devices.
-3. Run an airplane-mode device walkthrough of sort -> snap -> deliver ->
-   history -> export using invented placeholder data only.
-4. Complete App Store metadata, screenshots, privacy answers, accessibility
-   nutrition labels, age rating, review notes, and pricing/free-vs-paid
-   decisions.
-5. Keep watchOS and CarPlay deferred until the iPhone cut is accepted.
-
-See [`docs/release/app-store-next-steps.md`](docs/release/app-store-next-steps.md)
-for the current ten-step submission ladder.
+Before V1.0 is treated as install-ready, the release gate is an airplane-mode
+physical-iPhone smoke test plus current CI/TestFlight evidence from the
+`nightly` release train. Production CloudKit schema deployment remains a release
+readiness gate, not something the app UI should block on.

@@ -19,16 +19,21 @@ Official handheld tools are slow, broken, and designed by people who've never ru
   and drag reorder.
 - Tested package cores for OCR matching, Today's Run generation/operations,
   history search, report content, and encrypted route handoff.
-- Release automation can build, upload, process, and distribute nightly builds
-  to internal TestFlight testers.
+
+See the [CSV route import guide](docs/guides/csv-import.md) for flat roadside
+rows, shared sites/modules/compartments, tags, and warnings.
+
+## V1.0 Cut
+
+The first internal TestFlight cut is the truck-ready iPhone loop: Run/Routes/Search
+tabs, paste/CSV import, route/address/tag editing, predictive search,
+Snap-to-Add, Today's Run check-off, "done through here", and drag reorder.
 
 ## Still In Progress
 
-- Proof-of-delivery/outcome logging UI, run filters, PDF/print/share, and
-  encrypted `.routey` file UI.
+- V1.1 UI for reports/PDF/print/share, encrypted `.routey` handoff,
+  proof-of-delivery/outcome logging, Today's Run filters, and follow-up tasks.
 - Production CloudKit schema deployment and production-device release testing.
-- External TestFlight/App Store metadata, screenshots, privacy nutrition labels,
-  age rating, review notes, and final support/privacy pages.
 - watchOS and CarPlay surfaces.
 
 ## Status
@@ -36,19 +41,6 @@ Official handheld tools are slow, broken, and designed by people who've never ru
 Early development. The package-first nightly train is green, but V1.0 is not
 yet App Store-ready. Landing page live at
 [dfakkeldy.github.io/Routey](https://dfakkeldy.github.io/Routey).
-
-## Project Docs
-
-- [Architecture](ARCHITECTURE.md) — module boundaries, persistence rules, app
-  shell, release train, and App Store constraints.
-- [Roadmap](ROADMAP.md) — current V1.0 status and remaining release gates.
-- [App Store next steps](docs/release/app-store-next-steps.md) — the next ten
-  concrete tasks required before first submission.
-- [Branch/worktree audit](docs/release/branch-worktree-audit.md) — cleanup and
-  salvage map for current local/remote branches and worktrees.
-- [Build devlog](docs/guides/devlog.md) — weekly generated public build record.
-- [Fastlane setup](fastlane/SETUP.md) — local credentials, metadata, TestFlight,
-  and release-train commands.
 
 ## Release Engineering — Promotion Ladder
 
