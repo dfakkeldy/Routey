@@ -1,5 +1,8 @@
 # Routey
 
+> [!NOTE]
+> **Discontinued, October 2026.** Routey is no longer being developed, and this repository is archived as a record of the work. It was never released on the App Store. What's here: an offline-first SwiftUI app with a local GRDB/SQLiteData database and CloudKit sync hooks, Vision OCR and barcode matching for parcel labels, and tested Swift package cores. It also has the nightly → weekly → main release train used across KinNoKi Labs apps.
+
 **Rural mail carrier logistics — built from the truck, not the boardroom.**
 
 Routey is an offline-first iOS app for rural delivery workflows, with watchOS
@@ -38,9 +41,9 @@ Snap-to-Add, Today's Run check-off, "done through here", and drag reorder.
 
 ## Status
 
-Early development. The package-first nightly train is green, but V1.0 is not
-yet App Store-ready. Landing page live at
-[dfakkeldy.github.io/Routey](https://dfakkeldy.github.io/Routey).
+Discontinued in October 2026 before a 1.0 release; the repository is archived.
+The package-first nightly train was green when work stopped. The old landing
+page is at [dfakkeldy.github.io/Routey](https://dfakkeldy.github.io/Routey).
 
 ## Release Engineering — Promotion Ladder
 
